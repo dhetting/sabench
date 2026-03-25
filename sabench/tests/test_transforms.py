@@ -1,7 +1,6 @@
 """Tests for sabench.transforms: registry, properties, pointwise classification."""
 from pathlib import Path
 import unittest
-
 import numpy as np
 from sabench.transforms import (
     TRANSFORMS, POINTWISE_TRANSFORMS, AFFINE_TRANSFORMS, LINEAR_TRANSFORMS,
@@ -9,8 +8,6 @@ from sabench.transforms import (
     MONOTONE_TRANSFORMS, NONMONOTONE_TRANSFORMS, SMOOTH_TRANSFORMS,
     NONSMOOTH_TRANSFORMS, apply_transform, score_transform,
 )
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 class TestTransformRegistry(unittest.TestCase):
@@ -504,11 +501,10 @@ class TestMetadataFile(unittest.TestCase):
 
     def _load_json(self, fname):
         import json
-
-        base = REPO_ROOT / 'sabench' / 'metadata'
-        path = base / fname
+        metadata_dir = Path(__file__).resolve().parents[1] / "metadata"
+        path = metadata_dir / fname
         self.assertTrue(path.exists(), f"{fname} not found at {path}")
-        with open(path, encoding='utf-8') as f:
+        with path.open(encoding="utf-8") as f:
             return json.load(f)
 
     def test_transforms_metadata_exists_and_nonempty(self):

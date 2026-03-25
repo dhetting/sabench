@@ -1,0 +1,88 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "sabench: A benchmark suite for variance-based global sensitivity analysis"
+version: "0.3.0"
+date-released: "2026-03-24"
+license: MIT
+repository-code: "https://github.com/dhetting/sabench"
+url: "https://github.com/dhetting/sabench"
+
+authors:
+  - family-names: Hettinger
+    given-names: Dylan
+    email: dylan.hettinger@gmail.com
+
+abstract: >
+  sabench is a Python library providing a curated collection of benchmark
+  functions and output transformations for testing and validating variance-based
+  global sensitivity analysis (GSA) methods. It includes 19 scalar benchmarks,
+  7 functional/PDE benchmarks, 3 spatial benchmarks, and 172 output transformations
+  spanning environmental, engineering, financial, ecological, climate, hydrological,
+  medical, and purely mathematical families. Each benchmark and transformation is
+  accompanied by exhaustive metadata enabling regression-based analysis of how
+  transformation properties affect Sobol sensitivity indices.
+
+keywords:
+  - "sensitivity analysis"
+  - "Sobol indices"
+  - "benchmark functions"
+  - "uncertainty quantification"
+  - "variance decomposition"
+  - "global sensitivity analysis"
+  - "output transformations"
+
+references:
+  - type: article
+    title: "Global sensitivity analysis. The primer"
+    authors:
+      - family-names: Saltelli
+        given-names: Andrea
+      - family-names: Ratto
+        given-names: Marco
+      - family-names: Andres
+        given-names: Terry
+      - family-names: Campolongo
+        given-names: Francesca
+      - family-names: Cariboni
+        given-names: Jessica
+      - family-names: Gatelli
+        given-names: Debora
+      - family-names: Saisana
+        given-names: Michaela
+      - family-names: Tarantola
+        given-names: Stefano
+    year: 2008
+    publisher:
+      name: "John Wiley & Sons"
+    doi: "10.1002/9780470725184"
+
+  - type: article
+    title: "Estimating the sensitivity indices for the importance of each variable involved in a model"
+    authors:
+      - family-names: Jansen
+        given-names: Marc J. W.
+    year: 1999
+    journal: "Computer Physics Communications"
+    volume: 117
+    doi: "10.1016/S0010-4655(98)00154-4"
+
+  - type: article
+    title: "Variance based sensitivity analysis of model output. Design and estimator for the total sensitivity index"
+    authors:
+      - family-names: Saltelli
+        given-names: Andrea
+      - family-names: Annoni
+        given-names: Paola
+      - family-names: Azzini
+        given-names: Ivano
+      - family-names: Campolongo
+        given-names: Francesca
+      - family-names: Ratto
+        given-names: Marco
+      - family-names: Tarantola
+        given-names: Stefano
+    year: 2010
+    journal: "Computer Physics Communications"
+    volume: 181
+    doi: "10.1016/j.cpc.2009.09.018"

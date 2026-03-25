@@ -1,0 +1,35 @@
+{
+  "title": "sabench: A benchmark suite for variance-based global sensitivity analysis",
+  "version": "0.3.0",
+  "upload_type": "software",
+  "description": "sabench is a Python library providing a curated collection of benchmark functions and output transformations for testing and validating variance-based global sensitivity analysis (GSA) methods, including Sobol first-order and total-effect indices. It includes 19 scalar benchmarks, 7 functional/PDE benchmarks, 3 spatial benchmarks, and 172 output transformations with exhaustive metadata.",
+  "license": {
+    "id": "MIT"
+  },
+  "creators": [
+    {
+      "name": "Hettinger, Dylan",
+      "affiliation": ""
+    }
+  ],
+  "keywords": [
+    "sensitivity analysis",
+    "Sobol indices",
+    "benchmark functions",
+    "uncertainty quantification",
+    "variance decomposition",
+    "global sensitivity analysis",
+    "output transformations",
+    "Python"
+  ],
+  "related_identifiers": [
+    {
+      "relation": "isSupplementTo",
+      "identifier": "https://github.com/dhetting/sabench",
+      "resource_type": "software",
+      "scheme": "url"
+    }
+  ],
+  "language": "eng",
+  "access_right": "open"
+}
