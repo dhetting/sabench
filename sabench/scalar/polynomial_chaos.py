@@ -20,8 +20,11 @@ Le Gratiet, L., Marelli, S., & Sudret, B. (2017). Metamodel-based sensitivity
   analysis: Polynomial chaos expansions and Gaussian processes.
   In Handbook of Uncertainty Quantification. Springer.
 """
+
 from __future__ import annotations
+
 import numpy as np
+
 from sabench._base import BenchmarkFunction
 
 
@@ -32,23 +35,24 @@ class PCETestFunction(BenchmarkFunction):
     Sobol indices computed analytically via PCE coefficient squares.
     """
 
-    name        = "PCETestFunction"
-    d           = 4
+    name = "PCETestFunction"
+    d = 4
     output_type = "scalar"
-    description = ("Legendre PCE expansion; exact S1 via coefficient squares. "
-                   "Interaction structure fully prescribed.")
-    reference   = ("Sudret (2008), RESS 93(7). "
-                   "doi:10.1016/j.ress.2007.04.002")
+    description = (
+        "Legendre PCE expansion; exact S1 via coefficient squares. "
+        "Interaction structure fully prescribed."
+    )
+    reference = "Sudret (2008), RESS 93(7). doi:10.1016/j.ress.2007.04.002"
 
     bounds = [(0.0, 1.0)] * 4
 
     # Coefficients for: f = c0 + Σ c_i P1 + Σ c_ij P1 P1 + Σ c_ii P2
     # These are chosen so S1 ~ [0.4, 0.25, 0.15, 0.05] approximately
-    _c0   = 1.0
-    _c1   = np.array([2.0, 1.6, 1.2, 0.7])   # linear terms (first-order)
-    _c12  = 1.0   # X1*X2 interaction
-    _c13  = 0.5   # X1*X3 interaction
-    _c2   = np.array([0.8, 0.4, 0.2, 0.1])   # quadratic self-terms
+    _c0 = 1.0
+    _c1 = np.array([2.0, 1.6, 1.2, 0.7])  # linear terms (first-order)
+    _c12 = 1.0  # X1*X2 interaction
+    _c13 = 0.5  # X1*X3 interaction
+    _c2 = np.array([0.8, 0.4, 0.2, 0.1])  # quadratic self-terms
 
     def _p1(self, x):
         return 2.0 * x - 1.0
@@ -57,13 +61,15 @@ class PCETestFunction(BenchmarkFunction):
         return 6.0 * x**2 - 6.0 * x + 1.0
 
     def evaluate(self, X: np.ndarray) -> np.ndarray:
-        P1 = self._p1(X)   # (n, 4)
-        P2 = self._p2(X)   # (n, 4)
-        Y = (self._c0
-             + (P1 @ self._c1)
-             + self._c12 * P1[:, 0] * P1[:, 1]
-             + self._c13 * P1[:, 0] * P1[:, 2]
-             + (P2 @ self._c2))
+        P1 = self._p1(X)  # (n, 4)
+        P2 = self._p2(X)  # (n, 4)
+        Y = (
+            self._c0
+            + (P1 @ self._c1)
+            + self._c12 * P1[:, 0] * P1[:, 1]
+            + self._c13 * P1[:, 0] * P1[:, 2]
+            + (P2 @ self._c2)
+        )
         return Y
 
     def analytical_S1(self) -> np.ndarray:

@@ -1,12 +1,18 @@
 """Tests for all sabench functional benchmarks."""
+
 import unittest
 
 import numpy as np
-from sabench.functional import (
-    BoussinesqRecession, DampedOscillator, LotkaVolterra,
-    EpidemicSIR, HeatDiffusion1D, Lorenz96, TwoCompartmentPK,
-)
 
+from sabench.functional import (
+    BoussinesqRecession,
+    DampedOscillator,
+    EpidemicSIR,
+    HeatDiffusion1D,
+    Lorenz96,
+    LotkaVolterra,
+    TwoCompartmentPK,
+)
 
 ALL_FUNCTIONAL = [
     BoussinesqRecession(),
@@ -29,8 +35,9 @@ class TestFunctionalInterface(unittest.TestCase):
 
     def test_all_have_bounds(self):
         for m in ALL_FUNCTIONAL:
-            self.assertEqual(len(m.bounds), m.d,
-                             f"{m.name}: len(bounds)={len(m.bounds)} != d={m.d}")
+            self.assertEqual(
+                len(m.bounds), m.d, f"{m.name}: len(bounds)={len(m.bounds)} != d={m.d}"
+            )
 
     def test_all_have_name(self):
         for m in ALL_FUNCTIONAL:
@@ -42,40 +49,26 @@ class TestFunctionalInterface(unittest.TestCase):
         for m in ALL_FUNCTIONAL:
             N = 20
             rng = np.random.default_rng(42)
-            X = rng.uniform(
-                [b[0] for b in m.bounds],
-                [b[1] for b in m.bounds],
-                (N, m.d)
-            )
+            X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (N, m.d))
             Y = m.evaluate(X)
-            self.assertEqual(Y.shape[0], N,
-                             f"{m.name}: output first dim {Y.shape[0]} != {N}")
+            self.assertEqual(Y.shape[0], N, f"{m.name}: output first dim {Y.shape[0]} != {N}")
 
     def test_evaluate_no_nan(self):
         for m in ALL_FUNCTIONAL:
             rng = np.random.default_rng(7)
-            X = rng.uniform(
-                [b[0] for b in m.bounds],
-                [b[1] for b in m.bounds],
-                (30, m.d)
-            )
+            X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (30, m.d))
             Y = m.evaluate(X)
             self.assertFalse(np.any(np.isnan(Y)), f"{m.name} returned NaN")
 
     def test_evaluate_no_inf(self):
         for m in ALL_FUNCTIONAL:
             rng = np.random.default_rng(11)
-            X = rng.uniform(
-                [b[0] for b in m.bounds],
-                [b[1] for b in m.bounds],
-                (30, m.d)
-            )
+            X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (30, m.d))
             Y = m.evaluate(X)
             self.assertFalse(np.any(np.isinf(Y)), f"{m.name} returned Inf")
 
 
 class TestBoussinesqRecession(unittest.TestCase):
-
     def setUp(self):
         self.m = BoussinesqRecession()
 
@@ -83,35 +76,36 @@ class TestBoussinesqRecession(unittest.TestCase):
         N, n_t = 20, 100
         m = BoussinesqRecession(n_t=n_t)
         rng = np.random.default_rng(0)
-        X = rng.uniform([b[0] for b in m.bounds],
-                        [b[1] for b in m.bounds], (N, m.d))
+        X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (N, m.d))
         Y = m.evaluate(X)
         self.assertEqual(Y.shape, (N, n_t))
 
     def test_output_nonnegative(self):
         """Flow rate must be non-negative."""
         rng = np.random.default_rng(1)
-        X = rng.uniform([b[0] for b in self.m.bounds],
-                        [b[1] for b in self.m.bounds], (100, self.m.d))
+        X = rng.uniform(
+            [b[0] for b in self.m.bounds], [b[1] for b in self.m.bounds], (100, self.m.d)
+        )
         Y = self.m.evaluate(X)
         self.assertTrue(np.all(Y >= 0))
 
     def test_monotone_decreasing(self):
         """Recession: flow decreases monotonically over time."""
         rng = np.random.default_rng(2)
-        X = rng.uniform([b[0] for b in self.m.bounds],
-                        [b[1] for b in self.m.bounds], (50, self.m.d))
+        X = rng.uniform(
+            [b[0] for b in self.m.bounds], [b[1] for b in self.m.bounds], (50, self.m.d)
+        )
         Y = self.m.evaluate(X)
         diffs = np.diff(Y, axis=1)
-        self.assertTrue(np.all(diffs <= 1e-10),
-                        "Boussinesq recession should be monotone decreasing")
+        self.assertTrue(
+            np.all(diffs <= 1e-10), "Boussinesq recession should be monotone decreasing"
+        )
 
     def test_d_is_3(self):
         self.assertEqual(self.m.d, 3)
 
 
 class TestDampedOscillator(unittest.TestCase):
-
     def setUp(self):
         self.m = DampedOscillator()
 
@@ -119,8 +113,7 @@ class TestDampedOscillator(unittest.TestCase):
         N, n_t = 15, 200
         m = DampedOscillator(n_t=n_t)
         rng = np.random.default_rng(0)
-        X = rng.uniform([b[0] for b in m.bounds],
-                        [b[1] for b in m.bounds], (N, m.d))
+        X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (N, m.d))
         Y = m.evaluate(X)
         self.assertEqual(Y.shape, (N, n_t))
 
@@ -128,8 +121,9 @@ class TestDampedOscillator(unittest.TestCase):
         """With x0=0 and no forcing, zero initial response."""
         # Boundary case: set x0=0 in input
         rng = np.random.default_rng(3)
-        X = rng.uniform([b[0] for b in self.m.bounds],
-                        [b[1] for b in self.m.bounds], (10, self.m.d))
+        X = rng.uniform(
+            [b[0] for b in self.m.bounds], [b[1] for b in self.m.bounds], (10, self.m.d)
+        )
         X[:, -1] = 0.0  # x0 = 0
         Y = self.m.evaluate(X)
         # Output at t=0 should be 0 (initial condition)
@@ -140,15 +134,15 @@ class TestDampedOscillator(unittest.TestCase):
 
 
 class TestLotkaVolterra(unittest.TestCase):
-
     def setUp(self):
         self.m = LotkaVolterra()
 
     def test_output_nonnegative(self):
         """Population must be non-negative."""
         rng = np.random.default_rng(4)
-        X = rng.uniform([b[0] for b in self.m.bounds],
-                        [b[1] for b in self.m.bounds], (50, self.m.d))
+        X = rng.uniform(
+            [b[0] for b in self.m.bounds], [b[1] for b in self.m.bounds], (50, self.m.d)
+        )
         Y = self.m.evaluate(X)
         self.assertTrue(np.all(Y >= 0))
 
@@ -156,8 +150,7 @@ class TestLotkaVolterra(unittest.TestCase):
         N, n_t = 10, 200
         m = LotkaVolterra(n_t=n_t)
         rng = np.random.default_rng(0)
-        X = rng.uniform([b[0] for b in m.bounds],
-                        [b[1] for b in m.bounds], (N, m.d))
+        X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (N, m.d))
         Y = m.evaluate(X)
         self.assertEqual(Y.shape, (N, n_t))
 
@@ -167,26 +160,26 @@ class TestLotkaVolterra(unittest.TestCase):
     def test_oscillatory(self):
         """LV prey should oscillate: not purely monotone."""
         rng = np.random.default_rng(5)
-        X = rng.uniform([b[0] for b in self.m.bounds],
-                        [b[1] for b in self.m.bounds], (10, self.m.d))
+        X = rng.uniform(
+            [b[0] for b in self.m.bounds], [b[1] for b in self.m.bounds], (10, self.m.d)
+        )
         Y = self.m.evaluate(X)
         for i in range(5):
             diffs = np.diff(Y[i, :])
             sign_changes = np.sum(np.diff(np.sign(diffs)) != 0)
-            self.assertGreater(sign_changes, 2,
-                               f"LotkaVolterra row {i} not oscillatory")
+            self.assertGreater(sign_changes, 2, f"LotkaVolterra row {i} not oscillatory")
 
 
 class TestEpidemicSIR(unittest.TestCase):
-
     def setUp(self):
         self.m = EpidemicSIR()
 
     def test_output_bounded_01(self):
         """Infected fraction I(t) in [0,1]."""
         rng = np.random.default_rng(6)
-        X = rng.uniform([b[0] for b in self.m.bounds],
-                        [b[1] for b in self.m.bounds], (100, self.m.d))
+        X = rng.uniform(
+            [b[0] for b in self.m.bounds], [b[1] for b in self.m.bounds], (100, self.m.d)
+        )
         Y = self.m.evaluate(X)
         self.assertTrue(np.all(Y >= 0))
         self.assertTrue(np.all(Y <= 1.0 + 1e-6))
@@ -194,8 +187,9 @@ class TestEpidemicSIR(unittest.TestCase):
     def test_initially_small(self):
         """I(0) should be near I0 (small)."""
         rng = np.random.default_rng(7)
-        X = rng.uniform([b[0] for b in self.m.bounds],
-                        [b[1] for b in self.m.bounds], (50, self.m.d))
+        X = rng.uniform(
+            [b[0] for b in self.m.bounds], [b[1] for b in self.m.bounds], (50, self.m.d)
+        )
         Y = self.m.evaluate(X)
         # First time point should be small (< 0.1 for all samples)
         self.assertTrue(np.all(Y[:, 0] < 0.1))
@@ -203,8 +197,9 @@ class TestEpidemicSIR(unittest.TestCase):
     def test_eventually_decays(self):
         """Epidemic eventually dies out: I(T) < I(peak)."""
         rng = np.random.default_rng(8)
-        X = rng.uniform([b[0] for b in self.m.bounds],
-                        [b[1] for b in self.m.bounds], (20, self.m.d))
+        X = rng.uniform(
+            [b[0] for b in self.m.bounds], [b[1] for b in self.m.bounds], (20, self.m.d)
+        )
         Y = self.m.evaluate(X)
         peak = Y.max(axis=1)
         final = Y[:, -1]
@@ -215,15 +210,13 @@ class TestEpidemicSIR(unittest.TestCase):
 
 
 class TestHeatDiffusion1D(unittest.TestCase):
-
     def setUp(self):
         self.m = HeatDiffusion1D(n_x=20)
 
     def test_output_shape(self):
         N = 10
         rng = np.random.default_rng(9)
-        X = rng.uniform([b[0] for b in self.m.bounds],
-                        [b[1] for b in self.m.bounds], (N, self.m.d))
+        X = rng.uniform([b[0] for b in self.m.bounds], [b[1] for b in self.m.bounds], (N, self.m.d))
         Y = self.m.evaluate(X)
         # Output shape: (N, n_x)
         self.assertEqual(Y.shape[0], N)
@@ -242,15 +235,13 @@ class TestHeatDiffusion1D(unittest.TestCase):
 
 
 class TestLorenz96(unittest.TestCase):
-
     def setUp(self):
         self.m = Lorenz96(N=8, n_t=50)
 
     def test_output_shape(self):
         N = 10
         rng = np.random.default_rng(10)
-        X = rng.uniform([b[0] for b in self.m.bounds],
-                        [b[1] for b in self.m.bounds], (N, self.m.d))
+        X = rng.uniform([b[0] for b in self.m.bounds], [b[1] for b in self.m.bounds], (N, self.m.d))
         Y = self.m.evaluate(X)
         self.assertEqual(Y.shape, (N, 50))
 
@@ -273,7 +264,6 @@ class TestLorenz96(unittest.TestCase):
 
 
 class TestTwoCompartmentPK(unittest.TestCase):
-
     def setUp(self):
         self.m = TwoCompartmentPK()
 
@@ -281,15 +271,15 @@ class TestTwoCompartmentPK(unittest.TestCase):
         N, n_t = 20, 100
         m = TwoCompartmentPK(n_t=n_t)
         rng = np.random.default_rng(11)
-        X = rng.uniform([b[0] for b in m.bounds],
-                        [b[1] for b in m.bounds], (N, m.d))
+        X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (N, m.d))
         Y = m.evaluate(X)
         self.assertEqual(Y.shape, (N, n_t))
 
     def test_concentration_nonnegative(self):
         rng = np.random.default_rng(12)
-        X = rng.uniform([b[0] for b in self.m.bounds],
-                        [b[1] for b in self.m.bounds], (100, self.m.d))
+        X = rng.uniform(
+            [b[0] for b in self.m.bounds], [b[1] for b in self.m.bounds], (100, self.m.d)
+        )
         Y = self.m.evaluate(X)
         self.assertTrue(np.all(Y >= 0))
 
@@ -297,8 +287,7 @@ class TestTwoCompartmentPK(unittest.TestCase):
         """Drug concentration must eventually approach zero."""
         m = TwoCompartmentPK(n_t=200, t_max=48.0)
         rng = np.random.default_rng(13)
-        X = rng.uniform([b[0] for b in m.bounds],
-                        [b[1] for b in m.bounds], (50, m.d))
+        X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (50, m.d))
         Y = m.evaluate(X)
         peak = Y.max(axis=1)
         final = Y[:, -1]
@@ -319,5 +308,5 @@ class TestTwoCompartmentPK(unittest.TestCase):
         self.assertEqual(self.m.d, 5)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -62,7 +62,7 @@ class CSTRReactor(BenchmarkFunction):
     ]
 
     def evaluate(self, X: np.ndarray) -> np.ndarray:
-        X_in, T_feed, Da, EaR, dT_ad = [X[:, i] for i in range(5)]
+        X_in, T_feed, Da, EaR, dT_ad = (X[:, i] for i in range(5))
 
         # Solve energy balance T = T_feed + dT_ad * conversion iteratively
         T = T_feed.copy()

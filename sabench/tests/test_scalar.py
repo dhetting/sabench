@@ -1,20 +1,52 @@
 """Tests for all sabench scalar benchmarks."""
+
 import unittest
 
 import numpy as np
-from sabench.scalar import (
-    Ishigami, SobolG, Borehole, Piston, WingWeight, OTLCircuit, Morris, LinearModel,
-    AdditiveQuadratic, PCETestFunction, Friedman, OakleyOHagan,
-    MoonHerrera, CornerPeak, ProductPeak, Rosenbrock,
-    EnvironModel, CSTRReactor, DetPep8D,
-)
+
 from sabench.sampling import saltelli_sample
+from sabench.scalar import (
+    AdditiveQuadratic,
+    Borehole,
+    CornerPeak,
+    CSTRReactor,
+    DetPep8D,
+    EnvironModel,
+    Friedman,
+    Ishigami,
+    LinearModel,
+    MoonHerrera,
+    Morris,
+    OakleyOHagan,
+    OTLCircuit,
+    PCETestFunction,
+    Piston,
+    ProductPeak,
+    Rosenbrock,
+    SobolG,
+    WingWeight,
+)
 
 ALL_SCALAR_BENCHMARKS = [
-    Ishigami(), SobolG(), Borehole(), Piston(), WingWeight(), OTLCircuit(),
-    Morris(), LinearModel(), AdditiveQuadratic(), PCETestFunction(), Friedman(),
-    OakleyOHagan(), MoonHerrera(), CornerPeak(), ProductPeak(), Rosenbrock(),
-    EnvironModel(), CSTRReactor(), DetPep8D(),
+    Ishigami(),
+    SobolG(),
+    Borehole(),
+    Piston(),
+    WingWeight(),
+    OTLCircuit(),
+    Morris(),
+    LinearModel(),
+    AdditiveQuadratic(),
+    PCETestFunction(),
+    Friedman(),
+    OakleyOHagan(),
+    MoonHerrera(),
+    CornerPeak(),
+    ProductPeak(),
+    Rosenbrock(),
+    EnvironModel(),
+    CSTRReactor(),
+    DetPep8D(),
 ]
 
 
@@ -28,8 +60,7 @@ class TestBenchmarkInterface(unittest.TestCase):
 
     def test_all_have_bounds(self):
         for m in ALL_SCALAR_BENCHMARKS:
-            self.assertEqual(len(m.bounds), m.d,
-                             f"{m.name}: len(bounds)!=d")
+            self.assertEqual(len(m.bounds), m.d, f"{m.name}: len(bounds)!=d")
 
     def test_all_have_name(self):
         for m in ALL_SCALAR_BENCHMARKS:
@@ -41,24 +72,15 @@ class TestBenchmarkInterface(unittest.TestCase):
         for m in ALL_SCALAR_BENCHMARKS:
             N = 50
             rng = np.random.default_rng(42)
-            X = rng.uniform(
-                [b[0] for b in m.bounds],
-                [b[1] for b in m.bounds],
-                (N, m.d)
-            )
+            X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (N, m.d))
             Y = m.evaluate(X)
-            self.assertEqual(Y.shape, (N,),
-                             f"{m.name}: output shape {Y.shape} != ({N},)")
+            self.assertEqual(Y.shape, (N,), f"{m.name}: output shape {Y.shape} != ({N},)")
 
     def test_evaluate_no_nan(self):
         """No benchmark should return NaN for valid inputs."""
         for m in ALL_SCALAR_BENCHMARKS:
             rng = np.random.default_rng(7)
-            X = rng.uniform(
-                [b[0] for b in m.bounds],
-                [b[1] for b in m.bounds],
-                (200, m.d)
-            )
+            X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (200, m.d))
             Y = m.evaluate(X)
             self.assertFalse(np.any(np.isnan(Y)), f"{m.name} returned NaN")
 
@@ -66,11 +88,7 @@ class TestBenchmarkInterface(unittest.TestCase):
         """No benchmark should return Inf for valid inputs."""
         for m in ALL_SCALAR_BENCHMARKS:
             rng = np.random.default_rng(11)
-            X = rng.uniform(
-                [b[0] for b in m.bounds],
-                [b[1] for b in m.bounds],
-                (200, m.d)
-            )
+            X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (200, m.d))
             Y = m.evaluate(X)
             self.assertFalse(np.any(np.isinf(Y)), f"{m.name} returned Inf")
 
@@ -89,18 +107,12 @@ class TestBenchmarkInterface(unittest.TestCase):
         """All benchmarks should have nonzero variance over their input domain."""
         for m in ALL_SCALAR_BENCHMARKS:
             rng = np.random.default_rng(99)
-            X = rng.uniform(
-                [b[0] for b in m.bounds],
-                [b[1] for b in m.bounds],
-                (500, m.d)
-            )
+            X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (500, m.d))
             Y = m.evaluate(X)
-            self.assertGreater(float(np.var(Y)), 0.0,
-                               f"{m.name} has zero variance output")
+            self.assertGreater(float(np.var(Y)), 0.0, f"{m.name} has zero variance output")
 
 
 class TestIshigami(unittest.TestCase):
-
     def setUp(self):
         self.m = Ishigami(a=7.0, b=0.1)
 
@@ -132,7 +144,7 @@ class TestIshigami(unittest.TestCase):
         self.assertAlmostEqual(var_an, var_mc, delta=0.05)
 
     def test_evaluate_deterministic(self):
-        X = np.array([[0., 0., 0.], [1., 1., 1.]])
+        X = np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]])
         np.testing.assert_array_equal(self.m.evaluate(X), self.m.evaluate(X))
 
     def test_a_b_params(self):
@@ -142,25 +154,24 @@ class TestIshigami(unittest.TestCase):
 
 
 class TestSobolG(unittest.TestCase):
-
     def setUp(self):
         self.m = SobolG()
 
     def test_partial_variances_formula(self):
         Di = self.m._partial_variances()
-        self.assertAlmostEqual(float(Di[0]), 1.0/3.0, places=10)
+        self.assertAlmostEqual(float(Di[0]), 1.0 / 3.0, places=10)
 
     def test_S1_order(self):
-        m = SobolG(a=[0., 1., 4.5, 9.])
+        m = SobolG(a=[0.0, 1.0, 4.5, 9.0])
         S1 = m.analytical_S1()
-        for i in range(len(S1)-1):
-            self.assertGreater(float(S1[i]), float(S1[i+1]))
+        for i in range(len(S1) - 1):
+            self.assertGreater(float(S1[i]), float(S1[i + 1]))
 
     def test_S1_sum_lt_1(self):
         self.assertLess(self.m.analytical_S1().sum(), 1.0)
 
     def test_custom_a(self):
-        m = SobolG(a=[0., 0., 0.])
+        m = SobolG(a=[0.0, 0.0, 0.0])
         S1 = m.analytical_S1()
         self.assertAlmostEqual(float(S1[0]), float(S1[1]), places=6)
 
@@ -177,59 +188,56 @@ class TestSobolG(unittest.TestCase):
     def test_analytical_vs_mc_S1(self):
         """Analytical S1 should be within 0.05 of MC estimate at N=2048."""
         from sabench.analysis import jansen_s1_st
+
         N = 2048
         X = saltelli_sample(self.m.d, self.m.bounds, N=N, seed=42)
         Y = self.m.evaluate(X)
         S1_mc, _ = jansen_s1_st(Y, N=N, d=self.m.d)
         S1_an = self.m.analytical_S1()
-        np.testing.assert_allclose(S1_mc, S1_an, atol=0.08,
-                                   err_msg="SobolG MC S1 deviates from analytical")
+        np.testing.assert_allclose(
+            S1_mc, S1_an, atol=0.08, err_msg="SobolG MC S1 deviates from analytical"
+        )
 
 
 class TestLinearModel(unittest.TestCase):
-
     def test_S1_proportional_to_c_squared(self):
-        m = LinearModel(a=[2., 1., 0.])
+        m = LinearModel(a=[2.0, 1.0, 0.0])
         S1 = m.analytical_S1()
         self.assertAlmostEqual(float(S1[2]), 0.0, places=6)
         ratio = float(S1[0]) / float(S1[1])
         self.assertAlmostEqual(ratio, 4.0, delta=0.01)
 
     def test_S1_sum_equals_1_additive(self):
-        m = LinearModel(a=[3., 2., 1., 0.5])
+        m = LinearModel(a=[3.0, 2.0, 1.0, 0.5])
         S1 = m.analytical_S1()
         self.assertAlmostEqual(float(S1.sum()), 1.0, places=6)
 
     def test_S1_equals_ST(self):
         """For purely additive model, S1 == ST."""
-        m = LinearModel(a=[1., 2., 3.])
+        m = LinearModel(a=[1.0, 2.0, 3.0])
         S1 = m.analytical_S1()
         ST = m.analytical_ST()
         np.testing.assert_allclose(S1, ST, atol=1e-10)
 
 
 class TestBorehole(unittest.TestCase):
-
     def test_output_positive(self):
         m = Borehole()
         rng = np.random.default_rng(0)
-        X = rng.uniform([b[0] for b in m.bounds],
-                        [b[1] for b in m.bounds], (500, m.d))
+        X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (500, m.d))
         Y = m.evaluate(X)
         self.assertTrue(np.all(Y > 0))
 
     def test_output_range_physical(self):
         m = Borehole()
         rng = np.random.default_rng(0)
-        X = rng.uniform([b[0] for b in m.bounds],
-                        [b[1] for b in m.bounds], (5000, m.d))
+        X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (5000, m.d))
         Y = m.evaluate(X)
-        self.assertGreater(float(Y.mean()), 10.)
-        self.assertLess(float(Y.max()), 500.)
+        self.assertGreater(float(Y.mean()), 10.0)
+        self.assertLess(float(Y.max()), 500.0)
 
 
 class TestAdditiveQuadratic(unittest.TestCase):
-
     def setUp(self):
         self.m = AdditiveQuadratic()
 
@@ -256,12 +264,12 @@ class TestAdditiveQuadratic(unittest.TestCase):
     def test_dominant_input_ordering(self):
         """With default a=linspace(2.0,0.2,5), first input has largest a and dominates."""
         S1 = self.m.analytical_S1()
-        self.assertEqual(int(np.argmax(S1)), 0,
-                         "First input (largest a coefficient) should dominate")
+        self.assertEqual(
+            int(np.argmax(S1)), 0, "First input (largest a coefficient) should dominate"
+        )
 
 
 class TestPCETestFunction(unittest.TestCase):
-
     def setUp(self):
         self.m = PCETestFunction()
 
@@ -293,36 +301,36 @@ class TestPCETestFunction(unittest.TestCase):
 
 
 class TestFriedman(unittest.TestCase):
-
     def setUp(self):
         self.m = Friedman()
 
     def test_inactive_inputs(self):
         """X6-X10 should have near-zero S1 (computed numerically)."""
         from sabench.analysis import jansen_s1_st
+
         N = 2048
         X = saltelli_sample(self.m.d, self.m.bounds, N=N, seed=0)
         Y = self.m.evaluate(X)
         S1, _ = jansen_s1_st(Y, N=N, d=self.m.d)
         # All inactive inputs (idx 5-9) should have |S1| < 0.05
         for i in range(5, 10):
-            self.assertLess(abs(float(S1[i])), 0.08,
-                            f"Friedman X{i+1} should be inactive (S1={S1[i]:.4f})")
+            self.assertLess(
+                abs(float(S1[i])), 0.08, f"Friedman X{i + 1} should be inactive (S1={S1[i]:.4f})"
+            )
 
     def test_active_inputs_nonzero(self):
         from sabench.analysis import jansen_s1_st
+
         N = 2048
         X = saltelli_sample(self.m.d, self.m.bounds, N=N, seed=0)
         Y = self.m.evaluate(X)
         S1, _ = jansen_s1_st(Y, N=N, d=self.m.d)
         # X1-X5 should have S1 > 0
         for i in range(5):
-            self.assertGreater(float(S1[i]), 0.01,
-                               f"Friedman X{i+1} should be active")
+            self.assertGreater(float(S1[i]), 0.01, f"Friedman X{i + 1} should be active")
 
 
 class TestMoonHerrera(unittest.TestCase):
-
     def setUp(self):
         self.m = MoonHerrera()
 
@@ -346,7 +354,6 @@ class TestMoonHerrera(unittest.TestCase):
 
 
 class TestCornerPeak(unittest.TestCase):
-
     def setUp(self):
         self.m = CornerPeak()
 
@@ -373,7 +380,6 @@ class TestCornerPeak(unittest.TestCase):
 
 
 class TestProductPeak(unittest.TestCase):
-
     def setUp(self):
         self.m = ProductPeak()
 
@@ -393,7 +399,6 @@ class TestProductPeak(unittest.TestCase):
 
 
 class TestRosenbrock(unittest.TestCase):
-
     def setUp(self):
         self.m = Rosenbrock()
 
@@ -412,12 +417,10 @@ class TestRosenbrock(unittest.TestCase):
 
 
 class TestEnvironModel(unittest.TestCase):
-
     def test_output_nonnegative(self):
         m = EnvironModel()
         rng = np.random.default_rng(7)
-        X = rng.uniform([b[0] for b in m.bounds],
-                        [b[1] for b in m.bounds], (300, m.d))
+        X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (300, m.d))
         Y = m.evaluate(X)
         self.assertTrue(np.all(Y >= 0))
 
@@ -426,12 +429,10 @@ class TestEnvironModel(unittest.TestCase):
 
 
 class TestCSTRReactor(unittest.TestCase):
-
     def test_output_concentration_positive(self):
         m = CSTRReactor()
         rng = np.random.default_rng(8)
-        X = rng.uniform([b[0] for b in m.bounds],
-                        [b[1] for b in m.bounds], (200, m.d))
+        X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (200, m.d))
         Y = m.evaluate(X)
         self.assertTrue(np.all(Y >= 0))
 
@@ -440,7 +441,6 @@ class TestCSTRReactor(unittest.TestCase):
 
 
 class TestDetPep8D(unittest.TestCase):
-
     def test_output_shape(self):
         m = DetPep8D()
         rng = np.random.default_rng(9)
@@ -461,7 +461,6 @@ class TestDetPep8D(unittest.TestCase):
 
 
 class TestOakleyOHagan(unittest.TestCase):
-
     def test_d_is_15(self):
         self.assertEqual(OakleyOHagan().d, 15)
 
@@ -474,24 +473,20 @@ class TestOakleyOHagan(unittest.TestCase):
 
 
 class TestPiston(unittest.TestCase):
-
     def test_output_positive(self):
         """Cycle time must be positive."""
         m = Piston()
         rng = np.random.default_rng(12)
-        X = rng.uniform([b[0] for b in m.bounds],
-                        [b[1] for b in m.bounds], (300, m.d))
+        X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (300, m.d))
         Y = m.evaluate(X)
         self.assertTrue(np.all(Y > 0))
 
 
 class TestWingWeight(unittest.TestCase):
-
     def test_output_positive(self):
         m = WingWeight()
         rng = np.random.default_rng(13)
-        X = rng.uniform([b[0] for b in m.bounds],
-                        [b[1] for b in m.bounds], (300, m.d))
+        X = rng.uniform([b[0] for b in m.bounds], [b[1] for b in m.bounds], (300, m.d))
         Y = m.evaluate(X)
         self.assertTrue(np.all(Y > 0))
 
@@ -499,5 +494,5 @@ class TestWingWeight(unittest.TestCase):
         self.assertEqual(WingWeight().d, 10)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

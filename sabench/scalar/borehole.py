@@ -75,7 +75,7 @@ class Borehole(BenchmarkFunction):
         -------
         w : (n,) — flow rate [m³/yr]
         """
-        rw, r, Tu, Hu, Tl, Hl, L, Kw = [X[:, i] for i in range(8)]
+        rw, r, Tu, Hu, Tl, Hl, L, Kw = (X[:, i] for i in range(8))
         log_r_rw = np.log(r / rw)
         numer = 2.0 * np.pi * Tu * (Hu - Hl)
         denom = log_r_rw * (1.0 + 2.0 * L * Tu / (log_r_rw * rw**2 * Kw) + Tu / Tl)

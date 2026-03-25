@@ -60,7 +60,7 @@ class EnvironModel(BenchmarkFunction):
     ]
 
     def evaluate(self, X: np.ndarray) -> np.ndarray:
-        M, D, L, tau = [X[:, i] for i in range(4)]
+        M, D, L, tau = (X[:, i] for i in range(4))
         # Concentration at x=0, t=tau via 1D Gaussian plume
         c1 = M / np.sqrt(4.0 * np.pi * D * tau)
         c2 = np.exp(-(L**2) / (4.0 * D * tau))

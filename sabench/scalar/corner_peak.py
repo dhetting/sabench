@@ -19,8 +19,11 @@ Kucherenko, S., Tarantola, S., & Annoni, P. (2012). Estimation of global
   Computer Physics Communications, 183(4), 937-946.
   https://doi.org/10.1016/j.cpc.2011.12.020
 """
+
 from __future__ import annotations
+
 import numpy as np
+
 from sabench._base import BenchmarkFunction
 
 
@@ -34,12 +37,12 @@ class CornerPeak(BenchmarkFunction):
         Coefficient vector controlling sharpness per dimension.
     """
 
-    name        = "CornerPeak"
+    name = "CornerPeak"
     output_type = "scalar"
-    description = ("Corner-concentrated; near-zero for large X. "
-                   "Analytical S1 via recursive integral formula.")
-    reference   = ("Morokoff & Caflisch (1995), J. Comput. Phys. 122(2). "
-                   "doi:10.1006/jcph.1995.1209")
+    description = (
+        "Corner-concentrated; near-zero for large X. Analytical S1 via recursive integral formula."
+    )
+    reference = "Morokoff & Caflisch (1995), J. Comput. Phys. 122(2). doi:10.1006/jcph.1995.1209"
 
     def __init__(self, d: int = 6, c=None):
         self.d = d
@@ -64,7 +67,7 @@ class CornerPeak(BenchmarkFunction):
 
         n_quad = 200
         quad_nodes, quad_weights = leggauss(n_quad)
-        quad_nodes = 0.5 * (quad_nodes + 1.0)   # map [-1,1] → [0,1]
+        quad_nodes = 0.5 * (quad_nodes + 1.0)  # map [-1,1] → [0,1]
         quad_weights = 0.5 * quad_weights
 
         d, c = self.d, self.c

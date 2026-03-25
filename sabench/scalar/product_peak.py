@@ -19,8 +19,11 @@ Kucherenko, S., Rodriguez-Fernandez, M., Pantelides, C., & Shah, N. (2009).
   Reliability Engineering & System Safety, 94(7), 1135-1148.
   https://doi.org/10.1016/j.ress.2008.05.006
 """
+
 from __future__ import annotations
+
 import numpy as np
+
 from sabench._base import BenchmarkFunction
 
 
@@ -34,17 +37,21 @@ class ProductPeak(BenchmarkFunction):
     w : peak locations in [0,1], default 0.5
     """
 
-    name        = "ProductPeak"
+    name = "ProductPeak"
     output_type = "scalar"
-    description = ("Interior-peaked product function; analytical S1. "
-                   "Sensitivity concentrated at peak location.")
-    reference   = ("Caflisch, Morokoff & Owen (1997), J. Comput. Finance 1(1). "
-                   "Kucherenko et al. (2009), RESS 94(7).")
+    description = (
+        "Interior-peaked product function; analytical S1. "
+        "Sensitivity concentrated at peak location."
+    )
+    reference = (
+        "Caflisch, Morokoff & Owen (1997), J. Comput. Finance 1(1). "
+        "Kucherenko et al. (2009), RESS 94(7)."
+    )
 
     def __init__(self, d: int = 5, c=None, w=None):
         self.d = d
         if c is None:
-            c = np.array([1.0/(i+1) for i in range(d)])
+            c = np.array([1.0 / (i + 1) for i in range(d)])
         if w is None:
             w = np.full(d, 0.5)
         self.c = np.asarray(c, dtype=float)
@@ -54,7 +61,7 @@ class ProductPeak(BenchmarkFunction):
     def evaluate(self, X: np.ndarray) -> np.ndarray:
         Y = np.ones(len(X))
         for i in range(self.d):
-            Y *= 1.0 / (self.c[i]**2 + (X[:, i] - self.w[i])**2)
+            Y *= 1.0 / (self.c[i] ** 2 + (X[:, i] - self.w[i]) ** 2)
         return Y
 
     def analytical_S1(self) -> np.ndarray:
@@ -70,13 +77,13 @@ class ProductPeak(BenchmarkFunction):
         def mean_g(ci, wi):
             """E[1/(c^2 + (x-w)^2)] for x~U[0,1]."""
             a, b = 0.0 - wi, 1.0 - wi
-            return (np.arctan(b/ci) - np.arctan(a/ci)) / ci
+            return (np.arctan(b / ci) - np.arctan(a / ci)) / ci
 
         def mean_g_sq(ci, wi):
             """E[(1/(c^2 + (x-w)^2))^2] for x~U[0,1]."""
             a, b = 0.0 - wi, 1.0 - wi
-            t1 = (b / (ci**2 * (ci**2 + b**2)) + np.arctan(b/ci)/ci**3) / 2
-            t2 = (a / (ci**2 * (ci**2 + a**2)) + np.arctan(a/ci)/ci**3) / 2
+            t1 = (b / (ci**2 * (ci**2 + b**2)) + np.arctan(b / ci) / ci**3) / 2
+            t2 = (a / (ci**2 * (ci**2 + a**2)) + np.arctan(a / ci) / ci**3) / 2
             return t1 - t2
 
         mean_g_vec = np.array([mean_g(c[i], w[i]) for i in range(d)])

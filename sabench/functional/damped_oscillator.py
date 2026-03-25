@@ -74,7 +74,7 @@ class DampedOscillator(BenchmarkFunction):
         -------
         Y : (n, n_t) — displacement time series
         """
-        m, c, k, F0, omega0, _ = [X[:, i] for i in range(6)]
+        m, c, k, F0, omega0, _ = (X[:, i] for i in range(6))
         t = self.t[None, :]  # (1, n_t)
 
         omega_n = np.sqrt(k / m)[:, None]  # natural frequency (n,1)

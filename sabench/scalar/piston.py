@@ -60,7 +60,7 @@ class Piston(BenchmarkFunction):
         -------
         C : (n,) — cycle time [s]
         """
-        M, S, V0, k, P0, Ta, T0 = [X[:, i] for i in range(7)]
+        M, S, V0, k, P0, Ta, T0 = (X[:, i] for i in range(7))
         A = P0 * S + 19.62 * M - k * V0 / S
         V = (S / (2.0 * k)) * (np.sqrt(A**2 + 4.0 * k * (P0 * V0 * Ta / T0)) - A)
         C = 2.0 * np.pi * np.sqrt(M / (k + S**2 * P0 * V0 * Ta / (T0 * V**2)))

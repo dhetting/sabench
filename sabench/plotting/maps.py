@@ -1,10 +1,11 @@
 """
 Plotting utilities for sabench sensitivity index maps.
 """
+
 from __future__ import annotations
-import numpy as np
+
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
+import numpy as np
 
 
 def plot_s1_maps_2d(
@@ -27,18 +28,19 @@ def plot_s1_maps_2d(
     ncols = min(d, 4)
     nrows = (d + ncols - 1) // ncols
 
-    fig, axes = plt.subplots(nrows, ncols, figsize=figsize,
-                             squeeze=False,
-                             subplot_kw={'aspect': 'equal'})
+    fig, axes = plt.subplots(
+        nrows, ncols, figsize=figsize, squeeze=False, subplot_kw={"aspect": "equal"}
+    )
     fig.suptitle(title, fontsize=12)
     ext = [z1_vals[0], z1_vals[-1], z2_vals[0], z2_vals[-1]]
 
     for i in range(d):
         row, col = divmod(i, ncols)
-        ax  = axes[row][col]
-        im  = ax.imshow(S1[i].T, origin='lower', extent=ext,
-                        vmin=0, vmax=1, cmap=cmap, aspect='auto')
-        lbl = input_names[i] if input_names else f"$X_{{{i+1}}}$"
+        ax = axes[row][col]
+        im = ax.imshow(
+            S1[i].T, origin="lower", extent=ext, vmin=0, vmax=1, cmap=cmap, aspect="auto"
+        )
+        lbl = input_names[i] if input_names else f"$X_{{{i + 1}}}$"
         ax.set_title(lbl, fontsize=10)
         ax.set_xlabel("$z_1$", fontsize=8)
         ax.set_ylabel("$z_2$", fontsize=8)
@@ -73,7 +75,7 @@ def plot_s1_slices_3d(
     z3_slices : values used as column labels
     input_indices : which inputs to show (default: first 4)
     """
-    d   = S1.shape[0]
+    d = S1.shape[0]
     nz3 = len(z3_slices)
     idx = input_indices if input_indices is not None else list(range(min(d, 4)))
 
@@ -83,12 +85,19 @@ def plot_s1_slices_3d(
 
     for ri, xi in enumerate(idx):
         for ci in range(nz3):
-            ax  = axes[ri][ci]
-            im  = ax.imshow(S1[xi, :, :, ci].T, origin='lower', extent=ext,
-                            vmin=0, vmax=1, cmap=cmap, aspect='auto')
+            ax = axes[ri][ci]
+            im = ax.imshow(
+                S1[xi, :, :, ci].T,
+                origin="lower",
+                extent=ext,
+                vmin=0,
+                vmax=1,
+                cmap=cmap,
+                aspect="auto",
+            )
             if ri == 0:
                 ax.set_title(f"$z_3 = {z3_slices[ci]:.0f}°$", fontsize=10)
-            lbl = (input_names[xi] if input_names else f"$X_{{{xi+1}}}$")
+            lbl = input_names[xi] if input_names else f"$X_{{{xi + 1}}}$"
             if ci == 0:
                 ax.set_ylabel(lbl, fontsize=9)
             plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
@@ -112,13 +121,13 @@ def plot_functional_s1(
     ----------
     S1 : (d, n_t) — time-varying first-order indices
     """
-    d    = S1.shape[0]
+    d = S1.shape[0]
     fig, ax = plt.subplots(figsize=figsize)
     cmap = plt.cm.get_cmap("tab10", d)
 
     for i in range(d):
-        lbl = input_names[i] if input_names else f"$X_{{{i+1}}}$"
-        c   = cmap(i)
+        lbl = input_names[i] if input_names else f"$X_{{{i + 1}}}$"
+        c = cmap(i)
         ax.plot(t_vals, S1[i], color=c, lw=2, label=lbl)
         ax.fill_between(t_vals, 0, S1[i], color=c, alpha=fill_alpha)
 

@@ -51,12 +51,12 @@ class BenchmarkFunction:
     def __call__(self, X: np.ndarray, **kwargs) -> np.ndarray:
         return self.evaluate(X, **kwargs)
 
-    def analytical_S1(self, **kwargs) -> np.ndarray | None:
-        """First-order Sobol indices.  Returns None if not available."""
+    def analytical_S1(self) -> np.ndarray | None:
+        """First-order Sobol indices. Return ``None`` if no analytical form exists."""
         return None
 
-    def analytical_ST(self, **kwargs) -> np.ndarray | None:
-        """Total-effect Sobol indices.  Returns None if not available."""
+    def analytical_ST(self) -> np.ndarray | None:
+        """Total-effect Sobol indices. Return ``None`` if no analytical form exists."""
         return None
 
     def sample(self, N: int, seed: int = None) -> np.ndarray:

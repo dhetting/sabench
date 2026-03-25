@@ -79,7 +79,7 @@ class WingWeight(BenchmarkFunction):
         -------
         W : (n,) — wing weight [lb]
         """
-        Sw, Wfw, A, lam_deg, q, taper, tc, Nz, Wdg, Wp = [X[:, i] for i in range(10)]
+        Sw, Wfw, A, lam_deg, q, taper, tc, Nz, Wdg, Wp = (X[:, i] for i in range(10))
         lam_rad = lam_deg * np.pi / 180.0
         cos2 = np.cos(lam_rad) ** 2
 

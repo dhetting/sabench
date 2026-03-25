@@ -17,8 +17,11 @@ Moon, H., Dean, A. M., & Santner, T. J. (2012). Two-stage sensitivity-based
 Kuo, F. Y., & Sloan, I. H. (2005). Lifting the curse of dimensionality.
   Notices of the AMS, 52(11), 1320-1329.
 """
+
 from __future__ import annotations
+
 import numpy as np
+
 from sabench._base import BenchmarkFunction
 
 
@@ -31,20 +34,21 @@ class MoonHerrera(BenchmarkFunction):
       Var(f) and partial variances computed via moment generating function.
     """
 
-    name        = "MoonHerrera"
-    d           = 20
+    name = "MoonHerrera"
+    d = 20
     output_type = "scalar"
-    description = ("Active subspace benchmark; dominant 1-D direction. "
-                   "Analytical S1 via MGF of product-exponential.")
-    reference   = ("Moon, Dean & Santner (2012), Technometrics 54(4). "
-                   "doi:10.1080/00401706.2012.694774")
+    description = (
+        "Active subspace benchmark; dominant 1-D direction. "
+        "Analytical S1 via MGF of product-exponential."
+    )
+    reference = "Moon, Dean & Santner (2012), Technometrics 54(4). doi:10.1080/00401706.2012.694774"
 
     bounds = [(0.0, 1.0)] * 20
 
     def __init__(self, c: float = 0.01):
         self.c = c
         # Weights: geometric decay w_i = 2^(-(i-1)/2)
-        self.w = np.array([2.0**(-0.5 * i) for i in range(self.d)])
+        self.w = np.array([2.0 ** (-0.5 * i) for i in range(self.d)])
 
     def evaluate(self, X: np.ndarray) -> np.ndarray:
         return np.exp(self.c * (X @ self.w))
@@ -81,7 +85,7 @@ class MoonHerrera(BenchmarkFunction):
         m1 = np.array([mg1(w[i]) for i in range(d)])
         m2 = np.array([mg2(w[i]) for i in range(d)])
 
-        Ef  = np.prod(m1)
+        Ef = np.prod(m1)
         Ef2 = np.prod(m2)
         Var = Ef2 - Ef**2
         if Var < 1e-30:

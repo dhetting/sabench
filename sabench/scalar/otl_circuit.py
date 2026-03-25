@@ -57,7 +57,7 @@ class OTLCircuit(BenchmarkFunction):
         -------
         Vm : (n,) — mid-point voltage [V]
         """
-        Rb1, Rb2, Rf, Rc1, Rc2, beta = [X[:, i] for i in range(6)]
+        Rb1, Rb2, Rf, Rc1, Rc2, beta = (X[:, i] for i in range(6))
         Vb1 = 12.0 * Rb2 / (Rb1 + Rb2)
         term = beta * (Rc2 + 9.0) / (beta * (Rc2 + 9.0) + Rf)
         Vm = (

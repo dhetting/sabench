@@ -18,8 +18,11 @@ Saltelli, A., Ratto, M., Andres, T., Campolongo, F., Cariboni, J.,
   Gatelli, D., Saisana, M., & Tarantola, S. (2008). Global Sensitivity
   Analysis: The Primer. Wiley.
 """
+
 from __future__ import annotations
+
 import numpy as np
+
 from sabench._base import BenchmarkFunction
 
 
@@ -31,22 +34,20 @@ class Friedman(BenchmarkFunction):
     Inputs X6-X10 have zero effect (analytical S1 = ST = 0).
     """
 
-    name        = "Friedman"
-    d           = 10
+    name = "Friedman"
+    d = 10
     output_type = "scalar"
-    description = ("5 active inputs, 5 pure noise. Analytical variance. "
-                   "Includes nonlinear interaction X1*X2 term.")
-    reference   = ("Friedman (1991), Ann. Stat. 19(1). "
-                   "doi:10.1214/aos/1176347963")
+    description = (
+        "5 active inputs, 5 pure noise. Analytical variance. "
+        "Includes nonlinear interaction X1*X2 term."
+    )
+    reference = "Friedman (1991), Ann. Stat. 19(1). doi:10.1214/aos/1176347963"
 
     bounds = [(0.0, 1.0)] * 10
 
     def evaluate(self, X: np.ndarray) -> np.ndarray:
         x1, x2, x3, x4, x5 = X[:, 0], X[:, 1], X[:, 2], X[:, 3], X[:, 4]
-        return (10.0 * np.sin(np.pi * x1 * x2)
-                + 20.0 * (x3 - 0.5)**2
-                + 10.0 * x4
-                + 5.0  * x5)
+        return 10.0 * np.sin(np.pi * x1 * x2) + 20.0 * (x3 - 0.5) ** 2 + 10.0 * x4 + 5.0 * x5
 
     def analytical_variance(self) -> float:
         """
@@ -70,9 +71,9 @@ class Friedman(BenchmarkFunction):
         x1 = rng.uniform(0, 1, 500000)
         x2 = rng.uniform(0, 1, 500000)
         v_sin = float(np.var(10.0 * np.sin(np.pi * x1 * x2)))
-        v_quad = 400.0 * (1.0/80.0 - 1.0/144.0)
+        v_quad = 400.0 * (1.0 / 80.0 - 1.0 / 144.0)
         v_lin4 = 100.0 / 12.0
-        v_lin5 = 25.0  / 12.0
+        v_lin5 = 25.0 / 12.0
         return v_sin + v_quad + v_lin4 + v_lin5
 
     def analytical_S1(self) -> np.ndarray:
@@ -84,9 +85,9 @@ class Friedman(BenchmarkFunction):
         """
         var_total = self.analytical_variance()
         # Marginal variance of X3 term (purely additive quadratic)
-        V3 = 400.0 * (1.0/80.0 - 1.0/144.0)
+        V3 = 400.0 * (1.0 / 80.0 - 1.0 / 144.0)
         V4 = 100.0 / 12.0
-        V5 = 25.0  / 12.0
+        V5 = 25.0 / 12.0
 
         rng = np.random.default_rng(0)
         x1 = rng.uniform(0, 1, 1000000)
@@ -101,5 +102,5 @@ class Friedman(BenchmarkFunction):
         ex2 = np.array([np.mean(10.0 * np.sin(np.pi * x1 * xi)) for xi in x1_grid])
         V2 = float(np.var(ex2))
 
-        S1 = np.array([V1, V2, V3, V4, V5, 0., 0., 0., 0., 0.]) / var_total
+        S1 = np.array([V1, V2, V3, V4, V5, 0.0, 0.0, 0.0, 0.0, 0.0]) / var_total
         return np.clip(S1, 0.0, 1.0)

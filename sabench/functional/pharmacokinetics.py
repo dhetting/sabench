@@ -76,7 +76,7 @@ class TwoCompartmentPK(BenchmarkFunction):
         -------
         C : (n, n_t) — concentration [mg/L]
         """
-        D, k10, k12, k21, V1 = [X[:, i] for i in range(5)]
+        D, k10, k12, k21, V1 = (X[:, i] for i in range(5))
         t = self.t[None, :]  # (1, n_t)
 
         # Eigenvalues of the 2-compartment system

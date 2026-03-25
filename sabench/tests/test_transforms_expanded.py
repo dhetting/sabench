@@ -8,58 +8,130 @@ Covers:
   - Symmetry properties (even/odd)
   - Property set membership consistency
 """
+
 import unittest
 
 import numpy as np
 
 from sabench.transforms.transforms import (
-    TRANSFORMS, apply_transform,
-    POINTWISE_TRANSFORMS, CONVEX_TRANSFORMS, CONCAVE_TRANSFORMS,
-    MONOTONE_TRANSFORMS, NONMONOTONE_TRANSFORMS, SMOOTH_TRANSFORMS,
-    NONSMOOTH_TRANSFORMS, AFFINE_TRANSFORMS, NONLOCAL_TRANSFORMS,
+    CONCAVE_TRANSFORMS,
+    CONVEX_TRANSFORMS,
+    MONOTONE_TRANSFORMS,
+    NONMONOTONE_TRANSFORMS,
+    NONSMOOTH_TRANSFORMS,
+    POINTWISE_TRANSFORMS,
+    SMOOTH_TRANSFORMS,
+    TRANSFORMS,
+    apply_transform,
 )
 
 RNG = np.random.default_rng(42)
-Y_SCALAR = RNG.standard_normal(200)         # 1D, (200,)
-Y_2D = RNG.standard_normal((50, 16))        # 2D, (50, 16)
+Y_SCALAR = RNG.standard_normal(200)  # 1D, (200,)
+Y_2D = RNG.standard_normal((50, 16))  # 2D, (50, 16)
 
 # Keys added in the expansion
 NEW_KEYS = {
     # Polynomial
-    "poly4","poly5","poly6","signed_power_p15","signed_power_p05",
-    "legendre_p3","chebyshev_t4","hermite_he2","hermite_he3","bernstein_b3",
+    "poly4",
+    "poly5",
+    "poly6",
+    "signed_power_p15",
+    "signed_power_p05",
+    "legendre_p3",
+    "chebyshev_t4",
+    "hermite_he2",
+    "hermite_he3",
+    "bernstein_b3",
     # Sigmoid/activation
-    "atan2pi","gompertz_cdf","algebraic_sigmoid","swish","mish","selu",
-    "softsign","bent_identity","hard_sigmoid","hard_tanh",
+    "atan2pi",
+    "gompertz_cdf",
+    "algebraic_sigmoid",
+    "swish",
+    "mish",
+    "selu",
+    "softsign",
+    "bent_identity",
+    "hard_sigmoid",
+    "hard_tanh",
     # Oscillatory
-    "sinc","sin_squared","cos_squared","damped_sin","sawtooth","square_wave",
-    "double_sin","sin_cos_product",
+    "sinc",
+    "sin_squared",
+    "cos_squared",
+    "damped_sin",
+    "sawtooth",
+    "square_wave",
+    "double_sin",
+    "sin_cos_product",
     # Threshold/piecewise
-    "soft_threshold","hard_threshold","ramp","spike_gaussian","breakpoint",
-    "hockey_stick","deadzone","bimodal_flip","donut",
+    "soft_threshold",
+    "hard_threshold",
+    "ramp",
+    "spike_gaussian",
+    "breakpoint",
+    "hockey_stick",
+    "deadzone",
+    "bimodal_flip",
+    "donut",
     # Variance-stabilising
-    "anscombe","freeman_tukey","asinh_vst","modulus_lam05","dual_power_lam03",
-    "log2_shift","log10_shift",
+    "anscombe",
+    "freeman_tukey",
+    "asinh_vst",
+    "modulus_lam05",
+    "dual_power_lam03",
+    "log2_shift",
+    "log10_shift",
     # Curvature extremes
-    "exp_neg_sq","exp_pos_sq","inverse_sq","log_log","power_exp",
-    "gev_cdf","pareto_tail","log_logistic_cdf",
+    "exp_neg_sq",
+    "exp_pos_sq",
+    "inverse_sq",
+    "log_log",
+    "power_exp",
+    "gev_cdf",
+    "pareto_tail",
+    "log_logistic_cdf",
     # Financial
-    "var_q95","cvar_q95","sharpe_proxy","drawdown","fold_change","excess_return",
+    "var_q95",
+    "cvar_q95",
+    "sharpe_proxy",
+    "drawdown",
+    "fold_change",
+    "excess_return",
     # Ecological
-    "hellinger","chord_normalise","relative_abundance","log_ratio",
+    "hellinger",
+    "chord_normalise",
+    "relative_abundance",
+    "log_ratio",
     # Climate
-    "anomaly_pct","bias_correction","quantile_delta","growing_degree_days","std_precip_idx",
+    "anomaly_pct",
+    "bias_correction",
+    "quantile_delta",
+    "growing_degree_days",
+    "std_precip_idx",
     # Hydrology
-    "nash_sutcliffe","pot_log","log_flow",
+    "nash_sutcliffe",
+    "pot_log",
+    "log_flow",
     # Medical
-    "hill_response","log_auc","emax_model",
+    "hill_response",
+    "log_auc",
+    "emax_model",
     # Engineering
-    "von_mises_stress","safety_factor","cumulative_damage","stress_life",
+    "von_mises_stress",
+    "safety_factor",
+    "cumulative_damage",
+    "stress_life",
     # Statistical summary
-    "sample_variance","sample_skewness","sample_kurtosis",
-    "percentile_q10","percentile_q90","iqr",
+    "sample_variance",
+    "sample_skewness",
+    "sample_kurtosis",
+    "percentile_q10",
+    "percentile_q90",
+    "iqr",
     # Information theory
-    "negentropy_proxy","wasserstein_proxy","energy_distance","renyi_entropy_a2",
+    "negentropy_proxy",
+    "wasserstein_proxy",
+    "energy_distance",
+    "renyi_entropy_a2",
 }
 
 
@@ -86,8 +158,11 @@ class TestNewTransformsRun(unittest.TestCase):
         for key in NEW_KEYS:
             with self.subTest(key=key):
                 result = apply_transform(Y_SCALAR, key)
-                self.assertEqual(len(result), len(Y_SCALAR),
-                    f"{key}: output length mismatch ({len(result)} vs {len(Y_SCALAR)})")
+                self.assertEqual(
+                    len(result),
+                    len(Y_SCALAR),
+                    f"{key}: output length mismatch ({len(result)} vs {len(Y_SCALAR)})",
+                )
 
     def test_2d_input_runs(self):
         skip_2d = {"drawdown"}  # requires 2D but flattening behaviour differs
@@ -105,8 +180,11 @@ class TestNewTransformsRun(unittest.TestCase):
             with self.subTest(key=key):
                 result = apply_transform(Y_SCALAR, key)
                 finite_frac = np.isfinite(result).mean()
-                self.assertGreater(finite_frac, 0.5,
-                    f"{key}: more than half of outputs are non-finite (frac finite={finite_frac:.2f})")
+                self.assertGreater(
+                    finite_frac,
+                    0.5,
+                    f"{key}: more than half of outputs are non-finite (frac finite={finite_frac:.2f})",
+                )
 
 
 class TestBoundedTransforms(unittest.TestCase):
@@ -154,26 +232,24 @@ class TestBoundedTransforms(unittest.TestCase):
     def test_gev_cdf_bounded(self):
         result = apply_transform(Y_SCALAR, "gev_cdf")
         result = result[np.isfinite(result)]
-        self.assertTrue(np.all((result >= 0) & (result <= 1)),
-                        "gev_cdf output out of [0,1]")
+        self.assertTrue(np.all((result >= 0) & (result <= 1)), "gev_cdf output out of [0,1]")
 
     def test_pareto_tail_bounded(self):
         result = apply_transform(Y_SCALAR, "pareto_tail")
         result = result[np.isfinite(result)]
-        self.assertTrue(np.all((result >= 0) & (result <= 1)),
-                        "pareto_tail output out of [0,1]")
+        self.assertTrue(np.all((result >= 0) & (result <= 1)), "pareto_tail output out of [0,1]")
 
     def test_log_logistic_bounded(self):
         result = apply_transform(Y_SCALAR, "log_logistic_cdf")
         result = result[np.isfinite(result)]
-        self.assertTrue(np.all((result >= 0) & (result <= 1)),
-                        "log_logistic_cdf output out of [0,1]")
+        self.assertTrue(
+            np.all((result >= 0) & (result <= 1)), "log_logistic_cdf output out of [0,1]"
+        )
 
     def test_hill_response_bounded(self):
         result = apply_transform(Y_SCALAR, "hill_response")
         result = result[np.isfinite(result)]
-        self.assertTrue(np.all((result >= 0) & (result <= 1)),
-                        "hill_response output out of [0,1]")
+        self.assertTrue(np.all((result >= 0) & (result <= 1)), "hill_response output out of [0,1]")
 
     def test_bernstein_b3_bounded(self):
         result = apply_transform(Y_SCALAR, "bernstein_b3")
@@ -201,25 +277,57 @@ class TestMonotoneTransforms(unittest.TestCase):
         diffs = np.diff(result)
         violations = np.sum(diffs < -1e-4)
         frac = violations / max(len(diffs), 1)
-        self.assertLess(frac, 0.05,
-            f"{key}: {violations}/{len(diffs)} monotone violations ({frac:.1%})")
+        self.assertLess(
+            frac, 0.05, f"{key}: {violations}/{len(diffs)} monotone violations ({frac:.1%})"
+        )
 
-    def test_atan2pi_monotone(self):        self._check_monotone("atan2pi")
-    def test_algebraic_sigmoid_monotone(self): self._check_monotone("algebraic_sigmoid")
-    def test_softsign_monotone(self):       self._check_monotone("softsign")
-    def test_bent_identity_monotone(self):  self._check_monotone("bent_identity")
-    def test_anscombe_monotone(self):       self._check_monotone("anscombe")
-    def test_freeman_tukey_monotone(self):  self._check_monotone("freeman_tukey")
-    def test_asinh_vst_monotone(self):      self._check_monotone("asinh_vst")
-    def test_modulus_lam05_monotone(self):  self._check_monotone("modulus_lam05")
-    def test_log2_shift_monotone(self):     self._check_monotone("log2_shift")
-    def test_log10_shift_monotone(self):    self._check_monotone("log10_shift")
-    def test_log_log_monotone(self):        self._check_monotone("log_log")
-    def test_signed_power_p15_monotone(self): self._check_monotone("signed_power_p15")
-    def test_hockey_stick_nondecreasing(self): self._check_monotone("hockey_stick")
-    def test_growing_degree_days_nondecreasing(self): self._check_monotone("growing_degree_days")
-    def test_selu_monotone(self):           self._check_monotone("selu")
-    def test_gompertz_monotone(self):       self._check_monotone("gompertz_cdf")
+    def test_atan2pi_monotone(self):
+        self._check_monotone("atan2pi")
+
+    def test_algebraic_sigmoid_monotone(self):
+        self._check_monotone("algebraic_sigmoid")
+
+    def test_softsign_monotone(self):
+        self._check_monotone("softsign")
+
+    def test_bent_identity_monotone(self):
+        self._check_monotone("bent_identity")
+
+    def test_anscombe_monotone(self):
+        self._check_monotone("anscombe")
+
+    def test_freeman_tukey_monotone(self):
+        self._check_monotone("freeman_tukey")
+
+    def test_asinh_vst_monotone(self):
+        self._check_monotone("asinh_vst")
+
+    def test_modulus_lam05_monotone(self):
+        self._check_monotone("modulus_lam05")
+
+    def test_log2_shift_monotone(self):
+        self._check_monotone("log2_shift")
+
+    def test_log10_shift_monotone(self):
+        self._check_monotone("log10_shift")
+
+    def test_log_log_monotone(self):
+        self._check_monotone("log_log")
+
+    def test_signed_power_p15_monotone(self):
+        self._check_monotone("signed_power_p15")
+
+    def test_hockey_stick_nondecreasing(self):
+        self._check_monotone("hockey_stick")
+
+    def test_growing_degree_days_nondecreasing(self):
+        self._check_monotone("growing_degree_days")
+
+    def test_selu_monotone(self):
+        self._check_monotone("selu")
+
+    def test_gompertz_monotone(self):
+        self._check_monotone("gompertz_cdf")
 
 
 class TestSymmetryProperties(unittest.TestCase):
@@ -280,17 +388,26 @@ class TestConvexTransforms(unittest.TestCase):
         f_hi = apply_transform(Y[1:], key)
         f_mid = apply_transform(mid, key)
         violations = np.sum(f_mid > 0.5 * (f_lo + f_hi) + 1e-6)
-        self.assertLess(violations / n, 0.1,
-            f"{key}: {violations}/{n} convexity violations")
+        self.assertLess(violations / n, 0.1, f"{key}: {violations}/{n} convexity violations")
 
-    def test_poly4_convex(self):        self._check_convex("poly4")
-    def test_poly6_convex(self):        self._check_convex("poly6")
-    def test_exp_pos_sq_convex(self):   self._check_convex("exp_pos_sq", np.linspace(-1, 1, 50))
-    def test_hockey_stick_convex(self): self._check_convex("hockey_stick")
+    def test_poly4_convex(self):
+        self._check_convex("poly4")
+
+    def test_poly6_convex(self):
+        self._check_convex("poly6")
+
+    def test_exp_pos_sq_convex(self):
+        self._check_convex("exp_pos_sq", np.linspace(-1, 1, 50))
+
+    def test_hockey_stick_convex(self):
+        self._check_convex("hockey_stick")
+
     def test_inverse_sq_has_maximum_at_zero(self):
         """1/(y^2+eps) has a maximum at y=0 so is NOT globally convex (concave near 0)."""
-        from sabench.transforms.transforms import t_inverse_sq
         import numpy as np
+
+        from sabench.transforms.transforms import t_inverse_sq
+
         # Value at 0 should be largest for nearby points
         Y_zero = np.array([0.0])
         Y_away = np.array([1.0, 2.0])
@@ -309,15 +426,29 @@ class TestNonmonotonicTransforms(unittest.TestCase):
         diffs = np.diff(result)
         n_pos = np.sum(diffs > 1e-6)
         n_neg = np.sum(diffs < -1e-6)
-        self.assertGreater(min(n_pos, n_neg), 3,
-            f"{key}: expected non-monotone but only {min(n_pos, n_neg)} direction changes")
+        self.assertGreater(
+            min(n_pos, n_neg),
+            3,
+            f"{key}: expected non-monotone but only {min(n_pos, n_neg)} direction changes",
+        )
 
-    def test_poly4_nonmonotone(self):       self._check_nonmonotone("poly4")
-    def test_hermite_he3_nonmonotone(self): self._check_nonmonotone("hermite_he3")
-    def test_sin_squared_nonmonotone(self): self._check_nonmonotone("sin_squared")
-    def test_cos_squared_nonmonotone(self): self._check_nonmonotone("cos_squared")
-    def test_exp_neg_sq_nonmonotone(self):  self._check_nonmonotone("exp_neg_sq")
-    def test_swish_nonmonotone(self):       self._check_nonmonotone("swish")
+    def test_poly4_nonmonotone(self):
+        self._check_nonmonotone("poly4")
+
+    def test_hermite_he3_nonmonotone(self):
+        self._check_nonmonotone("hermite_he3")
+
+    def test_sin_squared_nonmonotone(self):
+        self._check_nonmonotone("sin_squared")
+
+    def test_cos_squared_nonmonotone(self):
+        self._check_nonmonotone("cos_squared")
+
+    def test_exp_neg_sq_nonmonotone(self):
+        self._check_nonmonotone("exp_neg_sq")
+
+    def test_swish_nonmonotone(self):
+        self._check_nonmonotone("swish")
 
 
 class TestSpecialOutputProperties(unittest.TestCase):
@@ -327,83 +458,95 @@ class TestSpecialOutputProperties(unittest.TestCase):
         """sin^2 + cos^2 = 1 at matched frequency."""
         freq = 0.5
         Y = np.linspace(-5, 5, 100)
-        from sabench.transforms.transforms import t_sin_squared, t_cos_squared
+        from sabench.transforms.transforms import t_cos_squared, t_sin_squared
+
         s2 = t_sin_squared(Y, freq=freq)
         c2 = t_cos_squared(Y, freq=freq)
-        np.testing.assert_allclose(s2 + c2, 1.0, atol=1e-10,
-                                   err_msg="sin^2 + cos^2 != 1")
+        np.testing.assert_allclose(s2 + c2, 1.0, atol=1e-10, err_msg="sin^2 + cos^2 != 1")
 
     def test_soft_threshold_zero_in_band(self):
         """Soft threshold maps (-lam, lam) to 0."""
         Y = np.linspace(-0.5, 0.5, 50)
         from sabench.transforms.transforms import t_soft_threshold
+
         result = t_soft_threshold(Y, lam=1.0)
-        np.testing.assert_allclose(result, 0.0, atol=1e-9,
-                                   err_msg="soft_threshold should be 0 for |y|<lam")
+        np.testing.assert_allclose(
+            result, 0.0, atol=1e-9, err_msg="soft_threshold should be 0 for |y|<lam"
+        )
 
     def test_hockey_stick_zero_below_bp(self):
         """Hockey stick returns 0 below breakpoint."""
         Y = np.linspace(-5, 0, 50)
         from sabench.transforms.transforms import t_hockey_stick
+
         result = t_hockey_stick(Y, bp=0.0)
-        np.testing.assert_allclose(result, 0.0, atol=1e-9,
-                                   err_msg="hockey_stick should be 0 for y<bp")
+        np.testing.assert_allclose(
+            result, 0.0, atol=1e-9, err_msg="hockey_stick should be 0 for y<bp"
+        )
 
     def test_deadzone_zero_in_band(self):
         """Deadzone returns 0 in (-hw, hw)."""
         Y = np.linspace(-0.5, 0.5, 50)
         from sabench.transforms.transforms import t_deadzone
+
         result = t_deadzone(Y, half_width=1.0)
-        np.testing.assert_allclose(result, 0.0, atol=1e-9,
-                                   err_msg="deadzone should be 0 for |y|<half_width")
+        np.testing.assert_allclose(
+            result, 0.0, atol=1e-9, err_msg="deadzone should be 0 for |y|<half_width"
+        )
 
     def test_hermite_he2_min_at_zero(self):
         """He2(u) = u^2 - 1 has minimum at u=0."""
         from sabench.transforms.transforms import t_hermite_he2
+
         Y_near_zero = np.array([0.0])
         Y_away = np.array([0.5, 1.0])
         val_zero = t_hermite_he2(Y_near_zero, scale=1.0)[0]
         vals_away = t_hermite_he2(Y_away, scale=1.0)
-        self.assertAlmostEqual(val_zero, -1.0, places=10,
-                               msg="He2(0) = 0^2 - 1 = -1")
+        self.assertAlmostEqual(val_zero, -1.0, places=10, msg="He2(0) = 0^2 - 1 = -1")
         for v in vals_away:
             self.assertGreater(v, val_zero, msg="He2 should be > He2(0) for y!=0")
 
     def test_anscombe_variance_stabilises(self):
         """Anscombe approx. makes std ~ 1 for Poisson-like counts."""
         from sabench.transforms.transforms import t_anscombe
+
         counts = np.maximum(np.round(RNG.exponential(scale=10, size=500)), 0)
         result = t_anscombe(counts)
         # std of transformed should be close to 1 (roughly)
         std_after = np.std(result)
-        self.assertLess(std_after, 5.0,
-                        msg=f"Anscombe output std too large: {std_after:.2f}")
+        self.assertLess(std_after, 5.0, msg=f"Anscombe output std too large: {std_after:.2f}")
 
     def test_excess_return_zero_mean(self):
         """Excess return has zero sample mean."""
         from sabench.transforms.transforms import t_excess_return
+
         result = t_excess_return(Y_SCALAR)
-        np.testing.assert_allclose(result.mean(), 0.0, atol=1e-9,
-                                   err_msg="excess_return should have zero mean")
+        np.testing.assert_allclose(
+            result.mean(), 0.0, atol=1e-9, err_msg="excess_return should have zero mean"
+        )
 
     def test_relative_abundance_sums_to_one(self):
         """Relative abundance sums to 1 per sample."""
         from sabench.transforms.transforms import t_relative_abundance
+
         Y_pos = np.abs(Y_2D) + 0.1
         result = t_relative_abundance(Y_pos)
         row_sums = result.reshape(len(Y_pos), -1).sum(axis=1)
-        np.testing.assert_allclose(row_sums, 1.0, atol=1e-9,
-                                   err_msg="relative_abundance should sum to 1 per sample")
+        np.testing.assert_allclose(
+            row_sums, 1.0, atol=1e-9, err_msg="relative_abundance should sum to 1 per sample"
+        )
 
     def test_growing_degree_days_nonnegative(self):
         """GDD output is always >= 0."""
         from sabench.transforms.transforms import t_growing_degree_days
+
         result = t_growing_degree_days(Y_SCALAR, base=0.0)
         self.assertTrue(np.all(result >= -1e-12), "GDD should be non-negative")
 
     def test_drawdown_nonpositive(self):
         """Drawdown output is always <= 0."""
         from sabench.transforms.transforms import t_drawdown
+
         result = t_drawdown(Y_2D)
         self.assertTrue(np.all(result <= 1e-12), "Drawdown should be <= 0")
 
@@ -420,8 +563,15 @@ class TestPropertySetsIncludeNewTransforms(unittest.TestCase):
             self.assertIn(k, CONCAVE_TRANSFORMS, f"{k} should be in CONCAVE_TRANSFORMS")
 
     def test_monotone_new_in_monotone_set(self):
-        for k in ["atan2pi", "algebraic_sigmoid", "softsign", "gompertz_cdf",
-                  "anscombe", "log_flow", "hill_response"]:
+        for k in [
+            "atan2pi",
+            "algebraic_sigmoid",
+            "softsign",
+            "gompertz_cdf",
+            "anscombe",
+            "log_flow",
+            "hill_response",
+        ]:
             self.assertIn(k, MONOTONE_TRANSFORMS, f"{k} should be in MONOTONE_TRANSFORMS")
 
     def test_oscillatory_in_nonmonotone(self):
@@ -429,8 +579,17 @@ class TestPropertySetsIncludeNewTransforms(unittest.TestCase):
             self.assertIn(k, NONMONOTONE_TRANSFORMS, f"{k} should be in NONMONOTONE_TRANSFORMS")
 
     def test_smooth_new_in_smooth_set(self):
-        for k in ["poly4", "poly5", "poly6", "atan2pi", "algebraic_sigmoid",
-                  "sinc", "sin_squared", "anscombe", "asinh_vst"]:
+        for k in [
+            "poly4",
+            "poly5",
+            "poly6",
+            "atan2pi",
+            "algebraic_sigmoid",
+            "sinc",
+            "sin_squared",
+            "anscombe",
+            "asinh_vst",
+        ]:
             self.assertIn(k, SMOOTH_TRANSFORMS, f"{k} should be in SMOOTH_TRANSFORMS")
 
     def test_discontinuous_in_nonsmooth_set(self):
@@ -438,8 +597,18 @@ class TestPropertySetsIncludeNewTransforms(unittest.TestCase):
             self.assertIn(k, NONSMOOTH_TRANSFORMS, f"{k} should be in NONSMOOTH_TRANSFORMS")
 
     def test_pointwise_new_in_pointwise_set(self):
-        for k in ["poly4", "poly5", "atan2pi", "swish", "mish", "sinc",
-                  "sin_squared", "soft_threshold", "spike_gaussian", "growing_degree_days"]:
+        for k in [
+            "poly4",
+            "poly5",
+            "atan2pi",
+            "swish",
+            "mish",
+            "sinc",
+            "sin_squared",
+            "soft_threshold",
+            "spike_gaussian",
+            "growing_degree_days",
+        ]:
             self.assertIn(k, POINTWISE_TRANSFORMS, f"{k} should be in POINTWISE_TRANSFORMS")
 
     def test_financial_not_pointwise(self):
@@ -453,8 +622,9 @@ class TestPropertySetsIncludeNewTransforms(unittest.TestCase):
 
 class TestTotalTransformCount(unittest.TestCase):
     def test_at_least_170_transforms(self):
-        self.assertGreaterEqual(len(TRANSFORMS), 170,
-            f"Expected >= 170 transforms, got {len(TRANSFORMS)}")
+        self.assertGreaterEqual(
+            len(TRANSFORMS), 170, f"Expected >= 170 transforms, got {len(TRANSFORMS)}"
+        )
 
 
 if __name__ == "__main__":

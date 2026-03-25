@@ -18,8 +18,11 @@ Wilks, D. S. (2005). Effects of stochastic parametrizations in the Lorenz '96
   system. Quarterly Journal of the Royal Meteorological Society, 131(606),
   389-407. https://doi.org/10.1256/qj.04.03
 """
+
 from __future__ import annotations
+
 import numpy as np
+
 from sabench._base import BenchmarkFunction
 
 
@@ -31,22 +34,25 @@ class Lorenz96(BenchmarkFunction):
     Output: X_1(t) trajectory (first variable) at n_t time steps.
     """
 
-    name        = "Lorenz96"
+    name = "Lorenz96"
     output_type = "functional"
-    description = ("Chaotic atmospheric toy model; butterfly-effect sensitivity. "
-                   "Inputs are initial conditions; no analytical Sobol indices.")
-    reference   = ("Lorenz (1996), ECMWF Seminar on Predictability. "
-                   "Wilks (2005), QJRMS 131(606). doi:10.1256/qj.04.03")
+    description = (
+        "Chaotic atmospheric toy model; butterfly-effect sensitivity. "
+        "Inputs are initial conditions; no analytical Sobol indices."
+    )
+    reference = (
+        "Lorenz (1996), ECMWF Seminar on Predictability. "
+        "Wilks (2005), QJRMS 131(606). doi:10.1256/qj.04.03"
+    )
 
-    def __init__(self, N: int = 8, F: float = 8.0, n_t: int = 100,
-                 t_max: float = 10.0):
-        self.N     = N
-        self.F     = F
-        self.n_t   = n_t
+    def __init__(self, N: int = 8, F: float = 8.0, n_t: int = 100, t_max: float = 10.0):
+        self.N = N
+        self.F = F
+        self.n_t = n_t
         self.t_max = t_max
-        self.d     = N
+        self.d = N
         self.bounds = [(F - 0.5, F + 0.5)] * N
-        self.t     = np.linspace(0.0, t_max, n_t)
+        self.t = np.linspace(0.0, t_max, n_t)
 
     def evaluate(self, X: np.ndarray) -> np.ndarray:
         """
@@ -64,15 +70,15 @@ class Lorenz96(BenchmarkFunction):
         n_substeps = max(1, int(np.ceil(dt_output / 0.01)))
         dt = dt_output / n_substeps
 
-        state = X.copy()   # (n, N)
+        state = X.copy()  # (n, N)
         out = np.empty((n, self.n_t))
         out[:, 0] = state[:, 0]
 
         def rhs(y):
             # Lorenz-96 equations with periodic BC
             yp1 = np.roll(y, -1, axis=1)  # X_{k+1}
-            ym1 = np.roll(y,  1, axis=1)  # X_{k-1}
-            ym2 = np.roll(y,  2, axis=1)  # X_{k-2}
+            ym1 = np.roll(y, 1, axis=1)  # X_{k-1}
+            ym2 = np.roll(y, 2, axis=1)  # X_{k-2}
             return (yp1 - ym2) * ym1 - y + F
 
         for s in range(1, self.n_t):
