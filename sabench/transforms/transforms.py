@@ -1914,7 +1914,7 @@ SMOOTH_TRANSFORMS.update({
     "anscombe", "freeman_tukey", "asinh_vst", "modulus_lam05",
     "log2_shift", "log10_shift", "log_log",
     "gompertz_cdf", "gev_cdf", "log_logistic_cdf",
-    "bernstein_b3", "algebraic_sigmoid",
+    "bernstein_b3",
     "hill_response", "emax_model", "log_auc", "log_flow",
     "anomaly_pct", "bias_correction", "std_precip_idx",
     "nash_sutcliffe", "hellinger", "chord_normalise", "relative_abundance",

@@ -59,7 +59,7 @@ class Lorenz96(BenchmarkFunction):
         Y : (n, n_t) — first variable X_1(t)
         """
         n = len(X)
-        N, F = self.N, self.F
+        F = self.F
         dt_output = self.t_max / (self.n_t - 1)
         n_substeps = max(1, int(np.ceil(dt_output / 0.01)))
         dt = dt_output / n_substeps
