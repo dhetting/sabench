@@ -1,0 +1,157 @@
+# ── Build system ──────────────────────────────────────────────────────────────
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+# ── Core project metadata ─────────────────────────────────────────────────────
+[project]
+name = "sabench"
+version = "0.3.0"
+description = "Benchmark suite for variance-based (Sobol) global sensitivity analysis"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+  { name = "Dylan Hettinger", email = "dylan.hettinger@gmail.com" },
+]
+keywords = [
+  "sensitivity analysis",
+  "Sobol indices",
+  "benchmark functions",
+  "uncertainty quantification",
+  "variance decomposition",
+  "global sensitivity analysis",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Mathematics",
+  "Topic :: Scientific/Engineering :: Information Analysis",
+]
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.24",
+  "scipy>=1.10",
+]
+
+[project.optional-dependencies]
+notebook = [
+  "matplotlib>=3.7",
+  "jupyter>=1.0",
+  "ipykernel>=6.0",
+]
+dev = [
+  "pytest>=7.4",
+  "pytest-cov>=4.1",
+  "ruff>=0.4",
+  "mypy>=1.8",
+  "pre-commit>=3.6",
+  "hatch>=1.9",
+  "build>=1.0",
+  "twine>=5.0",
+]
+all = ["sabench[notebook,dev]"]
+
+[project.urls]
+Homepage      = "https://github.com/dhetting/sabench"
+Documentation = "https://sabench.readthedocs.io"
+Repository    = "https://github.com/dhetting/sabench"
+Issues        = "https://github.com/dhetting/sabench/issues"
+Changelog     = "https://github.com/dhetting/sabench/blob/main/CHANGELOG.md"
+
+# ── Hatch build config ────────────────────────────────────────────────────────
+[tool.hatch.build.targets.wheel]
+packages = ["sabench"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/sabench",
+  "/tests",
+  "/notebooks",
+  "/docs",
+  "README.md",
+  "CHANGELOG.md",
+  "LICENSE",
+  "CITATION.cff",
+  "pixi.toml",
+]
+
+# ── Ruff (linting + formatting) ───────────────────────────────────────────────
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+src = ["sabench"]
+
+[tool.ruff.lint]
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort
+  "B",   # flake8-bugbear
+  "C4",  # flake8-comprehensions
+  "UP",  # pyupgrade
+  "N",   # pep8-naming
+]
+ignore = [
+  "E501",   # line length handled by formatter
+  "N803",   # argument name should be lowercase (X matrices are conventional)
+  "N806",   # variable in function should be lowercase (Y, S1, ST convention)
+  "B008",   # do not perform function calls in default args (numpy defaults OK)
+]
+[tool.ruff.lint.per-file-ignores]
+# Allow star imports in __init__ re-export files.
+"sabench/__init__.py" = ["F401"]
+"sabench/**/__init__.py" = ["F401"]
+# Test names encode mathematical/statistical invariants using conventional
+# Sobol notation (for example, S1, ST, Vi, and N).
+"sabench/tests/*.py" = ["N802"]
+
+[tool.ruff.lint.pep8-naming]
+# Preserve the public analytical Sobol API used throughout the package and in
+# the accompanying scientific documentation.
+ignore-names = [
+  "analytical_S1",
+  "analytical_ST",
+  "analytical_aggregate_S1",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["sabench"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+
+# ── Mypy (type checking) ──────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.10"
+strict = false
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_return_any = false
+# Numerical code uses dynamic shapes; keep mypy permissive
+disallow_untyped_defs = false
+
+# ── Pytest ────────────────────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+testpaths = ["sabench/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "--tb=short -q"
+
+[tool.coverage.run]
+source = ["sabench"]
+omit = ["sabench/tests/*", "sabench/plotting/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 70
