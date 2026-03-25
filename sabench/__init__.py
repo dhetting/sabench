@@ -20,8 +20,8 @@ Quick start
 >>> S1, ST = jansen_s1_st(Y, N=2048, d=model.d)
 """
 
-from sabench._base import BenchmarkFunction
 from sabench.analysis import first_order, jansen_s1_st, total_effect
+from sabench.benchmarks.base import BenchmarkFunction
 from sabench.functional import (
     BoussinesqRecession,
     DampedOscillator,

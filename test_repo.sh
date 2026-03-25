@@ -234,9 +234,10 @@ print('  .zenodo.json OK')
 
   # ── 3g. check for merge conflict markers ──────────────────────────────────
   info "Checking for merge conflict markers"
-  MC=$(grep -rl "<<<<<<< \|>>>>>>> \|=======" sabench/ --include="*.py" 2>/dev/null | wc -l || echo 0)
-  if [[ "$MC" -gt 0 ]]; then
-    fail "Merge conflict markers found"
+  MC=$(grep -RIl --include="*.py" -E '^<<<<<<< |^=======$|^>>>>>>> ' sabench/ 2>/dev/null | wc -l | tr -d ' ')
+  if [ "${MC:-0}" -ne 0 ]; then
+    fail "merge conflict markers found"
+    grep -RIn --include="*.py" -E '^<<<<<<< |^=======$|^>>>>>>> ' sabench/ || true
     FAILURES+=("merge conflict markers")
   else
     ok "merge conflict markers: none"

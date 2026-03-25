@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from sabench._base import BenchmarkFunction
+from sabench.benchmarks.base import BenchmarkFunction
 from sabench.spatial.campbell2d import _campbell_analytical_v
 
 

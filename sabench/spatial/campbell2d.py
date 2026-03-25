@@ -18,7 +18,7 @@ import math
 
 import numpy as np
 
-from sabench._base import BenchmarkFunction
+from sabench.benchmarks.base import BenchmarkFunction
 
 
 class Campbell2D(BenchmarkFunction):
