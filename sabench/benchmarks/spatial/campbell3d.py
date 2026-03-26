@@ -32,7 +32,7 @@ from __future__ import annotations
 import numpy as np
 
 from sabench.benchmarks.base import BenchmarkFunction
-from sabench.spatial.campbell2d import _campbell_analytical_v
+from sabench.benchmarks.spatial.campbell2d import _campbell_analytical_v
 
 
 class Campbell3D(BenchmarkFunction):

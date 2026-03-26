@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from sabench.scalar import Ishigami
-from sabench.spatial import Campbell2D
+from sabench.benchmarks.scalar import Ishigami
+from sabench.benchmarks.spatial import Campbell2D
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RUNTIME_PACKAGE = REPO_ROOT / "sabench"
@@ -35,6 +35,38 @@ def test_runtime_python_files_do_not_import_legacy_base_module() -> None:
             continue
         text = path.read_text(encoding="utf-8")
         if "sabench._base" in text:
+            offenders.append(str(path.relative_to(REPO_ROOT)))
+
+    assert offenders == []
+
+
+def test_runtime_package_has_no_legacy_scalar_family_package() -> None:
+    assert not (RUNTIME_PACKAGE / "scalar").exists()
+
+
+def test_runtime_python_files_do_not_import_legacy_scalar_family_package() -> None:
+    offenders: list[str] = []
+    for path in RUNTIME_PACKAGE.rglob("*.py"):
+        if "tests" in path.parts:
+            continue
+        text = path.read_text(encoding="utf-8")
+        if "sabench.scalar" in text:
+            offenders.append(str(path.relative_to(REPO_ROOT)))
+
+    assert offenders == []
+
+
+def test_runtime_package_has_no_legacy_spatial_family_package() -> None:
+    assert not (RUNTIME_PACKAGE / "spatial").exists()
+
+
+def test_runtime_python_files_do_not_import_legacy_spatial_family_package() -> None:
+    offenders: list[str] = []
+    for path in RUNTIME_PACKAGE.rglob("*.py"):
+        if "tests" in path.parts:
+            continue
+        text = path.read_text(encoding="utf-8")
+        if "sabench.spatial" in text:
             offenders.append(str(path.relative_to(REPO_ROOT)))
 
     assert offenders == []

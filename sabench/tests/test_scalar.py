@@ -4,8 +4,7 @@ import unittest
 
 import numpy as np
 
-from sabench.sampling import saltelli_sample
-from sabench.scalar import (
+from sabench.benchmarks.scalar import (
     AdditiveQuadratic,
     Borehole,
     CornerPeak,
@@ -26,6 +25,7 @@ from sabench.scalar import (
     SobolG,
     WingWeight,
 )
+from sabench.sampling import saltelli_sample
 
 ALL_SCALAR_BENCHMARKS = [
     Ishigami(),
