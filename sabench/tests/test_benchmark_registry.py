@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from sabench.benchmarks.functional import Lorenz96
 from sabench.benchmarks.scalar import Ishigami
 from sabench.benchmarks.spatial import Campbell3D
 
@@ -18,6 +19,7 @@ def test_typed_benchmark_registry_imports() -> None:
 
     ishigami_spec = get_benchmark_spec("Ishigami")
     campbell3d_spec = get_benchmark_spec("Campbell3D")
+    lorenz96_spec = get_benchmark_spec("Lorenz96")
 
     assert isinstance(ishigami_spec, BenchmarkSpec)
     assert ishigami_spec.family is BenchmarkFamily.SCALAR
@@ -29,6 +31,10 @@ def test_typed_benchmark_registry_imports() -> None:
     assert get_benchmark_class("Campbell3D") is Campbell3D
     assert ishigami_spec.module.startswith("sabench.benchmarks.scalar")
     assert campbell3d_spec.module.startswith("sabench.benchmarks.spatial")
+    assert lorenz96_spec.family is BenchmarkFamily.FUNCTIONAL
+    assert lorenz96_spec.output_kind is OutputKind.FUNCTIONAL
+    assert get_benchmark_class("Lorenz96") is Lorenz96
+    assert lorenz96_spec.module.startswith("sabench.benchmarks.functional")
 
 
 def test_benchmark_registry_covers_all_current_benchmark_classes() -> None:

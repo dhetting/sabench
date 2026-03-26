@@ -3,6 +3,15 @@
 from __future__ import annotations
 
 from sabench.benchmarks.base import BenchmarkFunction
+from sabench.benchmarks.functional import (
+    BoussinesqRecession,
+    DampedOscillator,
+    EpidemicSIR,
+    HeatDiffusion1D,
+    Lorenz96,
+    LotkaVolterra,
+    TwoCompartmentPK,
+)
 from sabench.benchmarks.scalar import (
     AdditiveQuadratic,
     Borehole,
@@ -26,15 +35,6 @@ from sabench.benchmarks.scalar import (
 )
 from sabench.benchmarks.spatial import Campbell2D, Campbell3D, ExponentialCampbell2D
 from sabench.benchmarks.types import BenchmarkFamily, BenchmarkSpec, OutputKind
-from sabench.functional import (
-    BoussinesqRecession,
-    DampedOscillator,
-    EpidemicSIR,
-    HeatDiffusion1D,
-    Lorenz96,
-    LotkaVolterra,
-    TwoCompartmentPK,
-)
 
 _LEGACY_OUTPUT_KIND_MAP: dict[str, OutputKind] = {
     "scalar": OutputKind.SCALAR,

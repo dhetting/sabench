@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from sabench.benchmarks.functional import Lorenz96
 from sabench.benchmarks.scalar import Ishigami
 from sabench.benchmarks.spatial import Campbell2D
 
@@ -22,6 +23,7 @@ def test_representative_benchmark_families_use_new_base_contract() -> None:
 
     assert issubclass(Ishigami, BenchmarkFunction)
     assert issubclass(Campbell2D, BenchmarkFunction)
+    assert issubclass(Lorenz96, BenchmarkFunction)
 
 
 def test_runtime_package_has_no_legacy_base_module() -> None:
@@ -67,6 +69,22 @@ def test_runtime_python_files_do_not_import_legacy_spatial_family_package() -> N
             continue
         text = path.read_text(encoding="utf-8")
         if "sabench.spatial" in text:
+            offenders.append(str(path.relative_to(REPO_ROOT)))
+
+    assert offenders == []
+
+
+def test_runtime_package_has_no_legacy_functional_family_package() -> None:
+    assert not (RUNTIME_PACKAGE / "functional").exists()
+
+
+def test_runtime_python_files_do_not_import_legacy_functional_family_package() -> None:
+    offenders: list[str] = []
+    for path in RUNTIME_PACKAGE.rglob("*.py"):
+        if "tests" in path.parts:
+            continue
+        text = path.read_text(encoding="utf-8")
+        if "sabench.functional" in text:
             offenders.append(str(path.relative_to(REPO_ROOT)))
 
     assert offenders == []

@@ -22,6 +22,15 @@ Quick start
 
 from sabench.analysis import first_order, jansen_s1_st, total_effect
 from sabench.benchmarks.base import BenchmarkFunction
+from sabench.benchmarks.functional import (
+    BoussinesqRecession,
+    DampedOscillator,
+    EpidemicSIR,
+    HeatDiffusion1D,
+    Lorenz96,
+    LotkaVolterra,
+    TwoCompartmentPK,
+)
 from sabench.benchmarks.scalar import (
     AdditiveQuadratic,
     Borehole,
@@ -44,15 +53,6 @@ from sabench.benchmarks.scalar import (
     WingWeight,
 )
 from sabench.benchmarks.spatial import Campbell2D, Campbell3D, ExponentialCampbell2D
-from sabench.functional import (
-    BoussinesqRecession,
-    DampedOscillator,
-    EpidemicSIR,
-    HeatDiffusion1D,
-    Lorenz96,
-    LotkaVolterra,
-    TwoCompartmentPK,
-)
 from sabench.sampling import saltelli_sample
 from sabench.transforms import (
     CONCAVE_TRANSFORMS,
