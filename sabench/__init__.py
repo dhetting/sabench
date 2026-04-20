@@ -8,7 +8,7 @@ methods (Sobol indices, Morris screening, etc.).
 
 Quick start
 -----------
->>> from sabench.scalar import Ishigami
+>>> from sabench.benchmarks.scalar import Ishigami
 >>> from sabench.spatial import Campbell2D
 >>> from sabench.sampling import saltelli_sample
 >>> from sabench.analysis import jansen_s1_st
@@ -22,17 +22,7 @@ Quick start
 
 from sabench.analysis import first_order, jansen_s1_st, total_effect
 from sabench.benchmarks import BenchmarkFunction
-from sabench.functional import (
-    BoussinesqRecession,
-    DampedOscillator,
-    EpidemicSIR,
-    HeatDiffusion1D,
-    Lorenz96,
-    LotkaVolterra,
-    TwoCompartmentPK,
-)
-from sabench.sampling import saltelli_sample
-from sabench.scalar import (
+from sabench.benchmarks.scalar import (
     AdditiveQuadratic,
     Borehole,
     CornerPeak,
@@ -53,6 +43,16 @@ from sabench.scalar import (
     SobolG,
     WingWeight,
 )
+from sabench.functional import (
+    BoussinesqRecession,
+    DampedOscillator,
+    EpidemicSIR,
+    HeatDiffusion1D,
+    Lorenz96,
+    LotkaVolterra,
+    TwoCompartmentPK,
+)
+from sabench.sampling import saltelli_sample
 from sabench.spatial import Campbell2D, Campbell3D, ExponentialCampbell2D
 from sabench.transforms import (
     CONCAVE_TRANSFORMS,

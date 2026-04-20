@@ -70,7 +70,7 @@ observed $S_1$ changes.
 [@virtanen2020scipy] as the only runtime dependencies. The package is organised into
 five submodules:
 
-- `sabench.scalar` — scalar test functions inheriting `BenchmarkFunction`, each
+- `sabench.benchmarks.scalar` — scalar test functions inheriting `BenchmarkFunction`, each
   implementing `evaluate(X)`, `bounds`, `d`, and optionally `analytical_S1()`.
 - `sabench.functional` — PDE/ODE-based models producing vector or field outputs.
 - `sabench.spatial` — 2-D and 3-D spatial random field benchmarks.

@@ -3,8 +3,8 @@ from __future__ import annotations
 import importlib
 from pathlib import Path
 
+from sabench.benchmarks.scalar import Ishigami
 from sabench.functional import Lorenz96
-from sabench.scalar import Ishigami
 from sabench.spatial import Campbell2D
 
 

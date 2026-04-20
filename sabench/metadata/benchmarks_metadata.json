@@ -1,7 +1,7 @@
 {
   "Ishigami": {
     "name": "Ishigami",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 3,
     "input_names": [
@@ -76,7 +76,7 @@
   },
   "SobolG": {
     "name": "SobolG",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 8,
     "input_names": [
@@ -190,7 +190,7 @@
   },
   "Borehole": {
     "name": "Borehole",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 8,
     "input_names": [
@@ -294,7 +294,7 @@
   },
   "Piston": {
     "name": "Piston",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 7,
     "input_names": [
@@ -391,7 +391,7 @@
   },
   "WingWeight": {
     "name": "WingWeight",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 10,
     "input_names": [
@@ -508,7 +508,7 @@
   },
   "OTLCircuit": {
     "name": "OTLCircuit",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 6,
     "input_names": [
@@ -599,7 +599,7 @@
   },
   "Morris": {
     "name": "Morris",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 20,
     "input_names": [
@@ -775,7 +775,7 @@
   },
   "LinearModel": {
     "name": "LinearModel",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 5,
     "input_names": [
@@ -865,7 +865,7 @@
   },
   "AdditiveQuadratic": {
     "name": "AdditiveQuadratic",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 5,
     "input_names": [
@@ -964,7 +964,7 @@
   },
   "PCETestFunction": {
     "name": "PCETestFunction",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 4,
     "input_names": [
@@ -1056,7 +1056,7 @@
   },
   "Friedman": {
     "name": "Friedman",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 10,
     "input_names": [
@@ -1172,7 +1172,7 @@
   },
   "OakleyOHagan": {
     "name": "OakleyOHagan",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 15,
     "input_names": [
@@ -1319,7 +1319,7 @@
   },
   "MoonHerrera": {
     "name": "MoonHerrera",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 20,
     "input_names": [
@@ -1497,7 +1497,7 @@
   },
   "CornerPeak": {
     "name": "CornerPeak",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 6,
     "input_names": [
@@ -1595,7 +1595,7 @@
   },
   "ProductPeak": {
     "name": "ProductPeak",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 6,
     "input_names": [
@@ -1701,7 +1701,7 @@
   },
   "Rosenbrock": {
     "name": "Rosenbrock",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 6,
     "input_names": [
@@ -1790,7 +1790,7 @@
   },
   "EnvironModel": {
     "name": "EnvironModel",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 4,
     "input_names": [
@@ -1872,7 +1872,7 @@
   },
   "CSTRReactor": {
     "name": "CSTRReactor",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 5,
     "input_names": [
@@ -1959,7 +1959,7 @@
   },
   "DetPep8D": {
     "name": "DetPep8D",
-    "module": "sabench.scalar",
+    "module": "sabench.benchmarks.scalar",
     "output_type": "scalar",
     "d": 8,
     "input_names": [
