@@ -5,8 +5,8 @@ import unittest
 import numpy as np
 
 from sabench.analysis import first_order, jansen_s1_st, total_effect
-from sabench.benchmarks.scalar import Ishigami, LinearModel, SobolG
 from sabench.sampling import saltelli_sample
+from sabench.scalar import Ishigami, LinearModel, SobolG
 
 
 class TestJansenEstimator(unittest.TestCase):

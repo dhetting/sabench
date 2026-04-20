@@ -33,13 +33,13 @@ nbformat     = ">=5.9"
 # ── Task definitions ──────────────────────────────────────────────────────────
 [tasks]
 # Testing
-test        = "python -m pytest sabench/tests -q"
-test-cov    = "python -m pytest sabench/tests --cov=sabench --cov-report=term-missing -q"
+test        = "python -m pytest tests sabench/tests -q"
+test-cov    = "python -m pytest tests sabench/tests --cov=sabench --cov-report=term-missing -q"
 
 # Linting + formatting
-lint        = "ruff check sabench"
-fmt         = "ruff format sabench"
-fmt-check   = "ruff format --check sabench"
+lint        = "ruff check sabench tests"
+fmt         = "ruff format sabench tests"
+fmt-check   = "ruff format --check sabench tests"
 typecheck   = "mypy sabench --ignore-missing-imports"
 check-all   = { depends-on = ["lint", "fmt-check", "typecheck", "test"] }
 

@@ -1,128 +1,106 @@
-"""Canonical typed registry for sabench benchmark definitions."""
+"""Canonical typed benchmark registry."""
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+from dataclasses import dataclass
+from types import MappingProxyType
+
 from sabench.benchmarks.base import BenchmarkFunction
-from sabench.benchmarks.functional import (
-    BoussinesqRecession,
-    DampedOscillator,
-    EpidemicSIR,
-    HeatDiffusion1D,
-    Lorenz96,
-    LotkaVolterra,
-    TwoCompartmentPK,
-)
-from sabench.benchmarks.scalar import (
-    AdditiveQuadratic,
-    Borehole,
-    CornerPeak,
-    CSTRReactor,
-    DetPep8D,
-    EnvironModel,
-    Friedman,
-    Ishigami,
-    LinearModel,
-    MoonHerrera,
-    Morris,
-    OakleyOHagan,
-    OTLCircuit,
-    PCETestFunction,
-    Piston,
-    ProductPeak,
-    Rosenbrock,
-    SobolG,
-    WingWeight,
-)
-from sabench.benchmarks.spatial import Campbell2D, Campbell3D, ExponentialCampbell2D
-from sabench.benchmarks.types import BenchmarkFamily, BenchmarkSpec, OutputKind
-
-_LEGACY_OUTPUT_KIND_MAP: dict[str, OutputKind] = {
-    "scalar": OutputKind.SCALAR,
-    "spatial_2d": OutputKind.SPATIAL,
-    "spatial_3d": OutputKind.SPATIAL,
-    "functional": OutputKind.FUNCTIONAL,
-}
+from sabench.benchmarks.types import BenchmarkFamily, BenchmarkOutputKind, BenchmarkSpec
+from sabench.functional import Lorenz96
+from sabench.scalar import Ishigami
+from sabench.spatial import Campbell2D
 
 
-def _normalize_output_kind(benchmark_cls: type[BenchmarkFunction]) -> OutputKind:
-    legacy_output_type = getattr(benchmark_cls, "output_kind", None)
-    if legacy_output_type is None:
-        legacy_output_type = getattr(benchmark_cls, "output_type", None)
+@dataclass(frozen=True, slots=True)
+class BenchmarkDefinition:
+    """Canonical registry entry for a benchmark."""
 
-    if legacy_output_type not in _LEGACY_OUTPUT_KIND_MAP:
-        msg = (
-            f"Benchmark class {benchmark_cls.__module__}.{benchmark_cls.__name__} "
-            f"declares unsupported output label {legacy_output_type!r}."
-        )
-        raise ValueError(msg)
-
-    return _LEGACY_OUTPUT_KIND_MAP[legacy_output_type]
+    spec: BenchmarkSpec
+    benchmark_cls: type[BenchmarkFunction]
 
 
-def _spec(
+def _has_overridden_method(benchmark_cls: type[BenchmarkFunction], method_name: str) -> bool:
+    """Return whether a benchmark overrides an analytical API method."""
+    return getattr(benchmark_cls, method_name) is not getattr(BenchmarkFunction, method_name)
+
+
+def _build_spec(
     benchmark_cls: type[BenchmarkFunction],
+    *,
     family: BenchmarkFamily,
+    output_kind: BenchmarkOutputKind,
+    module_name: str,
 ) -> BenchmarkSpec:
+    """Build canonical typed metadata directly from the benchmark class."""
+    instance = benchmark_cls()
     return BenchmarkSpec(
-        key=benchmark_cls.__name__,
-        benchmark_cls=benchmark_cls,
+        name=benchmark_cls.name,
         family=family,
-        output_kind=_normalize_output_kind(benchmark_cls),
         module=benchmark_cls.__module__,
+        module_name=module_name,
+        class_name=benchmark_cls.__name__,
+        output_kind=output_kind,
+        d=instance.d,
+        description=benchmark_cls.description,
+        reference=benchmark_cls.reference,
+        has_analytical_s1=_has_overridden_method(benchmark_cls, "analytical_S1"),
+        has_analytical_st=_has_overridden_method(benchmark_cls, "analytical_ST"),
     )
 
 
-_BENCHMARK_SPECS = (
-    _spec(Ishigami, BenchmarkFamily.SCALAR),
-    _spec(SobolG, BenchmarkFamily.SCALAR),
-    _spec(Borehole, BenchmarkFamily.SCALAR),
-    _spec(Piston, BenchmarkFamily.SCALAR),
-    _spec(WingWeight, BenchmarkFamily.SCALAR),
-    _spec(OTLCircuit, BenchmarkFamily.SCALAR),
-    _spec(Morris, BenchmarkFamily.SCALAR),
-    _spec(LinearModel, BenchmarkFamily.SCALAR),
-    _spec(AdditiveQuadratic, BenchmarkFamily.SCALAR),
-    _spec(PCETestFunction, BenchmarkFamily.SCALAR),
-    _spec(Friedman, BenchmarkFamily.SCALAR),
-    _spec(OakleyOHagan, BenchmarkFamily.SCALAR),
-    _spec(MoonHerrera, BenchmarkFamily.SCALAR),
-    _spec(CornerPeak, BenchmarkFamily.SCALAR),
-    _spec(ProductPeak, BenchmarkFamily.SCALAR),
-    _spec(Rosenbrock, BenchmarkFamily.SCALAR),
-    _spec(EnvironModel, BenchmarkFamily.SCALAR),
-    _spec(CSTRReactor, BenchmarkFamily.SCALAR),
-    _spec(DetPep8D, BenchmarkFamily.SCALAR),
-    _spec(Campbell2D, BenchmarkFamily.SPATIAL),
-    _spec(ExponentialCampbell2D, BenchmarkFamily.SPATIAL),
-    _spec(Campbell3D, BenchmarkFamily.SPATIAL),
-    _spec(BoussinesqRecession, BenchmarkFamily.FUNCTIONAL),
-    _spec(DampedOscillator, BenchmarkFamily.FUNCTIONAL),
-    _spec(LotkaVolterra, BenchmarkFamily.FUNCTIONAL),
-    _spec(EpidemicSIR, BenchmarkFamily.FUNCTIONAL),
-    _spec(HeatDiffusion1D, BenchmarkFamily.FUNCTIONAL),
-    _spec(Lorenz96, BenchmarkFamily.FUNCTIONAL),
-    _spec(TwoCompartmentPK, BenchmarkFamily.FUNCTIONAL),
-)
+_REGISTRY: dict[str, BenchmarkDefinition] = {
+    "Ishigami": BenchmarkDefinition(
+        spec=_build_spec(
+            Ishigami,
+            family="scalar",
+            output_kind="scalar",
+            module_name="ishigami",
+        ),
+        benchmark_cls=Ishigami,
+    ),
+    "Campbell2D": BenchmarkDefinition(
+        spec=_build_spec(
+            Campbell2D,
+            family="spatial",
+            output_kind="spatial",
+            module_name="campbell2d",
+        ),
+        benchmark_cls=Campbell2D,
+    ),
+    "Lorenz96": BenchmarkDefinition(
+        spec=_build_spec(
+            Lorenz96,
+            family="functional",
+            output_kind="functional",
+            module_name="lorenz96",
+        ),
+        benchmark_cls=Lorenz96,
+    ),
+}
+
+BENCHMARK_REGISTRY: Mapping[str, BenchmarkDefinition] = MappingProxyType(_REGISTRY)
 
 
-BENCHMARK_SPECS: dict[str, BenchmarkSpec] = {spec.key: spec for spec in _BENCHMARK_SPECS}
-if len(BENCHMARK_SPECS) != len(_BENCHMARK_SPECS):
-    raise ValueError("Benchmark registry contains duplicate keys.")
+def get_benchmark_definition(name: str) -> BenchmarkDefinition:
+    """Return the registry entry for a benchmark name."""
+    try:
+        return BENCHMARK_REGISTRY[name]
+    except KeyError as exc:
+        raise KeyError(f"Unknown benchmark: {name}") from exc
 
 
-def get_benchmark_spec(key: str) -> BenchmarkSpec:
-    """Return the canonical typed spec for a benchmark key."""
-
-    return BENCHMARK_SPECS[key]
-
-
-def get_benchmark_class(key: str) -> type[BenchmarkFunction]:
-    """Return the benchmark class registered under ``key``."""
-
-    return get_benchmark_spec(key).benchmark_cls
+def get_benchmark_spec(name: str) -> BenchmarkSpec:
+    """Return the typed spec for a benchmark name."""
+    return get_benchmark_definition(name).spec
 
 
-def list_benchmark_names() -> list[str]:
-    """Return benchmark keys in deterministic sorted order."""
-
-    return sorted(BENCHMARK_SPECS)
+def list_benchmarks(family: BenchmarkFamily | None = None) -> tuple[str, ...]:
+    """List registered benchmark names, optionally filtered by family."""
+    names = [
+        name
+        for name, definition in BENCHMARK_REGISTRY.items()
+        if family is None or definition.spec.family == family
+    ]
+    return tuple(sorted(names))

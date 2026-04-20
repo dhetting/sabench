@@ -139,16 +139,16 @@ if $DO_PREPARE; then
 
   # ── ruff: fix safe lint violations + sort imports ─────────────────────────
   info "ruff --fix: auto-fixing safe violations and sorting imports"
-  $PIXI ruff check sabench --fix --select I,UP,C4,F401 || true
+  $PIXI ruff check sabench tests --fix --select I,UP,C4,F401 || true
   ok "ruff auto-fix applied"
 
   # ── ruff format: reformat all Python source ───────────────────────────────
   info "ruff format: reformatting sabench/"
-  record "ruff format (source)" $PIXI ruff format sabench
+  record "ruff format (source)" $PIXI ruff format sabench tests
 
   # ── ruff format: reformat test suite ─────────────────────────────────────
   info "ruff format: reformatting tests (for consistency)"
-  $PIXI ruff format sabench/tests || true
+  $PIXI ruff format tests sabench/tests || true
 
   # ── Strip notebook outputs (keeps git diffs clean) ───────────────────────
   if command -v nbstripout &>/dev/null || $PIXI python -c "import nbstripout" 2>/dev/null; then
@@ -170,11 +170,11 @@ if $DO_CHECK; then
 
   # ── 3a. ruff lint ────────────────────────────────────────────────────────
   info "ruff check sabench  (lint — mirrors 'lint' job)"
-  record "ruff lint" $PIXI ruff check sabench
+  record "ruff lint" $PIXI ruff check sabench tests
 
   # ── 3b. ruff format --check ───────────────────────────────────────────────
   info "ruff format --check sabench  (format guard — mirrors 'lint' job)"
-  record "ruff format --check" $PIXI ruff format --check sabench
+  record "ruff format --check" $PIXI ruff format --check sabench tests
 
   # ── 3c. mypy ──────────────────────────────────────────────────────────────
   info "mypy sabench  (type check — mirrors 'typecheck' job)"
@@ -182,7 +182,7 @@ if $DO_CHECK; then
 
   # ── 3d. pytest + coverage ─────────────────────────────────────────────────
   info "pytest with coverage  (mirrors 'test' matrix job)"
-  record "pytest + coverage" $PIXI python -m pytest sabench/tests \
+  record "pytest + coverage" $PIXI python -m pytest tests sabench/tests \
     --tb=short -q \
     --cov=sabench --cov-report=term-missing --cov-report=xml
 
@@ -224,7 +224,7 @@ print('  .zenodo.json OK')
 
   # ── 3f. trailing whitespace check ─────────────────────────────────────────
   info "Checking for trailing whitespace in Python source"
-  TW_COUNT=$(grep -rl " $" sabench/ --include="*.py" 2>/dev/null | wc -l || echo 0)
+  TW_COUNT=$(grep -rl " $" sabench/ tests/ --include="*.py" 2>/dev/null | wc -l || echo 0)
   if [[ "$TW_COUNT" -gt 0 ]]; then
     fail "Trailing whitespace found in $TW_COUNT files"
     FAILURES+=("trailing whitespace")
@@ -234,10 +234,10 @@ print('  .zenodo.json OK')
 
   # ── 3g. check for merge conflict markers ──────────────────────────────────
   info "Checking for merge conflict markers"
-  MC=$(grep -RIl --include="*.py" -E '^<<<<<<< |^=======$|^>>>>>>> ' sabench/ 2>/dev/null | wc -l | tr -d ' ')
+  MC=$(grep -RIl --include="*.py" -E '^<<<<<<< |^=======$|^>>>>>>> ' sabench/ tests/ 2>/dev/null | wc -l | tr -d ' ')
   if [ "${MC:-0}" -ne 0 ]; then
     fail "merge conflict markers found"
-    grep -RIn --include="*.py" -E '^<<<<<<< |^=======$|^>>>>>>> ' sabench/ || true
+    grep -RIn --include="*.py" -E '^<<<<<<< |^=======$|^>>>>>>> ' sabench/ tests/ || true
     FAILURES+=("merge conflict markers")
   else
     ok "merge conflict markers: none"

@@ -1,21 +1,23 @@
-"""Canonical package anchor for benchmark definitions."""
+"""Benchmark package contracts and registries."""
 
 from sabench.benchmarks.base import BenchmarkFunction
 from sabench.benchmarks.registry import (
-    BENCHMARK_SPECS,
-    get_benchmark_class,
+    BENCHMARK_REGISTRY,
+    BenchmarkDefinition,
+    get_benchmark_definition,
     get_benchmark_spec,
-    list_benchmark_names,
+    list_benchmarks,
 )
-from sabench.benchmarks.types import BenchmarkFamily, BenchmarkSpec, OutputKind
+from sabench.benchmarks.types import BenchmarkFamily, BenchmarkOutputKind, BenchmarkSpec
 
 __all__ = [
+    "BENCHMARK_REGISTRY",
+    "BenchmarkDefinition",
     "BenchmarkFamily",
     "BenchmarkFunction",
+    "BenchmarkOutputKind",
     "BenchmarkSpec",
-    "BENCHMARK_SPECS",
-    "OutputKind",
-    "get_benchmark_class",
+    "get_benchmark_definition",
     "get_benchmark_spec",
-    "list_benchmark_names",
+    "list_benchmarks",
 ]

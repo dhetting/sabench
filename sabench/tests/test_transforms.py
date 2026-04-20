@@ -465,8 +465,8 @@ class TestScoreTransformFunction(unittest.TestCase):
     def test_affine_transform_zero_delta(self):
         """Affine transforms commute: Δ (Bray-Curtis) should be ~0."""
         from sabench.analysis import jansen_s1_st
-        from sabench.benchmarks.scalar import LinearModel
         from sabench.sampling import saltelli_sample
+        from sabench.scalar import LinearModel
 
         m = LinearModel(a=[3.0, 2.0, 1.0])
         N = 1024

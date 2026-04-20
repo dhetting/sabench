@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from sabench.benchmarks.functional import (
+from sabench.functional import (
     BoussinesqRecession,
     DampedOscillator,
     EpidemicSIR,

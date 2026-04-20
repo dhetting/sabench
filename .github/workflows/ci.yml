@@ -19,8 +19,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-ruff@v1
-      - run: ruff check sabench
-      - run: ruff format --check sabench
+      - run: ruff check sabench tests
+      - run: ruff format --check sabench tests
 
   # ── Type checking ───────────────────────────────────────────────────────────
   typecheck:
@@ -51,7 +51,7 @@ jobs:
         run: pip install ".[dev]"
       - name: Run tests with coverage
         run: |
-          python -m pytest sabench/tests \
+          python -m pytest tests sabench/tests \
             --tb=short -q \
             --cov=sabench --cov-report=xml --cov-report=term-missing
       - name: Upload coverage to Codecov

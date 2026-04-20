@@ -1,24 +1,10 @@
-# macOS metadata
+# macOS
 .DS_Store
-.AppleDouble
-.LSOverride
-Icon?
-._*
-.Spotlight-V100
-.Trashes
-__MACOSX/
 
-# Python cache and environments
-*__pycache__/
+# Python bytecode / caches
+__pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.tox/
-.venv/
-venv/
-env/
 
 # Build / packaging artifacts
 build/
@@ -27,8 +13,6 @@ site/
 .eggs/
 *.egg-info/
 pip-wheel-metadata/
-site-packages/
-*.log
 
 # Test / coverage / type-check / lint caches
 .pytest_cache/

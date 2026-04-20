@@ -1,35 +1,26 @@
-"""Typed benchmark metadata definitions."""
+"""Typed benchmark metadata contracts."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from typing import Literal
 
-from sabench.benchmarks.base import BenchmarkFunction
-
-
-class OutputKind(str, Enum):
-    """Primary scientific output families exposed by sabench benchmarks."""
-
-    SCALAR = "scalar"
-    SPATIAL = "spatial"
-    FUNCTIONAL = "functional"
-
-
-class BenchmarkFamily(str, Enum):
-    """Filesystem grouping for benchmark implementations."""
-
-    SCALAR = "scalar"
-    SPATIAL = "spatial"
-    FUNCTIONAL = "functional"
+BenchmarkFamily = Literal["scalar", "spatial", "functional"]
+BenchmarkOutputKind = Literal["scalar", "spatial", "functional"]
 
 
 @dataclass(frozen=True, slots=True)
 class BenchmarkSpec:
-    """Canonical typed definition for a benchmark entry in the registry."""
+    """Canonical typed metadata for a benchmark definition."""
 
-    key: str
-    benchmark_cls: type[BenchmarkFunction]
+    name: str
     family: BenchmarkFamily
-    output_kind: OutputKind
     module: str
+    module_name: str
+    class_name: str
+    output_kind: BenchmarkOutputKind
+    d: int
+    description: str
+    reference: str
+    has_analytical_s1: bool
+    has_analytical_st: bool
