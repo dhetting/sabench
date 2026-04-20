@@ -224,7 +224,7 @@ print('  .zenodo.json OK')
 
   # ── 3f. trailing whitespace check ─────────────────────────────────────────
   info "Checking for trailing whitespace in Python source"
-  TW_COUNT=$(grep -rl " $" sabench/ tests/ --include="*.py" 2>/dev/null | wc -l || echo 0)
+  TW_COUNT=$( (grep -rl " $" sabench/ tests/ --include="*.py" 2>/dev/null || true) | wc -l | tr -d '[:space:]' )
   if [[ "$TW_COUNT" -gt 0 ]]; then
     fail "Trailing whitespace found in $TW_COUNT files"
     FAILURES+=("trailing whitespace")

@@ -3,9 +3,14 @@ from __future__ import annotations
 import importlib
 from pathlib import Path
 
+import sabench
 from sabench.benchmarks.scalar import Ishigami
+from sabench.benchmarks.spatial import Campbell2D
 from sabench.functional import Lorenz96
-from sabench.spatial import Campbell2D
+
+
+def _runtime_root() -> Path:
+    return Path(sabench.__file__).resolve().parent
 
 
 def test_new_base_module_import_succeeds() -> None:
@@ -24,8 +29,7 @@ def test_representative_benchmarks_inherit_from_new_base_module() -> None:
 
 
 def test_runtime_package_does_not_reference_old_base_module() -> None:
-    repo_root = Path(__file__).resolve().parents[2]
-    runtime_root = repo_root / "sabench"
+    runtime_root = _runtime_root()
     offenders: list[str] = []
 
     for path in runtime_root.rglob("*.py"):
@@ -39,5 +43,4 @@ def test_runtime_package_does_not_reference_old_base_module() -> None:
 
 
 def test_legacy_base_module_file_removed() -> None:
-    repo_root = Path(__file__).resolve().parents[2]
-    assert not (repo_root / "sabench" / "_base.py").exists()
+    assert not (_runtime_root() / "_base.py").exists()

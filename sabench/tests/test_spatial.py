@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from sabench.spatial import Campbell2D, Campbell3D, ExponentialCampbell2D
+from sabench.benchmarks.spatial import Campbell2D, Campbell3D, ExponentialCampbell2D
 
 
 class TestCampbell2D(unittest.TestCase):

@@ -11,15 +11,15 @@ def _runtime_root() -> Path:
     return Path(sabench.__file__).resolve().parent
 
 
-def test_scalar_family_imports_from_new_package() -> None:
-    module = importlib.import_module("sabench.benchmarks.scalar")
+def test_spatial_family_imports_from_new_package() -> None:
+    module = importlib.import_module("sabench.benchmarks.spatial")
 
-    assert module.Ishigami.__name__ == "Ishigami"
-    assert module.Borehole.__name__ == "Borehole"
-    assert issubclass(module.Ishigami, BenchmarkFunction)
+    assert module.Campbell2D.__name__ == "Campbell2D"
+    assert module.Campbell3D.__name__ == "Campbell3D"
+    assert issubclass(module.Campbell2D, BenchmarkFunction)
 
 
-def test_runtime_package_does_not_reference_legacy_scalar_package() -> None:
+def test_runtime_package_does_not_reference_legacy_spatial_package() -> None:
     runtime_root = _runtime_root()
     offenders: list[str] = []
 
@@ -28,11 +28,11 @@ def test_runtime_package_does_not_reference_legacy_scalar_package() -> None:
         if relative_path.parts[0] == "tests":
             continue
         source = path.read_text(encoding="utf-8")
-        if "from sabench.scalar import" in source or "import sabench.scalar" in source:
+        if "from sabench.spatial import" in source or "import sabench.spatial" in source:
             offenders.append(str(relative_path))
 
     assert offenders == []
 
 
-def test_legacy_scalar_package_removed() -> None:
-    assert not (_runtime_root() / "scalar").exists()
+def test_legacy_spatial_package_removed() -> None:
+    assert not (_runtime_root() / "spatial").exists()

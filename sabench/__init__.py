@@ -9,7 +9,7 @@ methods (Sobol indices, Morris screening, etc.).
 Quick start
 -----------
 >>> from sabench.benchmarks.scalar import Ishigami
->>> from sabench.spatial import Campbell2D
+>>> from sabench.benchmarks.spatial import Campbell2D
 >>> from sabench.sampling import saltelli_sample
 >>> from sabench.analysis import jansen_s1_st
 >>> from sabench.transforms import TRANSFORMS, POINTWISE_TRANSFORMS
@@ -43,6 +43,7 @@ from sabench.benchmarks.scalar import (
     SobolG,
     WingWeight,
 )
+from sabench.benchmarks.spatial import Campbell2D, Campbell3D, ExponentialCampbell2D
 from sabench.functional import (
     BoussinesqRecession,
     DampedOscillator,
@@ -53,7 +54,6 @@ from sabench.functional import (
     TwoCompartmentPK,
 )
 from sabench.sampling import saltelli_sample
-from sabench.spatial import Campbell2D, Campbell3D, ExponentialCampbell2D
 from sabench.transforms import (
     CONCAVE_TRANSFORMS,
     CONVEX_TRANSFORMS,
