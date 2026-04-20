@@ -72,7 +72,7 @@ five submodules:
 
 - `sabench.benchmarks.scalar` — scalar test functions inheriting `BenchmarkFunction`, each
   implementing `evaluate(X)`, `bounds`, `d`, and optionally `analytical_S1()`.
-- `sabench.functional` — PDE/ODE-based models producing vector or field outputs.
+- `sabench.benchmarks.functional` — PDE/ODE-based models producing vector or field outputs.
 - `sabench.benchmarks.spatial` — 2-D and 3-D spatial random field benchmarks.
 - `sabench.transforms` — the 172-transform registry with property classification sets
   (`CONVEX_TRANSFORMS`, `MONOTONE_TRANSFORMS`, etc.) and the `apply_transform` /

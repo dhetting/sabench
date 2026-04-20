@@ -2279,7 +2279,7 @@
   },
   "BoussinesqRecession": {
     "name": "BoussinesqRecession",
-    "module": "sabench.functional",
+    "module": "sabench.benchmarks.functional",
     "output_type": "functional_1d",
     "d": 3,
     "input_names": [
@@ -2353,7 +2353,7 @@
   },
   "DampedOscillator": {
     "name": "DampedOscillator",
-    "module": "sabench.functional",
+    "module": "sabench.benchmarks.functional",
     "output_type": "functional_1d",
     "d": 6,
     "input_names": [
@@ -2449,7 +2449,7 @@
   },
   "LotkaVolterra": {
     "name": "LotkaVolterra",
-    "module": "sabench.functional",
+    "module": "sabench.benchmarks.functional",
     "output_type": "functional_1d",
     "d": 4,
     "input_names": [
@@ -2533,7 +2533,7 @@
   },
   "EpidemicSIR": {
     "name": "EpidemicSIR",
-    "module": "sabench.functional",
+    "module": "sabench.benchmarks.functional",
     "output_type": "functional_1d",
     "d": 3,
     "input_names": [
@@ -2609,7 +2609,7 @@
   },
   "HeatDiffusion1D": {
     "name": "HeatDiffusion1D",
-    "module": "sabench.functional",
+    "module": "sabench.benchmarks.functional",
     "output_type": "functional_2d",
     "d": 4,
     "input_names": [
@@ -2692,7 +2692,7 @@
   },
   "Lorenz96": {
     "name": "Lorenz96",
-    "module": "sabench.functional",
+    "module": "sabench.benchmarks.functional",
     "output_type": "functional_1d",
     "d": 8,
     "input_names": [
@@ -2797,7 +2797,7 @@
   },
   "TwoCompartmentPK": {
     "name": "TwoCompartmentPK",
-    "module": "sabench.functional",
+    "module": "sabench.benchmarks.functional",
     "output_type": "functional_1d",
     "d": 5,
     "input_names": [

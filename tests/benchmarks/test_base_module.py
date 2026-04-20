@@ -4,9 +4,9 @@ import importlib
 from pathlib import Path
 
 import sabench
+from sabench.benchmarks.functional import Lorenz96
 from sabench.benchmarks.scalar import Ishigami
 from sabench.benchmarks.spatial import Campbell2D
-from sabench.functional import Lorenz96
 
 
 def _runtime_root() -> Path:

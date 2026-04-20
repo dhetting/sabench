@@ -7,10 +7,10 @@ from dataclasses import dataclass
 from types import MappingProxyType
 
 from sabench.benchmarks.base import BenchmarkFunction
+from sabench.benchmarks.functional import Lorenz96
 from sabench.benchmarks.scalar import Ishigami
 from sabench.benchmarks.spatial import Campbell2D
 from sabench.benchmarks.types import BenchmarkFamily, BenchmarkOutputKind, BenchmarkSpec
-from sabench.functional import Lorenz96
 
 
 @dataclass(frozen=True, slots=True)
