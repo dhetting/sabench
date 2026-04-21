@@ -66,7 +66,7 @@
     "function_name": "t_algebraic_sigmoid",
     "key": "algebraic_sigmoid",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Algebraic sigmoid y/sqrt(1+y^2)",
     "reference": "Glorot et al. (2011)",
     "supported_output_kinds": [
@@ -128,7 +128,7 @@
     "function_name": "t_arctan_pointwise",
     "key": "arctan_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "arctan(y) (monotone, bounded)",
     "reference": "Abramowitz & Stegun (1972)",
     "supported_output_kinds": [
@@ -212,7 +212,7 @@
     "function_name": "t_bent_identity",
     "key": "bent_identity",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Bent identity (monotone, near-linear)",
     "reference": "Glorot et al. (2011)",
     "supported_output_kinds": [
@@ -384,7 +384,7 @@
     "function_name": "t_breakpoint",
     "key": "breakpoint",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Piecewise linear breakpoint (C0)",
     "reference": "Hansen (2000)",
     "supported_output_kinds": [
@@ -424,7 +424,7 @@
     "function_name": "t_cbrt_pointwise",
     "key": "cbrt_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Cube root (monotone, concave x>0)",
     "reference": "Borwein & Lewis (2000)",
     "supported_output_kinds": [
@@ -541,7 +541,7 @@
     "function_name": "t_cos_pointwise",
     "key": "cos_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.pointwise",
+    "module": "sabench.transforms.transforms",
     "name": "cos(y) (periodic, even, bounded)",
     "reference": "Saltelli et al. (2010)",
     "supported_output_kinds": [
@@ -561,7 +561,7 @@
     "function_name": "t_cos_squared",
     "key": "cos_squared",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.pointwise",
+    "module": "sabench.transforms.transforms",
     "name": "cos^2(fy) (even, non-negative)",
     "reference": "Saltelli et al. (2010)",
     "supported_output_kinds": [
@@ -581,7 +581,7 @@
     "function_name": "t_cosh_pointwise",
     "key": "cosh_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Cosh (convex, even, C\u221e)",
     "reference": "Abramowitz & Stegun (1972)",
     "supported_output_kinds": [
@@ -602,7 +602,7 @@
     "function_name": "t_cube_pointwise",
     "key": "cube_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.pointwise",
+    "module": "sabench.transforms.transforms",
     "name": "Cube (odd, convex x>0 / concave x<0)",
     "reference": "Borwein & Lewis (2000)",
     "supported_output_kinds": [
@@ -662,7 +662,7 @@
     "function_name": "t_damped_sin",
     "key": "damped_sin",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.pointwise",
+    "module": "sabench.transforms.transforms",
     "name": "Damped sine (decaying oscillation)",
     "reference": "Stein (1999)",
     "supported_output_kinds": [
@@ -682,7 +682,7 @@
     "function_name": "t_deadzone",
     "key": "deadzone",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Deadzone (zero band, C0)",
     "reference": "Donoho & Johnstone (1994)",
     "supported_output_kinds": [
@@ -721,7 +721,7 @@
     "function_name": "t_double_sin",
     "key": "double_sin",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.pointwise",
+    "module": "sabench.transforms.transforms",
     "name": "Double-frequency sin+sin (interference)",
     "reference": "Saltelli et al. (2010)",
     "supported_output_kinds": [
@@ -840,7 +840,7 @@
     "function_name": "t_erf_pointwise",
     "key": "erf_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.pointwise",
+    "module": "sabench.transforms.transforms",
     "name": "erf(y) (monotone, S-shaped, C\u221e)",
     "reference": "Abramowitz & Stegun (1972)",
     "supported_output_kinds": [
@@ -1141,7 +1141,7 @@
     "function_name": "t_gompertz",
     "key": "gompertz_cdf",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Gompertz CDF (asymmetric sigmoid)",
     "reference": "Gompertz (1825)",
     "supported_output_kinds": [
@@ -1217,7 +1217,7 @@
     "function_name": "t_hard_sigmoid",
     "key": "hard_sigmoid",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Hard sigmoid (piecewise linear, C0)",
     "reference": "Goodfellow et al. (2016)",
     "supported_output_kinds": [
@@ -1238,7 +1238,7 @@
     "function_name": "t_hard_tanh",
     "key": "hard_tanh",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Hard tanh clip(-1,1) (piecewise, C0)",
     "reference": "Goodfellow et al. (2016)",
     "supported_output_kinds": [
@@ -1259,7 +1259,7 @@
     "function_name": "t_hard_threshold",
     "key": "hard_threshold",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Hard threshold (discontinuous)",
     "reference": "Donoho & Johnstone (1994)",
     "supported_output_kinds": [
@@ -1361,7 +1361,7 @@
     "function_name": "t_hockey_stick",
     "key": "hockey_stick",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Hockey stick ReLU-shift (convex, C0)",
     "reference": "Glorot et al. (2011)",
     "supported_output_kinds": [
@@ -1440,7 +1440,7 @@
     "function_name": "t_interquartile_range",
     "key": "iqr",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Interquartile range (nonlocal spread)",
     "reference": "Tukey (1977)",
     "supported_output_kinds": [
@@ -1596,7 +1596,7 @@
     "function_name": "t_log_abs",
     "key": "log_abs_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.pointwise",
+    "module": "sabench.transforms.transforms",
     "name": "log|y| (concave for |y|>1, singular)",
     "reference": "Box & Cox (1964)",
     "supported_output_kinds": [
@@ -1757,7 +1757,7 @@
     "function_name": "t_logistic_pointwise",
     "key": "logistic_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Logistic \u03c3(y) (monotone, S-shaped)",
     "reference": "Verhulst (1838)",
     "supported_output_kinds": [
@@ -1814,7 +1814,7 @@
     "function_name": "t_mish",
     "key": "mish",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Mish activation (smooth non-monotone)",
     "reference": "Misra (2020)",
     "supported_output_kinds": [
@@ -1954,7 +1954,7 @@
     "function_name": "t_percentile_q10",
     "key": "percentile_q10",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "10th percentile (nonlocal quantile)",
     "reference": "Hyndman & Fan (1996)",
     "supported_output_kinds": [
@@ -1973,7 +1973,7 @@
     "function_name": "t_percentile_q90",
     "key": "percentile_q90",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "90th percentile (nonlocal quantile)",
     "reference": "Hyndman & Fan (1996)",
     "supported_output_kinds": [
@@ -2171,7 +2171,7 @@
     "function_name": "t_ramp",
     "key": "ramp",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Ramp/clip (piecewise linear, C0)",
     "reference": "Saltelli et al. (2008)",
     "supported_output_kinds": [
@@ -2386,7 +2386,7 @@
     "function_name": "t_sample_kurtosis",
     "key": "sample_kurtosis",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Excess kurtosis (4th moment - 3)",
     "reference": "Fisher (1925)",
     "supported_output_kinds": [
@@ -2406,7 +2406,7 @@
     "function_name": "t_sample_skewness",
     "key": "sample_skewness",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Sample skewness (3rd moment)",
     "reference": "Fisher (1925)",
     "supported_output_kinds": [
@@ -2426,7 +2426,7 @@
     "function_name": "t_sample_variance",
     "key": "sample_variance",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Sample variance (nonlocal spread)",
     "reference": "Fisher (1925)",
     "supported_output_kinds": [
@@ -2446,7 +2446,7 @@
     "function_name": "t_sawtooth",
     "key": "sawtooth",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.pointwise",
+    "module": "sabench.transforms.transforms",
     "name": "Sawtooth wave (C0, periodic)",
     "reference": "Oppenheim & Schafer (1989)",
     "supported_output_kinds": [
@@ -2466,7 +2466,7 @@
     "function_name": "t_selu",
     "key": "selu",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "SELU activation (C1, piecewise)",
     "reference": "Klambauer et al. (2017)",
     "supported_output_kinds": [
@@ -2567,7 +2567,7 @@
     "function_name": "t_sin_cos_product",
     "key": "sin_cos_product",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.pointwise",
+    "module": "sabench.transforms.transforms",
     "name": "sin*cos = 0.5*sin(2f) (harmonic)",
     "reference": "Abramowitz & Stegun (1972)",
     "supported_output_kinds": [
@@ -2587,7 +2587,7 @@
     "function_name": "t_sin_pointwise",
     "key": "sin_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.pointwise",
+    "module": "sabench.transforms.transforms",
     "name": "sin(y) (periodic, bounded, C\u221e)",
     "reference": "Saltelli et al. (2010)",
     "supported_output_kinds": [
@@ -2607,7 +2607,7 @@
     "function_name": "t_sin_squared",
     "key": "sin_squared",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.pointwise",
+    "module": "sabench.transforms.transforms",
     "name": "sin^2(fy) (bounded, non-negative)",
     "reference": "Saltelli et al. (2010)",
     "supported_output_kinds": [
@@ -2627,7 +2627,7 @@
     "function_name": "t_sinc",
     "key": "sinc",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.pointwise",
+    "module": "sabench.transforms.transforms",
     "name": "Normalised sinc (decaying oscillation)",
     "reference": "Whittaker (1915)",
     "supported_output_kinds": [
@@ -2647,7 +2647,7 @@
     "function_name": "t_sinh_pointwise",
     "key": "sinh_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "sinh(y) (monotone, convex x>0)",
     "reference": "Abramowitz & Stegun (1972)",
     "supported_output_kinds": [
@@ -2688,7 +2688,7 @@
     "function_name": "t_soft_threshold",
     "key": "soft_threshold",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Soft threshold (lasso/shrinkage, C0)",
     "reference": "Donoho & Johnstone (1994)",
     "supported_output_kinds": [
@@ -2769,7 +2769,7 @@
     "function_name": "t_softsign",
     "key": "softsign",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Softsign y/(1+|y|) (monotone, C1)",
     "reference": "Glorot & Bengio (2010)",
     "supported_output_kinds": [
@@ -2789,7 +2789,7 @@
     "function_name": "t_spike",
     "key": "spike_gaussian",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Gaussian spike (C-inf, compact-ish)",
     "reference": "Wendland (2004)",
     "supported_output_kinds": [
@@ -2849,7 +2849,7 @@
     "function_name": "t_square_wave",
     "key": "square_wave",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.pointwise",
+    "module": "sabench.transforms.transforms",
     "name": "Square wave (discontinuous, periodic)",
     "reference": "Oppenheim & Schafer (1989)",
     "supported_output_kinds": [
@@ -2908,7 +2908,7 @@
     "function_name": "t_step_pointwise",
     "key": "step_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.pointwise",
+    "module": "sabench.transforms.transforms",
     "name": "Heaviside step (discontinuous)",
     "reference": "Saltelli et al. (2010)",
     "supported_output_kinds": [
@@ -2948,7 +2948,7 @@
     "function_name": "t_swish",
     "key": "swish",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.nonlinear",
+    "module": "sabench.transforms.transforms",
     "name": "Swish activation (non-monotone)",
     "reference": "Ramachandran et al. (2017)",
     "supported_output_kinds": [

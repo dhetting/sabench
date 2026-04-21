@@ -17,54 +17,25 @@ from __future__ import annotations
 
 import numpy as np
 
-from sabench.transforms.aggregation import t_temporal_peak
-from sabench.transforms.field_ops import t_gradient_magnitude
-from sabench.transforms.nonlinear import (
-    t_algebraic_sigmoid,
-    t_arctan_pointwise,
-    t_bent_identity,
-    t_breakpoint,
-    t_cbrt_pointwise,
-    t_cosh_pointwise,
-    t_deadzone,
-    t_gompertz,
-    t_hard_sigmoid,
-    t_hard_tanh,
-    t_hard_threshold,
-    t_hockey_stick,
-    t_logistic_pointwise,
-    t_mish,
-    t_ramp,
-    t_selu,
-    t_sinh_pointwise,
-    t_soft_threshold,
-    t_softplus_pointwise,
-    t_softsign,
-    t_spike,
-    t_swish,
+from sabench.transforms.aggregation import (
+    t_interquartile_range,
+    t_percentile_q10,
+    t_percentile_q90,
+    t_sample_kurtosis,
+    t_sample_skewness,
+    t_sample_variance,
+    t_temporal_peak,
 )
+from sabench.transforms.field_ops import t_gradient_magnitude
+from sabench.transforms.nonlinear import t_softplus_pointwise
 from sabench.transforms.linear import t_affine
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
-    t_cos_pointwise,
-    t_cos_squared,
-    t_cube_pointwise,
-    t_damped_sin,
-    t_double_sin,
-    t_erf_pointwise,
     t_exp_pointwise,
     t_log1p_abs,
-    t_log_abs,
     t_relu_pointwise,
-    t_sawtooth,
-    t_sin_cos_product,
-    t_sin_pointwise,
-    t_sin_squared,
-    t_sinc,
     t_sqrt_abs,
     t_square_pointwise,
-    t_square_wave,
-    t_step_pointwise,
     t_tanh_pointwise,
 )
 from sabench.transforms.samplewise import t_temporal_cumsum
@@ -448,6 +419,21 @@ def t_entropy_proxy(Y):
 # ── Convex pointwise ──────────────────────────────────────────────────────────
 
 
+def t_cube_pointwise(Y):
+    """Cube: φ(y) = y³.
+    Odd function; convex for y>0, concave for y<0 (inflection at 0).
+    C∞, monotone increasing, φ'=3y²≥0, φ''=6y changes sign.
+    """
+    return Y**3
+
+
+def t_cosh_pointwise(Y, scale=0.1):
+    """Hyperbolic cosine: φ(y) = cosh(scale·y).
+    Strictly convex, even (symmetric), C∞, non-monotone.
+    Grows exponentially; models symmetric amplification.
+    """
+    return np.cosh(np.clip(scale * Y, -100, 100))
+
 
 def t_softmax_shift(Y):
     """Shifted softmax normalisation: Z_k = exp(Y_k) / sum_k exp(Y_k).
@@ -463,6 +449,13 @@ def t_softmax_shift(Y):
 # ── Concave pointwise ─────────────────────────────────────────────────────────
 
 
+def t_cbrt_pointwise(Y):
+    """Cube root: φ(y) = y^(1/3) = cbrt(y).
+    Monotone, odd, concave for y>0, convex for y<0.
+    C∞ except at y=0 (derivative→∞). Strongly compresses tails.
+    """
+    return np.cbrt(Y)
+
 
 def t_neg_square(Y):
     """Negative square: φ(y) = −y².
@@ -474,6 +467,68 @@ def t_neg_square(Y):
 
 # ── Monotone S-shaped ────────────────────────────────────────────────────────
 
+
+def t_logistic_pointwise(Y, k=1.0):
+    """Logistic: φ(y) = 1/(1+exp(−k·y)).
+    Monotone increasing, bounded in (0,1), C∞.
+    Concave for y>0, convex for y<0; inflection at y=0.
+    Used in probability models and neural-network output layers.
+    """
+    return 1.0 / (1.0 + np.exp(-np.clip(k * Y, -100, 100)))
+
+
+def t_arctan_pointwise(Y, scale=1.0):
+    """Arctan: φ(y) = arctan(scale·y).
+    Monotone increasing, bounded in (−π/2, π/2), C∞.
+    Concave for y>0, convex for y<0; symmetric saturation.
+    """
+    return np.arctan(scale * Y)
+
+
+def t_erf_pointwise(Y, scale=0.5):
+    """Error function: φ(y) = erf(scale·y).
+    Monotone, bounded in (−1,1), C∞, odd function.
+    Concave for y>0; related to normal CDF by erf(y)=2Φ(√2 y)−1.
+    """
+    from math import erf as _erf
+
+    return np.vectorize(lambda y: _erf(scale * y))(Y).astype(float)
+
+
+def t_sinh_pointwise(Y, scale=0.1):
+    """Sinh: φ(y) = sinh(scale·y).
+    Monotone, odd, convex for y>0, concave for y<0 (inflection at 0).
+    Grows exponentially; complementary to tanh.
+    """
+    return np.sinh(np.clip(scale * Y, -100, 100))
+
+
+# ── Oscillatory / non-monotone ────────────────────────────────────────────────
+
+
+def t_sin_pointwise(Y, freq=0.5):
+    """Sine: φ(y) = sin(freq·y).
+    Periodic (T=2π/freq), bounded in [−1,1], C∞.
+    Alternately convex and concave; zero mean for uniform Y.
+    Alternates sensitivity signs with period: high-frequency → strong noncommutativity.
+    """
+    return np.sin(freq * Y)
+
+
+def t_cos_pointwise(Y, freq=0.5):
+    """Cosine: φ(y) = cos(freq·y).
+    Periodic, even, bounded in [−1,1], C∞.
+    Like sine but with maximum at origin.
+    """
+    return np.cos(freq * Y)
+
+
+def t_step_pointwise(Y, threshold=0.0):
+    """Heaviside step: φ(y) = 1[y > threshold].
+    Discontinuous (C⁻¹), non-monotone in the sense of being constant piecewise.
+    Extreme noncommutativity expected; destroys all metric information.
+    """
+    return (Y > threshold).astype(float)
 
 
 def t_triangle_wave(Y, period=4.0):
@@ -513,6 +568,13 @@ def t_inverse_abs(Y, eps=1.0):
     Singular at y=0 for eps=0; eps provides regularisation.
     """
     return 1.0 / (np.abs(Y) + eps)
+
+
+def t_log_abs(Y, eps=1.0):
+    """Log of shifted absolute value: φ(y) = log(|y| + eps).
+    Concave for |y|>0, symmetric (even), grows logarithmically.
+    """
+    return np.log(np.abs(Y) + eps)
 
 
 # ── Normalisation / standardisation ──────────────────────────────────────────
@@ -855,11 +917,101 @@ def t_atan2pi(Y, scale=1.0):
     return (2.0 / np.pi) * np.arctan(scale * Y)
 
 
+def t_gompertz(Y, b=1.0, c=0.5):
+    """Gompertz CDF: phi(y) = exp(-exp(-b*(y-c))) -- S-shaped, asymmetric."""
+    s = _bc(_ymin(Y), Y)
+    r = _bc(_safe_range(Y), Y)
+    u = (Y - s) / r - 0.5
+    return np.exp(-np.exp(-b * u))
+
+
+def t_algebraic_sigmoid(Y, scale=0.5):
+    """Algebraic sigmoid: phi(y) = y/sqrt(1+y^2) -- monotone, bounded (-1,1)."""
+    u = scale * Y
+    return u / np.sqrt(1.0 + u**2)
+
+
+def t_swish(Y, beta=1.0):
+    """Swish activation: phi(y) = y * sigmoid(beta*y) -- non-monotone for beta>0."""
+    return Y * (1.0 / (1.0 + np.exp(-beta * Y)))
+
+
+def t_mish(Y):
+    """Mish activation: phi(y) = y * tanh(softplus(y)) -- smooth non-monotone."""
+    sp = np.log1p(np.exp(np.clip(Y, -500, 500)))
+    return Y * np.tanh(sp)
+
+
+def t_selu(Y, alpha=1.6733, lam=1.0507):
+    """SELU activation: scaled ELU -- piecewise, C1, self-normalising."""
+    return lam * np.where(Y >= 0.0, Y, alpha * (np.exp(Y) - 1.0))
+
+
+def t_softsign(Y, scale=1.0):
+    """Softsign: phi(y) = y/(1+|y|) -- monotone, bounded (-1,1), C1."""
+    return scale * Y / (1.0 + np.abs(Y))
+
+
+def t_bent_identity(Y, scale=0.5):
+    """Bent identity: phi(y) = (sqrt(y^2+1)-1)/2 + y -- monotone, near-linear."""
+    u = scale * Y
+    return (np.sqrt(u**2 + 1.0) - 1.0) / 2.0 + u
+
+
+def t_hard_sigmoid(Y, scale=0.5):
+    """Hard sigmoid: phi(y) = clip(0.2*y+0.5, 0, 1) -- piecewise linear, C0."""
+    return np.clip(0.2 * scale * Y + 0.5, 0.0, 1.0)
+
+
+def t_hard_tanh(Y, scale=0.3):
+    """Hard tanh: phi(y) = clip(y, -1, 1) -- piecewise linear, bounded, C0."""
+    return np.clip(scale * Y, -1.0, 1.0)
+
 
 # ============================================================================
 # OSCILLATORY / PERIODIC FAMILY
 # ============================================================================
 
+
+def t_sinc(Y, scale=0.5):
+    """Normalised sinc: phi(y) = sin(pi*scale*y)/(pi*scale*y) -- C-inf, decaying osc."""
+    u = scale * Y
+    return np.sinc(u)  # numpy sinc is normalised: sin(pi*x)/(pi*x)
+
+
+def t_sin_squared(Y, freq=0.5):
+    """phi(y) = sin^2(freq*y) -- non-negative, bounded [0,1], even, periodic."""
+    return np.sin(freq * Y) ** 2
+
+
+def t_cos_squared(Y, freq=0.5):
+    """phi(y) = cos^2(freq*y) -- non-negative, bounded [0,1], even, periodic."""
+    return np.cos(freq * Y) ** 2
+
+
+def t_damped_sin(Y, freq=0.5, decay=0.1):
+    """phi(y) = exp(-decay*|y|)*sin(freq*y) -- decaying oscillation, odd, C-inf."""
+    return np.exp(-decay * np.abs(Y)) * np.sin(freq * Y)
+
+
+def t_sawtooth(Y, period=4.0):
+    """Sawtooth wave: phi(y) = 2*(y/period - floor(y/period+0.5)) -- C0 except jumps."""
+    return 2.0 * (Y / period - np.floor(Y / period + 0.5))
+
+
+def t_square_wave(Y, period=4.0):
+    """Square wave: phi(y) = sign(sin(2*pi*y/period)) -- discontinuous, periodic."""
+    return np.sign(np.sin(2.0 * np.pi * Y / period))
+
+
+def t_double_sin(Y, freq1=0.3, freq2=0.7):
+    """phi(y) = sin(freq1*y) + sin(freq2*y) -- two-frequency interference pattern."""
+    return np.sin(freq1 * Y) + np.sin(freq2 * Y)
+
+
+def t_sin_cos_product(Y, freq=0.5):
+    """phi(y) = sin(freq*y)*cos(freq*y) = 0.5*sin(2*freq*y) -- harmonic product."""
+    return np.sin(freq * Y) * np.cos(freq * Y)
 
 
 # ============================================================================
@@ -867,11 +1019,39 @@ def t_atan2pi(Y, scale=1.0):
 # ============================================================================
 
 
+def t_soft_threshold(Y, lam=1.0):
+    """Soft threshold (lasso shrinkage): phi(y) = sign(y)*max(|y|-lam, 0) -- C0."""
+    return np.sign(Y) * np.maximum(np.abs(Y) - lam, 0.0)
 
 
+def t_hard_threshold(Y, lam=1.0):
+    """Hard threshold: phi(y) = y*(|y|>=lam) -- discontinuous at +-lam."""
+    return Y * (np.abs(Y) >= lam).astype(float)
 
 
+def t_ramp(Y, lo=-1.0, hi=1.0):
+    """Ramp / leaky clip: phi(y) = clip(y, lo, hi) -- piecewise linear, C0."""
+    return np.clip(Y, lo, hi)
 
+
+def t_spike(Y, center=0.0, width=1.0):
+    """Spike indicator: phi(y) = exp(-(y-center)^2/(2*width^2)) -- C-inf bump."""
+    return np.exp(-0.5 * ((Y - center) / width) ** 2)
+
+
+def t_breakpoint(Y, bp=0.0, slope_lo=0.5, slope_hi=2.0):
+    """Piecewise linear breakpoint: slope_lo below bp, slope_hi above -- C0 kink."""
+    return np.where(Y < bp, slope_lo * (Y - bp), slope_hi * (Y - bp))
+
+
+def t_hockey_stick(Y, bp=0.0):
+    """Hockey stick: phi(y) = 0 for y<bp, y-bp for y>=bp -- convex, C0, ReLU-shift."""
+    return np.maximum(Y - bp, 0.0)
+
+
+def t_deadzone(Y, half_width=1.0):
+    """Deadzone: phi(y)=0 for |y|<half_width, y-sign(y)*hw otherwise -- C0."""
+    return np.sign(Y) * np.maximum(np.abs(Y) - half_width, 0.0)
 
 
 def t_bimodal_flip(Y):
@@ -1209,52 +1389,6 @@ def t_stress_life(Y, C=1e6, m=3.0):
 # ============================================================================
 # SPATIAL / STATISTICAL SUMMARY TRANSFORMS (nonlocal)
 # ============================================================================
-
-
-def t_sample_variance(Y):
-    """Sample variance of outputs across pixels/time: phi_i = Var_t[Y_i]."""
-    flat = Y.reshape(len(Y), -1)
-    vv = flat.var(axis=1)
-    return _bc(vv, Y) * np.ones_like(Y)
-
-
-def t_sample_skewness(Y):
-    """Sample skewness: phi_i = E[(Y-mu)^3]/sigma^3 -- third standardised moment."""
-    flat = Y.reshape(len(Y), -1)
-    mu = flat.mean(axis=1, keepdims=True)
-    sg = flat.std(axis=1, keepdims=True) + 1e-10
-    skew = ((flat - mu) ** 3).mean(axis=1) / sg.squeeze() ** 3
-    return _bc(skew, Y) * np.ones_like(Y)
-
-
-def t_sample_kurtosis(Y):
-    """Excess kurtosis: phi_i = E[(Y-mu)^4]/sigma^4 - 3 -- tail heaviness."""
-    flat = Y.reshape(len(Y), -1)
-    mu = flat.mean(axis=1, keepdims=True)
-    sg = flat.std(axis=1, keepdims=True) + 1e-10
-    kurt = ((flat - mu) ** 4).mean(axis=1) / sg.squeeze() ** 4 - 3.0
-    return _bc(kurt, Y) * np.ones_like(Y)
-
-
-def t_percentile_q10(Y):
-    """10th percentile nonlocal: phi_i = Q10(Y_i, :)."""
-    flat = Y.reshape(len(Y), -1)
-    q = np.percentile(flat, 10, axis=1)
-    return _bc(q, Y) * np.ones_like(Y)
-
-
-def t_percentile_q90(Y):
-    """90th percentile nonlocal: phi_i = Q90(Y_i, :)."""
-    flat = Y.reshape(len(Y), -1)
-    q = np.percentile(flat, 90, axis=1)
-    return _bc(q, Y) * np.ones_like(Y)
-
-
-def t_interquartile_range(Y):
-    """IQR: phi_i = Q75(Y_i) - Q25(Y_i) -- spread measure, nonlocal."""
-    flat = Y.reshape(len(Y), -1)
-    iqr = np.percentile(flat, 75, axis=1) - np.percentile(flat, 25, axis=1)
-    return _bc(iqr, Y) * np.ones_like(Y)
 
 
 # ============================================================================
