@@ -11,16 +11,36 @@ import numpy as np
 
 from sabench.transforms.base import BoundTransform, TransformFunction
 from sabench.transforms.transforms import (
-    AFFINE_TRANSFORMS,
-    CONCAVE_TRANSFORMS,
-    CONVEX_TRANSFORMS,
-    LINEAR_TRANSFORMS,
-    MONOTONE_TRANSFORMS,
-    NONLOCAL_TRANSFORMS,
-    NONMONOTONE_TRANSFORMS,
-    NONSMOOTH_TRANSFORMS,
-    POINTWISE_TRANSFORMS,
-    SMOOTH_TRANSFORMS,
+    AFFINE_TRANSFORMS as LEGACY_AFFINE_TRANSFORMS,
+)
+from sabench.transforms.transforms import (
+    CONCAVE_TRANSFORMS as LEGACY_CONCAVE_TRANSFORMS,
+)
+from sabench.transforms.transforms import (
+    CONVEX_TRANSFORMS as LEGACY_CONVEX_TRANSFORMS,
+)
+from sabench.transforms.transforms import (
+    LINEAR_TRANSFORMS as LEGACY_LINEAR_TRANSFORMS,
+)
+from sabench.transforms.transforms import (
+    MONOTONE_TRANSFORMS as LEGACY_MONOTONE_TRANSFORMS,
+)
+from sabench.transforms.transforms import (
+    NONLOCAL_TRANSFORMS as LEGACY_NONLOCAL_TRANSFORMS,
+)
+from sabench.transforms.transforms import (
+    NONMONOTONE_TRANSFORMS as LEGACY_NONMONOTONE_TRANSFORMS,
+)
+from sabench.transforms.transforms import (
+    NONSMOOTH_TRANSFORMS as LEGACY_NONSMOOTH_TRANSFORMS,
+)
+from sabench.transforms.transforms import (
+    POINTWISE_TRANSFORMS as LEGACY_POINTWISE_TRANSFORMS,
+)
+from sabench.transforms.transforms import (
+    SMOOTH_TRANSFORMS as LEGACY_SMOOTH_TRANSFORMS,
+)
+from sabench.transforms.transforms import (
     TRANSFORMS,
 )
 from sabench.transforms.types import (
@@ -90,16 +110,16 @@ _DOMAIN_TAGS: dict[str, TransformTag] = {
 }
 
 _PROPERTY_TAG_SOURCES: tuple[tuple[TransformTag, set[str]], ...] = (
-    ("affine", AFFINE_TRANSFORMS),
-    ("linear", LINEAR_TRANSFORMS),
-    ("pointwise", POINTWISE_TRANSFORMS),
-    ("nonlocal", NONLOCAL_TRANSFORMS),
-    ("convex", CONVEX_TRANSFORMS),
-    ("concave", CONCAVE_TRANSFORMS),
-    ("monotone", MONOTONE_TRANSFORMS),
-    ("nonmonotone", NONMONOTONE_TRANSFORMS),
-    ("smooth", SMOOTH_TRANSFORMS),
-    ("nonsmooth", NONSMOOTH_TRANSFORMS),
+    ("affine", LEGACY_AFFINE_TRANSFORMS),
+    ("linear", LEGACY_LINEAR_TRANSFORMS),
+    ("pointwise", LEGACY_POINTWISE_TRANSFORMS),
+    ("nonlocal", LEGACY_NONLOCAL_TRANSFORMS),
+    ("convex", LEGACY_CONVEX_TRANSFORMS),
+    ("concave", LEGACY_CONCAVE_TRANSFORMS),
+    ("monotone", LEGACY_MONOTONE_TRANSFORMS),
+    ("nonmonotone", LEGACY_NONMONOTONE_TRANSFORMS),
+    ("smooth", LEGACY_SMOOTH_TRANSFORMS),
+    ("nonsmooth", LEGACY_NONSMOOTH_TRANSFORMS),
 )
 
 _FIELD_OP_KEYS: frozenset[str] = frozenset(
@@ -150,7 +170,7 @@ def _infer_mechanism(
     supported_output_kinds: tuple[TransformOutputKind, ...],
 ) -> TransformMechanism:
     """Infer the typed transform mechanism from legacy code behavior."""
-    if key in POINTWISE_TRANSFORMS:
+    if key in LEGACY_POINTWISE_TRANSFORMS:
         return "pointwise"
 
     if category == "spatial":
@@ -173,7 +193,7 @@ def _collect_tags(key: str, category: str) -> tuple[TransformTag, ...]:
     for tag_name, keys in _PROPERTY_TAG_SOURCES:
         if key in keys:
             tags.append(tag_name)
-    if key not in LINEAR_TRANSFORMS:
+    if key not in LEGACY_LINEAR_TRANSFORMS:
         tags.append("nonlinear")
     tags.append(_DOMAIN_TAGS[category])
     return tuple(tags)
@@ -227,11 +247,29 @@ def get_transform(key: str) -> BoundTransform:
     return get_transform_definition(key).transform
 
 
-def list_transforms(mechanism: TransformMechanism | None = None) -> tuple[str, ...]:
-    """List registered transform keys, optionally filtered by mechanism."""
+def list_transforms(
+    mechanism: TransformMechanism | None = None,
+    tag: TransformTag | None = None,
+    output_kind: TransformOutputKind | None = None,
+) -> tuple[str, ...]:
+    """List registered transform keys, optionally filtered by typed metadata."""
     keys = [
         key
         for key, definition in TRANSFORM_REGISTRY.items()
-        if mechanism is None or definition.spec.mechanism == mechanism
+        if (mechanism is None or definition.spec.mechanism == mechanism)
+        and (tag is None or tag in definition.spec.tags)
+        and (output_kind is None or output_kind in definition.spec.supported_output_kinds)
     ]
     return tuple(sorted(keys))
+
+
+AFFINE_TRANSFORMS: frozenset[str] = frozenset(list_transforms(tag="affine"))
+LINEAR_TRANSFORMS: frozenset[str] = frozenset(list_transforms(tag="linear"))
+POINTWISE_TRANSFORMS: frozenset[str] = frozenset(list_transforms(tag="pointwise"))
+NONLOCAL_TRANSFORMS: frozenset[str] = frozenset(list_transforms(tag="nonlocal"))
+CONVEX_TRANSFORMS: frozenset[str] = frozenset(list_transforms(tag="convex"))
+CONCAVE_TRANSFORMS: frozenset[str] = frozenset(list_transforms(tag="concave"))
+MONOTONE_TRANSFORMS: frozenset[str] = frozenset(list_transforms(tag="monotone"))
+NONMONOTONE_TRANSFORMS: frozenset[str] = frozenset(list_transforms(tag="nonmonotone"))
+SMOOTH_TRANSFORMS: frozenset[str] = frozenset(list_transforms(tag="smooth"))
+NONSMOOTH_TRANSFORMS: frozenset[str] = frozenset(list_transforms(tag="nonsmooth"))

@@ -7,14 +7,6 @@ environmental, engineering, spatial, temporal, and statistical domains.
 """
 
 from sabench.transforms.registry import (
-    TRANSFORM_REGISTRY,
-    TransformDefinition,
-    get_transform,
-    get_transform_definition,
-    get_transform_spec,
-    list_transforms,
-)
-from sabench.transforms.transforms import (
     AFFINE_TRANSFORMS,
     CONCAVE_TRANSFORMS,
     CONVEX_TRANSFORMS,
@@ -25,6 +17,14 @@ from sabench.transforms.transforms import (
     NONSMOOTH_TRANSFORMS,
     POINTWISE_TRANSFORMS,
     SMOOTH_TRANSFORMS,
+    TRANSFORM_REGISTRY,
+    TransformDefinition,
+    get_transform,
+    get_transform_definition,
+    get_transform_spec,
+    list_transforms,
+)
+from sabench.transforms.transforms import (
     TRANSFORMS,
     apply_transform,
     score_transform,

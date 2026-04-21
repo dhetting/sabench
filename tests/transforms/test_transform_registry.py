@@ -4,6 +4,16 @@ import numpy as np
 import pytest
 
 from sabench.transforms import (
+    AFFINE_TRANSFORMS,
+    CONCAVE_TRANSFORMS,
+    CONVEX_TRANSFORMS,
+    LINEAR_TRANSFORMS,
+    MONOTONE_TRANSFORMS,
+    NONLOCAL_TRANSFORMS,
+    NONMONOTONE_TRANSFORMS,
+    NONSMOOTH_TRANSFORMS,
+    POINTWISE_TRANSFORMS,
+    SMOOTH_TRANSFORMS,
     TRANSFORM_REGISTRY,
     TRANSFORMS,
     TransformDefinition,
@@ -186,3 +196,35 @@ def test_transform_registry_can_filter_by_mechanism() -> None:
 def test_unknown_transform_lookup_raises_clear_error() -> None:
     with pytest.raises(KeyError, match="Unknown transform"):
         get_transform_definition("does_not_exist")
+
+
+def test_transform_registry_can_filter_by_tag() -> None:
+    assert set(list_transforms(tag="pointwise")) == set(POINTWISE_TRANSFORMS)
+    assert set(list_transforms(tag="linear")) == set(LINEAR_TRANSFORMS)
+    assert set(list_transforms(tag="affine")) == set(AFFINE_TRANSFORMS)
+    assert set(list_transforms(tag="nonlocal")) == set(NONLOCAL_TRANSFORMS)
+
+
+def test_transform_registry_can_filter_by_output_kind() -> None:
+    scalar = set(list_transforms(output_kind="scalar"))
+    spatial = set(list_transforms(output_kind="spatial"))
+    functional = set(list_transforms(output_kind="functional"))
+
+    assert {"affine_a2_b1", "softplus_b01", "log_shift"} <= scalar
+    assert {"affine_a2_b1", "gradient_magnitude", "regional_mean"} <= spatial
+    assert {"temporal_cumsum", "temporal_peak", "log_shift"} <= functional
+    assert "gradient_magnitude" not in scalar
+    assert "gradient_magnitude" not in functional
+
+
+def test_exported_property_sets_are_registry_derived() -> None:
+    assert POINTWISE_TRANSFORMS == frozenset(list_transforms(tag="pointwise"))
+    assert LINEAR_TRANSFORMS == frozenset(list_transforms(tag="linear"))
+    assert AFFINE_TRANSFORMS == frozenset(list_transforms(tag="affine"))
+    assert NONLOCAL_TRANSFORMS == frozenset(list_transforms(tag="nonlocal"))
+    assert CONVEX_TRANSFORMS == frozenset(list_transforms(tag="convex"))
+    assert CONCAVE_TRANSFORMS == frozenset(list_transforms(tag="concave"))
+    assert MONOTONE_TRANSFORMS == frozenset(list_transforms(tag="monotone"))
+    assert NONMONOTONE_TRANSFORMS == frozenset(list_transforms(tag="nonmonotone"))
+    assert SMOOTH_TRANSFORMS == frozenset(list_transforms(tag="smooth"))
+    assert NONSMOOTH_TRANSFORMS == frozenset(list_transforms(tag="nonsmooth"))
