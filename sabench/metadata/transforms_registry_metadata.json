@@ -66,7 +66,7 @@
     "function_name": "t_algebraic_sigmoid",
     "key": "algebraic_sigmoid",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Algebraic sigmoid y/sqrt(1+y^2)",
     "reference": "Glorot et al. (2011)",
     "supported_output_kinds": [
@@ -212,7 +212,7 @@
     "function_name": "t_bent_identity",
     "key": "bent_identity",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Bent identity (monotone, near-linear)",
     "reference": "Glorot et al. (2011)",
     "supported_output_kinds": [
@@ -1141,7 +1141,7 @@
     "function_name": "t_gompertz",
     "key": "gompertz_cdf",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Gompertz CDF (asymmetric sigmoid)",
     "reference": "Gompertz (1825)",
     "supported_output_kinds": [
@@ -1217,7 +1217,7 @@
     "function_name": "t_hard_sigmoid",
     "key": "hard_sigmoid",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Hard sigmoid (piecewise linear, C0)",
     "reference": "Goodfellow et al. (2016)",
     "supported_output_kinds": [
@@ -1238,7 +1238,7 @@
     "function_name": "t_hard_tanh",
     "key": "hard_tanh",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Hard tanh clip(-1,1) (piecewise, C0)",
     "reference": "Goodfellow et al. (2016)",
     "supported_output_kinds": [
@@ -1814,7 +1814,7 @@
     "function_name": "t_mish",
     "key": "mish",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Mish activation (smooth non-monotone)",
     "reference": "Misra (2020)",
     "supported_output_kinds": [
@@ -2466,7 +2466,7 @@
     "function_name": "t_selu",
     "key": "selu",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "SELU activation (C1, piecewise)",
     "reference": "Klambauer et al. (2017)",
     "supported_output_kinds": [
@@ -2769,7 +2769,7 @@
     "function_name": "t_softsign",
     "key": "softsign",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Softsign y/(1+|y|) (monotone, C1)",
     "reference": "Glorot & Bengio (2010)",
     "supported_output_kinds": [
@@ -2948,7 +2948,7 @@
     "function_name": "t_swish",
     "key": "swish",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Swish activation (non-monotone)",
     "reference": "Ramachandran et al. (2017)",
     "supported_output_kinds": [

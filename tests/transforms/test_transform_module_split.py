@@ -10,12 +10,21 @@ from sabench.transforms.aggregation import t_temporal_peak
 from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import (
+    t_algebraic_sigmoid,
     t_arctan_pointwise,
+    t_bent_identity,
     t_cbrt_pointwise,
     t_cosh_pointwise,
+    t_gompertz,
+    t_hard_sigmoid,
+    t_hard_tanh,
     t_logistic_pointwise,
+    t_mish,
+    t_selu,
     t_sinh_pointwise,
     t_softplus_pointwise,
+    t_softsign,
+    t_swish,
 )
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
@@ -56,6 +65,15 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("logistic_pointwise").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("arctan_pointwise").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("sinh_pointwise").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("gompertz_cdf").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("algebraic_sigmoid").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("swish").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("mish").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("selu").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("softsign").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("bent_identity").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("hard_sigmoid").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("hard_tanh").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("temporal_cumsum").module == "sabench.transforms.samplewise"
     assert get_transform_spec("temporal_peak").module == "sabench.transforms.aggregation"
     assert get_transform_spec("gradient_magnitude").module == "sabench.transforms.field_ops"
@@ -82,6 +100,15 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["logistic_pointwise"]["fn"] is t_logistic_pointwise
     assert TRANSFORMS["arctan_pointwise"]["fn"] is t_arctan_pointwise
     assert TRANSFORMS["sinh_pointwise"]["fn"] is t_sinh_pointwise
+    assert TRANSFORMS["gompertz_cdf"]["fn"] is t_gompertz
+    assert TRANSFORMS["algebraic_sigmoid"]["fn"] is t_algebraic_sigmoid
+    assert TRANSFORMS["swish"]["fn"] is t_swish
+    assert TRANSFORMS["mish"]["fn"] is t_mish
+    assert TRANSFORMS["selu"]["fn"] is t_selu
+    assert TRANSFORMS["softsign"]["fn"] is t_softsign
+    assert TRANSFORMS["bent_identity"]["fn"] is t_bent_identity
+    assert TRANSFORMS["hard_sigmoid"]["fn"] is t_hard_sigmoid
+    assert TRANSFORMS["hard_tanh"]["fn"] is t_hard_tanh
     assert TRANSFORMS["temporal_cumsum"]["fn"] is t_temporal_cumsum
     assert TRANSFORMS["temporal_peak"]["fn"] is t_temporal_peak
     assert TRANSFORMS["gradient_magnitude"]["fn"] is t_gradient_magnitude
@@ -118,6 +145,17 @@ def test_apply_transform_matches_split_module_functions() -> None:
         apply_transform(y, "arctan_pointwise"), t_arctan_pointwise(y, scale=1.0)
     )
     np.testing.assert_allclose(apply_transform(y, "sinh_pointwise"), t_sinh_pointwise(y, scale=0.1))
+    np.testing.assert_allclose(apply_transform(y, "gompertz_cdf"), t_gompertz(y, b=1.0, c=0.5))
+    np.testing.assert_allclose(
+        apply_transform(y, "algebraic_sigmoid"), t_algebraic_sigmoid(y, scale=0.5)
+    )
+    np.testing.assert_allclose(apply_transform(y, "swish"), t_swish(y, beta=1.0))
+    np.testing.assert_allclose(apply_transform(y, "mish"), t_mish(y))
+    np.testing.assert_allclose(apply_transform(y, "selu"), t_selu(y, alpha=1.6733, lam=1.0507))
+    np.testing.assert_allclose(apply_transform(y, "softsign"), t_softsign(y, scale=1.0))
+    np.testing.assert_allclose(apply_transform(y, "bent_identity"), t_bent_identity(y, scale=0.5))
+    np.testing.assert_allclose(apply_transform(y, "hard_sigmoid"), t_hard_sigmoid(y, scale=0.5))
+    np.testing.assert_allclose(apply_transform(y, "hard_tanh"), t_hard_tanh(y, scale=0.3))
     np.testing.assert_allclose(apply_transform(y, "temporal_cumsum"), t_temporal_cumsum(y))
     np.testing.assert_allclose(apply_transform(y, "temporal_peak"), t_temporal_peak(y))
 

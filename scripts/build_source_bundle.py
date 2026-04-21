@@ -83,7 +83,9 @@ def _zipinfo_for_path(source_path: Path, archive_name: str) -> ZipInfo:
     return zipinfo
 
 
-def build_source_bundle(source_root: Path, output_path: Path, selected_paths: list[Path] | None = None) -> None:
+def build_source_bundle(
+    source_root: Path, output_path: Path, selected_paths: list[Path] | None = None
+) -> None:
     source_root = source_root.resolve()
     output_path = output_path.resolve()
 
