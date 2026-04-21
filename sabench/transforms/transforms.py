@@ -19,8 +19,8 @@ import numpy as np
 
 from sabench.transforms.aggregation import t_temporal_peak
 from sabench.transforms.field_ops import t_gradient_magnitude
-from sabench.transforms.nonlinear import t_softplus_pointwise
 from sabench.transforms.linear import t_affine
+from sabench.transforms.nonlinear import t_softplus_pointwise
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
     t_exp_pointwise,
@@ -307,7 +307,6 @@ def t_isoline_length(Y, quantile=0.75):
 # ══════════════════════════════════════════════════════════════════════════════
 # Temporal  (1-D functional outputs: Y shape (n_eval, n_t))
 # ══════════════════════════════════════════════════════════════════════════════
-
 
 
 def t_temporal_log_cumsum(Y, eps=1.0):

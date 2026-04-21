@@ -8,8 +8,8 @@ import sabench
 from sabench.transforms import TRANSFORMS, apply_transform, get_transform_spec
 from sabench.transforms.aggregation import t_temporal_peak
 from sabench.transforms.field_ops import t_gradient_magnitude
-from sabench.transforms.nonlinear import t_softplus_pointwise
 from sabench.transforms.linear import t_affine
+from sabench.transforms.nonlinear import t_softplus_pointwise
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
     t_exp_pointwise,
@@ -63,12 +63,16 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "log1p_positive"), t_log1p_abs(y))
     np.testing.assert_allclose(apply_transform(y, "sqrt_abs"), t_sqrt_abs(y))
     np.testing.assert_allclose(apply_transform(y, "abs_pointwise"), t_abs_pointwise(y))
-    np.testing.assert_allclose(apply_transform(y, "softplus_b01"), t_softplus_pointwise(y, beta=0.1))
+    np.testing.assert_allclose(
+        apply_transform(y, "softplus_b01"), t_softplus_pointwise(y, beta=0.1)
+    )
     np.testing.assert_allclose(apply_transform(y, "temporal_cumsum"), t_temporal_cumsum(y))
     np.testing.assert_allclose(apply_transform(y, "temporal_peak"), t_temporal_peak(y))
 
     spatial_y = np.linspace(-2.0, 2.0, 36, dtype=float).reshape(3, 3, 4)
-    np.testing.assert_allclose(apply_transform(spatial_y, "gradient_magnitude"), t_gradient_magnitude(spatial_y))
+    np.testing.assert_allclose(
+        apply_transform(spatial_y, "gradient_magnitude"), t_gradient_magnitude(spatial_y)
+    )
 
 
 def test_focused_transform_modules_exist() -> None:
