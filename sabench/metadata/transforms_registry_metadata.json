@@ -1,0 +1,118 @@
+{
+  "affine_a2_b1": {
+    "function_name": "t_affine",
+    "key": "affine_a2_b1",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.linear",
+    "name": "Affine (a=2, b=1) \u2014 commutative reference",
+    "reference": "Saltelli et al. (2008)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "affine",
+      "pointwise",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "gradient_magnitude": {
+    "function_name": "t_gradient_magnitude",
+    "key": "gradient_magnitude",
+    "mechanism": "field_op",
+    "module": "sabench.transforms.field_ops",
+    "name": "Gradient magnitude |\u2207Y|",
+    "reference": "Cressie (1993)",
+    "supported_output_kinds": [
+      "spatial"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "spatial"
+    ]
+  },
+  "softplus_b01": {
+    "function_name": "t_softplus_pointwise",
+    "key": "softplus_b01",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.nonlinear",
+    "name": "Softplus (\u03b2=0.1, smooth ReLU)",
+    "reference": "Glorot et al. (2011)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "tanh_a03": {
+    "function_name": "t_tanh_pointwise",
+    "key": "tanh_a03",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.pointwise",
+    "name": "Tanh saturation (\u03b1=0.3)",
+    "reference": "Amari (1977); Wilson & Cowan (1972)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "temporal_cumsum": {
+    "function_name": "t_temporal_cumsum",
+    "key": "temporal_cumsum",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.samplewise",
+    "name": "Cumulative sum (linear)",
+    "reference": "Saltelli et al. (2005)",
+    "supported_output_kinds": [
+      "functional"
+    ],
+    "tags": [
+      "linear",
+      "nonlocal",
+      "monotone",
+      "smooth",
+      "temporal"
+    ]
+  },
+  "temporal_peak": {
+    "function_name": "t_temporal_peak",
+    "key": "temporal_peak",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.aggregation",
+    "name": "Temporal peak (max_t)",
+    "reference": "Sudret (2008)",
+    "supported_output_kinds": [
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "temporal"
+    ]
+  }
+}

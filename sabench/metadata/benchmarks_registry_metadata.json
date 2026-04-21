@@ -1,0 +1,41 @@
+{
+  "Campbell2D": {
+    "class_name": "Campbell2D",
+    "d": 8,
+    "description": "Spatial SA benchmark with analytical V_i(z1,z2); sharp Gaussian ridges and exponential growth terms.",
+    "family": "spatial",
+    "has_analytical_s1": true,
+    "has_analytical_st": false,
+    "module": "sabench.benchmarks.spatial.campbell2d",
+    "module_name": "campbell2d",
+    "name": "Campbell2D",
+    "output_kind": "spatial",
+    "reference": "Marrel, Iooss, Laurent & Roustant (2011), Environmetrics 22(3):383-397. https://doi.org/10.1002/env.1041"
+  },
+  "Ishigami": {
+    "class_name": "Ishigami",
+    "d": 3,
+    "description": "Non-linear, non-monotonic; closed-form S1 and ST.",
+    "family": "scalar",
+    "has_analytical_s1": true,
+    "has_analytical_st": true,
+    "module": "sabench.benchmarks.scalar.ishigami",
+    "module_name": "ishigami",
+    "name": "Ishigami",
+    "output_kind": "scalar",
+    "reference": "Ishigami & Homma (1990), ISUMA. https://doi.org/10.1109/ISUMA.1990.151285"
+  },
+  "Lorenz96": {
+    "class_name": "Lorenz96",
+    "d": 8,
+    "description": "Chaotic atmospheric toy model; butterfly-effect sensitivity. Inputs are initial conditions; no analytical Sobol indices.",
+    "family": "functional",
+    "has_analytical_s1": false,
+    "has_analytical_st": false,
+    "module": "sabench.benchmarks.functional.lorenz96",
+    "module_name": "lorenz96",
+    "name": "Lorenz96",
+    "output_kind": "functional",
+    "reference": "Lorenz (1996), ECMWF Seminar on Predictability. Wilks (2005), QJRMS 131(606). doi:10.1256/qj.04.03"
+  }
+}
