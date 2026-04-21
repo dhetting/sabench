@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import sabench
+
 from sabench.metadata.exports import (
     BENCHMARKS_REGISTRY_EXPORT_FILENAME,
     TRANSFORMS_REGISTRY_EXPORT_FILENAME,
@@ -58,6 +59,8 @@ def test_transform_registry_export_uses_canonical_fields() -> None:
 
     assert exported["affine_a2_b1"]["module"] == "sabench.transforms.linear"
     assert exported["cube_pointwise"]["module"] == "sabench.transforms.pointwise"
+    assert exported["sinc"]["module"] == "sabench.transforms.pointwise"
+    assert exported["square_wave"]["module"] == "sabench.transforms.pointwise"
     assert exported["softplus_b01"]["module"] == "sabench.transforms.nonlinear"
     assert exported["cosh_pointwise"]["module"] == "sabench.transforms.nonlinear"
     assert exported["logistic_pointwise"]["module"] == "sabench.transforms.nonlinear"

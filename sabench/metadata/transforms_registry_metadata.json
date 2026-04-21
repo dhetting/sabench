@@ -561,7 +561,7 @@
     "function_name": "t_cos_squared",
     "key": "cos_squared",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "cos^2(fy) (even, non-negative)",
     "reference": "Saltelli et al. (2010)",
     "supported_output_kinds": [
@@ -662,7 +662,7 @@
     "function_name": "t_damped_sin",
     "key": "damped_sin",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "Damped sine (decaying oscillation)",
     "reference": "Stein (1999)",
     "supported_output_kinds": [
@@ -721,7 +721,7 @@
     "function_name": "t_double_sin",
     "key": "double_sin",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "Double-frequency sin+sin (interference)",
     "reference": "Saltelli et al. (2010)",
     "supported_output_kinds": [
@@ -2446,7 +2446,7 @@
     "function_name": "t_sawtooth",
     "key": "sawtooth",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "Sawtooth wave (C0, periodic)",
     "reference": "Oppenheim & Schafer (1989)",
     "supported_output_kinds": [
@@ -2567,7 +2567,7 @@
     "function_name": "t_sin_cos_product",
     "key": "sin_cos_product",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "sin*cos = 0.5*sin(2f) (harmonic)",
     "reference": "Abramowitz & Stegun (1972)",
     "supported_output_kinds": [
@@ -2607,7 +2607,7 @@
     "function_name": "t_sin_squared",
     "key": "sin_squared",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "sin^2(fy) (bounded, non-negative)",
     "reference": "Saltelli et al. (2010)",
     "supported_output_kinds": [
@@ -2627,7 +2627,7 @@
     "function_name": "t_sinc",
     "key": "sinc",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "Normalised sinc (decaying oscillation)",
     "reference": "Whittaker (1915)",
     "supported_output_kinds": [
@@ -2849,7 +2849,7 @@
     "function_name": "t_square_wave",
     "key": "square_wave",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "Square wave (discontinuous, periodic)",
     "reference": "Oppenheim & Schafer (1989)",
     "supported_output_kinds": [

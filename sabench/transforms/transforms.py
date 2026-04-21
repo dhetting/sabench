@@ -19,7 +19,6 @@ import numpy as np
 
 from sabench.transforms.aggregation import t_temporal_peak
 from sabench.transforms.field_ops import t_gradient_magnitude
-from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import (
     t_algebraic_sigmoid,
     t_arctan_pointwise,
@@ -37,18 +36,27 @@ from sabench.transforms.nonlinear import (
     t_softsign,
     t_swish,
 )
+from sabench.transforms.linear import t_affine
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
     t_cos_pointwise,
+    t_cos_squared,
     t_cube_pointwise,
+    t_damped_sin,
+    t_double_sin,
     t_erf_pointwise,
     t_exp_pointwise,
     t_log1p_abs,
     t_log_abs,
     t_relu_pointwise,
+    t_sawtooth,
+    t_sin_cos_product,
     t_sin_pointwise,
+    t_sin_squared,
+    t_sinc,
     t_sqrt_abs,
     t_square_pointwise,
+    t_square_wave,
     t_step_pointwise,
     t_tanh_pointwise,
 )
@@ -331,6 +339,7 @@ def t_isoline_length(Y, quantile=0.75):
 # ══════════════════════════════════════════════════════════════════════════════
 
 
+
 def t_temporal_log_cumsum(Y, eps=1.0):
     """Log of the cumulative sum: Z(t) = log(sum_{s<=t} Y(s) + eps).
 
@@ -432,6 +441,7 @@ def t_entropy_proxy(Y):
 # ── Convex pointwise ──────────────────────────────────────────────────────────
 
 
+
 def t_softmax_shift(Y):
     """Shifted softmax normalisation: Z_k = exp(Y_k) / sum_k exp(Y_k).
     Nonlocal (uses sum across outputs), always produces outputs in (0,1).
@@ -446,6 +456,7 @@ def t_softmax_shift(Y):
 # ── Concave pointwise ─────────────────────────────────────────────────────────
 
 
+
 def t_neg_square(Y):
     """Negative square: φ(y) = −y².
     Strictly concave (φ''=−2<0), even, non-monotone.
@@ -455,6 +466,7 @@ def t_neg_square(Y):
 
 
 # ── Monotone S-shaped ────────────────────────────────────────────────────────
+
 
 
 def t_triangle_wave(Y, period=4.0):
@@ -836,50 +848,11 @@ def t_atan2pi(Y, scale=1.0):
     return (2.0 / np.pi) * np.arctan(scale * Y)
 
 
+
 # ============================================================================
 # OSCILLATORY / PERIODIC FAMILY
 # ============================================================================
 
-
-def t_sinc(Y, scale=0.5):
-    """Normalised sinc: phi(y) = sin(pi*scale*y)/(pi*scale*y) -- C-inf, decaying osc."""
-    u = scale * Y
-    return np.sinc(u)  # numpy sinc is normalised: sin(pi*x)/(pi*x)
-
-
-def t_sin_squared(Y, freq=0.5):
-    """phi(y) = sin^2(freq*y) -- non-negative, bounded [0,1], even, periodic."""
-    return np.sin(freq * Y) ** 2
-
-
-def t_cos_squared(Y, freq=0.5):
-    """phi(y) = cos^2(freq*y) -- non-negative, bounded [0,1], even, periodic."""
-    return np.cos(freq * Y) ** 2
-
-
-def t_damped_sin(Y, freq=0.5, decay=0.1):
-    """phi(y) = exp(-decay*|y|)*sin(freq*y) -- decaying oscillation, odd, C-inf."""
-    return np.exp(-decay * np.abs(Y)) * np.sin(freq * Y)
-
-
-def t_sawtooth(Y, period=4.0):
-    """Sawtooth wave: phi(y) = 2*(y/period - floor(y/period+0.5)) -- C0 except jumps."""
-    return 2.0 * (Y / period - np.floor(Y / period + 0.5))
-
-
-def t_square_wave(Y, period=4.0):
-    """Square wave: phi(y) = sign(sin(2*pi*y/period)) -- discontinuous, periodic."""
-    return np.sign(np.sin(2.0 * np.pi * Y / period))
-
-
-def t_double_sin(Y, freq1=0.3, freq2=0.7):
-    """phi(y) = sin(freq1*y) + sin(freq2*y) -- two-frequency interference pattern."""
-    return np.sin(freq1 * Y) + np.sin(freq2 * Y)
-
-
-def t_sin_cos_product(Y, freq=0.5):
-    """phi(y) = sin(freq*y)*cos(freq*y) = 0.5*sin(2*freq*y) -- harmonic product."""
-    return np.sin(freq * Y) * np.cos(freq * Y)
 
 
 # ============================================================================

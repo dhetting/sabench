@@ -8,7 +8,6 @@ import sabench
 from sabench.transforms import TRANSFORMS, apply_transform, get_transform_spec
 from sabench.transforms.aggregation import t_temporal_peak
 from sabench.transforms.field_ops import t_gradient_magnitude
-from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import (
     t_algebraic_sigmoid,
     t_arctan_pointwise,
@@ -26,6 +25,7 @@ from sabench.transforms.nonlinear import (
     t_softsign,
     t_swish,
 )
+from sabench.transforms.linear import t_affine
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
     t_cos_pointwise,
@@ -35,11 +35,19 @@ from sabench.transforms.pointwise import (
     t_log1p_abs,
     t_log_abs,
     t_relu_pointwise,
+    t_sawtooth,
+    t_sin_cos_product,
     t_sin_pointwise,
+    t_sin_squared,
     t_sqrt_abs,
     t_square_pointwise,
+    t_square_wave,
     t_step_pointwise,
     t_tanh_pointwise,
+    t_sinc,
+    t_cos_squared,
+    t_damped_sin,
+    t_double_sin,
 )
 from sabench.transforms.samplewise import t_temporal_cumsum
 
@@ -59,6 +67,14 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("cos_pointwise").module == "sabench.transforms.pointwise"
     assert get_transform_spec("step_pointwise").module == "sabench.transforms.pointwise"
     assert get_transform_spec("log_abs_pointwise").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("sinc").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("sin_squared").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("cos_squared").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("damped_sin").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("sawtooth").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("square_wave").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("double_sin").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("sin_cos_product").module == "sabench.transforms.pointwise"
     assert get_transform_spec("softplus_b01").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("cosh_pointwise").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("cbrt_pointwise").module == "sabench.transforms.nonlinear"
@@ -94,6 +110,14 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["cos_pointwise"]["fn"] is t_cos_pointwise
     assert TRANSFORMS["step_pointwise"]["fn"] is t_step_pointwise
     assert TRANSFORMS["log_abs_pointwise"]["fn"] is t_log_abs
+    assert TRANSFORMS["sinc"]["fn"] is t_sinc
+    assert TRANSFORMS["sin_squared"]["fn"] is t_sin_squared
+    assert TRANSFORMS["cos_squared"]["fn"] is t_cos_squared
+    assert TRANSFORMS["damped_sin"]["fn"] is t_damped_sin
+    assert TRANSFORMS["sawtooth"]["fn"] is t_sawtooth
+    assert TRANSFORMS["square_wave"]["fn"] is t_square_wave
+    assert TRANSFORMS["double_sin"]["fn"] is t_double_sin
+    assert TRANSFORMS["sin_cos_product"]["fn"] is t_sin_cos_product
     assert TRANSFORMS["softplus_b01"]["fn"] is t_softplus_pointwise
     assert TRANSFORMS["cosh_pointwise"]["fn"] is t_cosh_pointwise
     assert TRANSFORMS["cbrt_pointwise"]["fn"] is t_cbrt_pointwise
@@ -129,26 +153,24 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "erf_pointwise"), t_erf_pointwise(y, scale=0.5))
     np.testing.assert_allclose(apply_transform(y, "sin_pointwise"), t_sin_pointwise(y, freq=0.5))
     np.testing.assert_allclose(apply_transform(y, "cos_pointwise"), t_cos_pointwise(y, freq=0.5))
-    np.testing.assert_allclose(
-        apply_transform(y, "step_pointwise"), t_step_pointwise(y, threshold=0.0)
-    )
+    np.testing.assert_allclose(apply_transform(y, "step_pointwise"), t_step_pointwise(y, threshold=0.0))
     np.testing.assert_allclose(apply_transform(y, "log_abs_pointwise"), t_log_abs(y, eps=1.0))
-    np.testing.assert_allclose(
-        apply_transform(y, "softplus_b01"), t_softplus_pointwise(y, beta=0.1)
-    )
+    np.testing.assert_allclose(apply_transform(y, "sinc"), t_sinc(y, scale=0.5))
+    np.testing.assert_allclose(apply_transform(y, "sin_squared"), t_sin_squared(y, freq=0.5))
+    np.testing.assert_allclose(apply_transform(y, "cos_squared"), t_cos_squared(y, freq=0.5))
+    np.testing.assert_allclose(apply_transform(y, "damped_sin"), t_damped_sin(y, freq=0.5, decay=0.1))
+    np.testing.assert_allclose(apply_transform(y, "sawtooth"), t_sawtooth(y, period=4.0))
+    np.testing.assert_allclose(apply_transform(y, "square_wave"), t_square_wave(y, period=4.0))
+    np.testing.assert_allclose(apply_transform(y, "double_sin"), t_double_sin(y, freq1=0.3, freq2=0.7))
+    np.testing.assert_allclose(apply_transform(y, "sin_cos_product"), t_sin_cos_product(y, freq=0.5))
+    np.testing.assert_allclose(apply_transform(y, "softplus_b01"), t_softplus_pointwise(y, beta=0.1))
     np.testing.assert_allclose(apply_transform(y, "cosh_pointwise"), t_cosh_pointwise(y, scale=0.1))
     np.testing.assert_allclose(apply_transform(y, "cbrt_pointwise"), t_cbrt_pointwise(y))
-    np.testing.assert_allclose(
-        apply_transform(y, "logistic_pointwise"), t_logistic_pointwise(y, k=1.0)
-    )
-    np.testing.assert_allclose(
-        apply_transform(y, "arctan_pointwise"), t_arctan_pointwise(y, scale=1.0)
-    )
+    np.testing.assert_allclose(apply_transform(y, "logistic_pointwise"), t_logistic_pointwise(y, k=1.0))
+    np.testing.assert_allclose(apply_transform(y, "arctan_pointwise"), t_arctan_pointwise(y, scale=1.0))
     np.testing.assert_allclose(apply_transform(y, "sinh_pointwise"), t_sinh_pointwise(y, scale=0.1))
     np.testing.assert_allclose(apply_transform(y, "gompertz_cdf"), t_gompertz(y, b=1.0, c=0.5))
-    np.testing.assert_allclose(
-        apply_transform(y, "algebraic_sigmoid"), t_algebraic_sigmoid(y, scale=0.5)
-    )
+    np.testing.assert_allclose(apply_transform(y, "algebraic_sigmoid"), t_algebraic_sigmoid(y, scale=0.5))
     np.testing.assert_allclose(apply_transform(y, "swish"), t_swish(y, beta=1.0))
     np.testing.assert_allclose(apply_transform(y, "mish"), t_mish(y))
     np.testing.assert_allclose(apply_transform(y, "selu"), t_selu(y, alpha=1.6733, lam=1.0507))
@@ -160,9 +182,7 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "temporal_peak"), t_temporal_peak(y))
 
     spatial_y = np.linspace(-2.0, 2.0, 36, dtype=float).reshape(3, 3, 4)
-    np.testing.assert_allclose(
-        apply_transform(spatial_y, "gradient_magnitude"), t_gradient_magnitude(spatial_y)
-    )
+    np.testing.assert_allclose(apply_transform(spatial_y, "gradient_magnitude"), t_gradient_magnitude(spatial_y))
 
 
 def test_focused_transform_modules_exist() -> None:

@@ -70,3 +70,43 @@ def t_step_pointwise(Y: np.ndarray, threshold: float = 0.0) -> np.ndarray:
 def t_log_abs(Y: np.ndarray, eps: float = 1.0) -> np.ndarray:
     """Log of shifted absolute value: φ(y) = log(|y| + eps)."""
     return np.log(np.abs(Y) + eps)
+
+
+def t_sinc(Y: np.ndarray, scale: float = 0.5) -> np.ndarray:
+    """Normalised sinc: φ(y) = sin(π·scale·y) / (π·scale·y)."""
+    return np.sinc(scale * Y)
+
+
+def t_sin_squared(Y: np.ndarray, freq: float = 0.5) -> np.ndarray:
+    """Squared sine: φ(y) = sin²(freq·y)."""
+    return np.sin(freq * Y) ** 2
+
+
+def t_cos_squared(Y: np.ndarray, freq: float = 0.5) -> np.ndarray:
+    """Squared cosine: φ(y) = cos²(freq·y)."""
+    return np.cos(freq * Y) ** 2
+
+
+def t_damped_sin(Y: np.ndarray, freq: float = 0.5, decay: float = 0.1) -> np.ndarray:
+    """Damped sine: φ(y) = exp(-decay·|y|) · sin(freq·y)."""
+    return np.exp(-decay * np.abs(Y)) * np.sin(freq * Y)
+
+
+def t_sawtooth(Y: np.ndarray, period: float = 4.0) -> np.ndarray:
+    """Sawtooth wave: φ(y) = 2·(y/period - floor(y/period + 0.5))."""
+    return 2.0 * (Y / period - np.floor(Y / period + 0.5))
+
+
+def t_square_wave(Y: np.ndarray, period: float = 4.0) -> np.ndarray:
+    """Square wave: φ(y) = sign(sin(2π·y/period))."""
+    return np.sign(np.sin(2.0 * np.pi * Y / period))
+
+
+def t_double_sin(Y: np.ndarray, freq1: float = 0.3, freq2: float = 0.7) -> np.ndarray:
+    """Double sine: φ(y) = sin(freq1·y) + sin(freq2·y)."""
+    return np.sin(freq1 * Y) + np.sin(freq2 * Y)
+
+
+def t_sin_cos_product(Y: np.ndarray, freq: float = 0.5) -> np.ndarray:
+    """Harmonic product: φ(y) = sin(freq·y) · cos(freq·y)."""
+    return np.sin(freq * Y) * np.cos(freq * Y)
