@@ -59,7 +59,7 @@ class BenchmarkFunction:
         """Total-effect Sobol indices. Return ``None`` if no analytical form exists."""
         return None
 
-    def sample(self, N: int, seed: int = None) -> np.ndarray:
+    def sample(self, N: int, seed: int | None = None) -> np.ndarray:
         """Draw N uniform samples within bounds (Saltelli A-matrix)."""
         from sabench.sampling.saltelli import saltelli_sample
 

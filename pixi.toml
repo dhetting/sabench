@@ -34,14 +34,14 @@ nbformat     = ">=5.9"
 [tasks]
 # Testing
 test        = "python -m pytest tests -q"
-test-cov    = "python -m pytest tests --cov=sabench --cov-report=term-missing -q"
+test-cov    = "python -m pytest tests --tb=short -q --cov=sabench --cov-report=term-missing --cov-report=xml"
 
 # Linting + formatting
 lint        = "ruff check sabench tests"
 fmt         = "ruff format sabench tests"
 fmt-check   = "ruff format --check sabench tests"
 typecheck   = "mypy sabench --ignore-missing-imports"
-check-all   = { depends-on = ["lint", "fmt-check", "typecheck", "test"] }
+check-all   = { depends-on = ["lint", "fmt-check", "typecheck", "test-cov"] }
 
 # Pre-commit
 pre-commit-install = "pre-commit install"
@@ -49,6 +49,7 @@ pre-commit-run     = "pre-commit run --all-files"
 
 # Build & publish
 build       = "python -m build"
+twine-check = "twine check --strict dist/*"
 publish-test = "twine upload --repository testpypi dist/*"
 publish     = "twine upload dist/*"
 

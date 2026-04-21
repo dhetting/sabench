@@ -90,7 +90,7 @@ class OakleyOHagan(BenchmarkFunction):
         quad = np.einsum("ni,ij,nj->n", X, M, X)
         return linear + sine + cosine + quad
 
-    def analytical_S1(self) -> np.ndarray:
+    def analytical_S1(self) -> np.ndarray | None:
         """
         For X_i ~ N(0,1) [approximated via U[-4,4] here]:
         Exact for N(0,1): Var[a1_i X_i] = a1_i^2,

@@ -1,0 +1,74 @@
+from pathlib import Path
+
+import tomllib
+
+import sabench
+
+
+def _repo_root() -> Path:
+    return Path(sabench.__file__).resolve().parent.parent
+
+
+def _load_pixi_manifest() -> dict:
+    with (_repo_root() / "pixi.toml").open("rb") as fh:
+        return tomllib.load(fh)
+
+
+def test_pixi_ci_environment_defines_authoritative_gate_tasks() -> None:
+    manifest = _load_pixi_manifest()
+    tasks = manifest["tasks"]
+    for task_name in ["lint", "fmt-check", "typecheck", "test-cov", "build", "twine-check"]:
+        assert task_name in tasks
+
+
+def test_test_repo_delegates_check_and_build_stages_to_pixi_tasks() -> None:
+    script = (_repo_root() / "test_repo.sh").read_text(encoding="utf-8")
+    assert 'PIXI="pixi run -e ci"' in script
+    for task_name in ["lint", "fmt-check", "typecheck", "test-cov", "build", "twine-check"]:
+        assert f"$PIXI {task_name}" in script
+
+    check_and_build_section = script.split("# STAGE 2 — PREPARE")[1]
+    assert 'record "ruff lint" $PIXI lint' in check_and_build_section
+    assert 'record "ruff format --check" $PIXI fmt-check' in check_and_build_section
+    assert 'record "mypy" $PIXI typecheck' in check_and_build_section
+    assert 'record "pytest + coverage" $PIXI test-cov' in check_and_build_section
+    assert 'record "python -m build" $PIXI build' in check_and_build_section
+    assert 'record "twine check" $PIXI twine-check' in check_and_build_section
+
+    assert 'record "ruff lint" $PIXI ruff check sabench tests' not in check_and_build_section
+    assert (
+        'record "ruff format --check" $PIXI ruff format --check sabench tests'
+        not in check_and_build_section
+    )
+    assert 'record "mypy" $PIXI mypy sabench' not in check_and_build_section
+    assert 'record "python -m build" $PIXI python -m build' not in check_and_build_section
+    assert 'record "twine check" $PIXI twine check --strict dist/*' not in check_and_build_section
+
+
+def test_ci_workflow_uses_pixi_ci_environment_and_named_tasks() -> None:
+    workflow = (_repo_root() / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    assert "prefix-dev/setup-pixi" in workflow
+    assert "locked: true" in workflow
+    assert "environments: ci" in workflow
+    for command in [
+        "pixi run -e ci lint",
+        "pixi run -e ci fmt-check",
+        "pixi run -e ci typecheck",
+        "pixi run -e ci test-cov",
+        "pixi run -e ci build",
+        "pixi run -e ci twine-check",
+    ]:
+        assert command in workflow
+    assert 'pip install ".[dev]"' not in workflow
+    assert "sabench/tests" not in workflow
+
+
+def test_ci_workflow_avoids_legacy_raw_toolchain_commands() -> None:
+    workflow = (_repo_root() / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    for legacy_command in [
+        "pip install .[dev]",
+        "pip install build twine",
+        "pixi run -e ci python -m build",
+        "pixi run -e ci twine check --strict dist/*",
+    ]:
+        assert legacy_command not in workflow

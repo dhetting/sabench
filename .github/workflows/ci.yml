@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   lint:
-    name: Lint & Format (ruff)
+    name: Lint & format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,12 +21,11 @@ jobs:
         with:
           environments: ci
           locked: true
-          cache: true
-      - run: pixi run -e ci ruff check sabench tests
-      - run: pixi run -e ci ruff format --check sabench tests
+      - run: pixi run -e ci lint
+      - run: pixi run -e ci fmt-check
 
   typecheck:
-    name: Type Check (mypy)
+    name: Type check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,30 +33,19 @@ jobs:
         with:
           environments: ci
           locked: true
-          cache: true
-      - run: pixi run -e ci mypy sabench --ignore-missing-imports --no-strict-optional
+      - run: pixi run -e ci typecheck
 
   test:
-    name: Tests / ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
+    name: Tests
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: prefix-dev/setup-pixi@v0.9.5
         with:
           environments: ci
           locked: true
-          cache: true
-      - name: Run tests with coverage
-        run: |
-          pixi run -e ci python -m pytest tests \
-            --tb=short -q \
-            --cov=sabench --cov-report=xml --cov-report=term-missing
+      - run: pixi run -e ci test-cov
       - name: Upload coverage to Codecov
-        if: matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v4
         with:
           files: coverage.xml
@@ -73,9 +61,8 @@ jobs:
         with:
           environments: ci
           locked: true
-          cache: true
-      - run: pixi run -e ci python -m build
-      - run: pixi run -e ci twine check --strict dist/*
+      - run: pixi run -e ci build
+      - run: pixi run -e ci twine-check
       - uses: actions/upload-artifact@v4
         with:
           name: dist

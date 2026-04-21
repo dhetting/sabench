@@ -89,7 +89,8 @@ if ! command -v pixi &>/dev/null; then
   echo "  Then restart your shell and re-run this script."
   exit 1
 fi
-PIXI="pixi run"
+PIXI="pixi run -e ci"
+PIXI_NOTEBOOK="pixi run"
 
 # =============================================================================
 # STAGE 0 — CLEAN
@@ -123,11 +124,17 @@ fi
 # =============================================================================
 header "STAGE 1 — Install / sync pixi environment"
 
-info "Running: pixi install (solves all declared environments in pixi.toml)"
-pixi install
-ok "pixi environment ready"
+info "Running: pixi install --locked -e ci"
+pixi install --locked -e ci
+ok "pixi ci environment ready"
 
-info "Installing package in editable mode (pip install -e '.[dev]')"
+if $DO_NOTEBOOK; then
+  info "Running: pixi install --locked (default environment for notebook smoke test)"
+  pixi install --locked
+  ok "pixi default environment ready"
+fi
+
+info "Installing package in editable mode into the ci environment"
 $PIXI pip install -e ".[dev]" --quiet
 ok "sabench installed (editable)"
 
@@ -170,21 +177,19 @@ if $DO_CHECK; then
 
   # ── 3a. ruff lint ────────────────────────────────────────────────────────
   info "ruff check sabench  (lint — mirrors 'lint' job)"
-  record "ruff lint" $PIXI ruff check sabench tests
+  record "ruff lint" $PIXI lint
 
   # ── 3b. ruff format --check ───────────────────────────────────────────────
   info "ruff format --check sabench  (format guard — mirrors 'lint' job)"
-  record "ruff format --check" $PIXI ruff format --check sabench tests
+  record "ruff format --check" $PIXI fmt-check
 
   # ── 3c. mypy ──────────────────────────────────────────────────────────────
   info "mypy sabench  (type check — mirrors 'typecheck' job)"
-  record "mypy" $PIXI mypy sabench --ignore-missing-imports --no-strict-optional
+  record "mypy" $PIXI typecheck
 
   # ── 3d. pytest + coverage ─────────────────────────────────────────────────
   info "pytest with coverage  (mirrors 'test' matrix job)"
-  record "pytest + coverage" $PIXI python -m pytest tests \
-    --tb=short -q \
-    --cov=sabench --cov-report=term-missing --cov-report=xml
+  record "pytest + coverage" $PIXI test-cov
 
   # ── 3e. YAML / TOML / JSON validation (pre-commit hooks do this on CI) ───
   info "Validating pyproject.toml"
@@ -248,7 +253,7 @@ print('  .zenodo.json OK')
     info "Running demo notebook end-to-end (smoke test)"
     (
       cd "$REPO_ROOT"
-      MPLBACKEND=Agg $PIXI python - << 'NBRUN'
+      MPLBACKEND=Agg $PIXI_NOTEBOOK python - << 'NBRUN'
 import json, sys, traceback
 with open("notebooks/demo.ipynb") as f:
     nb = json.load(f)
@@ -284,10 +289,10 @@ if $DO_BUILD; then
   rm -rf dist/ build/ sabench.egg-info/
 
   info "Building sdist and wheel"
-  record "python -m build" $PIXI python -m build
+  record "python -m build" $PIXI build
 
   info "twine check --strict dist/*"
-  record "twine check" $PIXI twine check --strict dist/*
+  record "twine check" $PIXI twine-check
 
   if [[ -d dist ]]; then
     echo

@@ -183,16 +183,24 @@ def _campbell_analytical_v(
     """
     Z1, Z2 = np.meshgrid(z1_vals, z2_vals, indexing="ij")
     if th1 is None:
-        th1 = 0.8 * Z1 + 0.2 * Z2
-        th2 = 0.5 * Z1 + 0.5 * Z2
-        ph1 = 0.4 * Z1 + 0.6 * Z2
-        ph2 = 0.3 * Z1 + 0.7 * Z2
+        th1_arr = 0.8 * Z1 + 0.2 * Z2
+        th2_arr = 0.5 * Z1 + 0.5 * Z2
+        ph1_arr = 0.4 * Z1 + 0.6 * Z2
+        ph2_arr = 0.3 * Z1 + 0.7 * Z2
+    else:
+        assert th2 is not None
+        assert ph1 is not None
+        assert ph2 is not None
+        th1_arr = th1
+        th2_arr = th2
+        ph1_arr = ph1
+        ph2_arr = ph2
 
     xq = np.linspace(-1.0, 5.0, n_quad)
 
     # spatial shape may be (nz1, nz2) or (nz1, nz2, nz3)
     def ex(v):
-        return v.reshape((-1,) + (1,) * th1.ndim)
+        return v.reshape((-1,) + (1,) * th1_arr.ndim)
 
     def var1d(f):
         return np.var(f, axis=0)
@@ -206,26 +214,28 @@ def _campbell_analytical_v(
     sx1 = np.where(xq == 0, 1e-10, np.abs(xq))  # |x1|
     s30 = np.sqrt(30.0) * ex(sx1)  # σ = sqrt(30)|x1|
     f1 = np.sqrt(np.pi / 60.0) * ex(xq * np.abs(xq)) * (
-        _phi_cdf((th1 + 10.0) / s30) - _phi_cdf((th1 - 50.0) / s30)
-    ) + 4.0 * np.exp(th2 * ex(xq) / 500.0)
+        _phi_cdf((th1_arr + 10.0) / s30) - _phi_cdf((th1_arr - 50.0) / s30)
+    ) + 4.0 * np.exp(th2_arr * ex(xq) / 500.0)
     V1 = var1d(f1)
 
     # ── V2 ──────────────────────────────────────────────────────────────────
     # E_{X1}[exp(θ₂X₁/500)] over U[-1,5]: ∫₋₁⁵ exp(θ₂x/500)dx/6 = (500/(6θ₂))*(exp(θ₂/100)-exp(-θ₂/500))
-    th2s = np.where(np.abs(th2) > 1e-8, th2, 1e-8)
+    th2s = np.where(np.abs(th2_arr) > 1e-8, th2_arr, 1e-8)
     pA = (500.0 / (6.0 * th2s)) * (np.exp(th2s / 100.0) - np.exp(-th2s / 500.0))
-    pA = np.where(np.abs(th2) > 1e-8, pA, 1.0)
+    pA = np.where(np.abs(th2_arr) > 1e-8, pA, 1.0)
     sx1q = np.where(xq == 0, 1e-10, np.abs(xq))
     f2r = []
     for x2v in xq:
-        gi = ex(xq / 6.0) * np.exp(-((th1 - 10.0 * x2v) ** 2) / (60.0 * (ex(sx1q) ** 2 + 1e-12)))
+        gi = ex(xq / 6.0) * np.exp(
+            -((th1_arr - 10.0 * x2v) ** 2) / (60.0 * (ex(sx1q) ** 2 + 1e-12))
+        )
         f2r.append(x2v * pA + gi.mean(0) * 6.0)
     V2 = var1d(np.stack(f2r, axis=0))
 
     # ── V3 ──────────────────────────────────────────────────────────────────
     sx3 = np.where(xq == 0, 1e-10, xq)
     s20 = np.sqrt(20.0) * ex(sx3)
-    i3 = ex(xq**2 / 6.0) * (_phi_cdf((100.0 - ph1) / s20) - _phi_cdf((-20.0 - ph1) / s20))
+    i3 = ex(xq**2 / 6.0) * (_phi_cdf((100.0 - ph1_arr) / s20) - _phi_cdf((-20.0 - ph1_arr) / s20))
     V3 = (np.pi / 120.0) * (i3.mean(0) * 6.0) ** 2
 
     # ── V4 ──────────────────────────────────────────────────────────────────
@@ -234,22 +244,22 @@ def _campbell_analytical_v(
     # E_{~4}[Y|X4] = X4 * E_{X1}[exp(θ₂X₁/500)] + const(X4). So V4 = b4² * Var[X4] = b4² * 3.
     # b4 = E_{X1}[exp(θ₂X₁/500)] = (500/(6θ₂))*(exp(θ₂/100)-exp(-θ₂/500))
     b4 = (500.0 / (6.0 * th2s)) * (np.exp(th2s / 100.0) - np.exp(-th2s / 500.0))
-    b4 = np.where(np.abs(th2) > 1e-8, b4, 1.0)
+    b4 = np.where(np.abs(th2_arr) > 1e-8, b4, 1.0)
     V4 = 3.0 * b4**2
 
     # ── V5 = 0 ──────────────────────────────────────────────────────────────
-    V5 = np.zeros_like(th1)
+    V5 = np.zeros_like(th1_arr)
 
     # ── V6 ──────────────────────────────────────────────────────────────────
     # t4 uses exp(φ₂X₇/250). E_{X7}[exp(φ₂X₇/250)] = (250/(6φ₂))*(exp(φ₂/50)-exp(-φ₂/250))
     # V6 = Var_{X6}[E_{~6}[Y|X6]] = E_{X7}[exp(φ₂X₇/250)]² * Var[X6] = b6² * 3
-    ph2s = np.where(np.abs(ph2) > 1e-8, ph2, 1e-8)
+    ph2s = np.where(np.abs(ph2_arr) > 1e-8, ph2_arr, 1e-8)
     b6 = (250.0 / (6.0 * ph2s)) * (np.exp(ph2s / 50.0) - np.exp(-ph2s / 250.0))
-    b6 = np.where(np.abs(ph2) > 1e-8, b6, 1.0)
+    b6 = np.where(np.abs(ph2_arr) > 1e-8, b6, 1.0)
     V6 = 3.0 * b6**2
 
     # ── V7 ──────────────────────────────────────────────────────────────────
-    V7 = var1d(4.0 * np.exp(ph2 * ex(xq) / 250.0))
+    V7 = var1d(4.0 * np.exp(ph2_arr * ex(xq) / 250.0))
 
     # ── V8 = V6 ─────────────────────────────────────────────────────────────
     V8 = V6.copy()
