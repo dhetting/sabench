@@ -60,5 +60,9 @@ def test_transform_registry_export_uses_canonical_fields() -> None:
     assert exported["affine_a2_b1"]["module"] == "sabench.transforms.linear"
     assert exported["softplus_b01"]["module"] == "sabench.transforms.nonlinear"
     assert exported["sample_variance"]["module"] == "sabench.transforms.aggregation"
+    assert exported["negentropy_proxy"]["module"] == "sabench.transforms.aggregation"
+    assert exported["wasserstein_proxy"]["module"] == "sabench.transforms.aggregation"
+    assert exported["energy_distance"]["module"] == "sabench.transforms.aggregation"
+    assert exported["renyi_entropy_a2"]["module"] == "sabench.transforms.aggregation"
     assert exported["temporal_cumsum"]["mechanism"] == "samplewise"
     assert exported["gradient_magnitude"]["supported_output_kinds"] == ["spatial"]

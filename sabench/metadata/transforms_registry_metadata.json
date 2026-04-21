@@ -801,7 +801,7 @@
     "function_name": "t_energy_distance_proxy",
     "key": "energy_distance",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Energy distance proxy (E-statistic)",
     "reference": "Szekely & Rizzo (2013)",
     "supported_output_kinds": [
@@ -1895,7 +1895,7 @@
     "function_name": "t_negentropy_proxy",
     "key": "negentropy_proxy",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Negentropy proxy (ICA contrast function)",
     "reference": "Hyvarinen & Oja (2000)",
     "supported_output_kinds": [
@@ -2310,7 +2310,7 @@
     "function_name": "t_entropy_renyi",
     "key": "renyi_entropy_a2",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Renyi entropy alpha=2 (collision entropy)",
     "reference": "Renyi (1961)",
     "supported_output_kinds": [
@@ -3316,7 +3316,7 @@
     "function_name": "t_wasserstein_proxy",
     "key": "wasserstein_proxy",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Wasserstein-1 proxy (MAD)",
     "reference": "Villani (2009)",
     "supported_output_kinds": [

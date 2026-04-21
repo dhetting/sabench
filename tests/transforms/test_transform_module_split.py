@@ -7,17 +7,21 @@ import numpy as np
 import sabench
 from sabench.transforms import TRANSFORMS, apply_transform, get_transform_spec
 from sabench.transforms.aggregation import (
+    t_energy_distance_proxy,
+    t_entropy_renyi,
     t_interquartile_range,
+    t_negentropy_proxy,
     t_percentile_q10,
     t_percentile_q90,
     t_sample_kurtosis,
     t_sample_skewness,
     t_sample_variance,
     t_temporal_peak,
+    t_wasserstein_proxy,
 )
 from sabench.transforms.field_ops import t_gradient_magnitude
-from sabench.transforms.nonlinear import t_softplus_pointwise
 from sabench.transforms.linear import t_affine
+from sabench.transforms.nonlinear import t_softplus_pointwise
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
     t_exp_pointwise,
@@ -43,6 +47,10 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("temporal_cumsum").module == "sabench.transforms.samplewise"
     assert get_transform_spec("temporal_peak").module == "sabench.transforms.aggregation"
     assert get_transform_spec("sample_variance").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("negentropy_proxy").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("wasserstein_proxy").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("energy_distance").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("renyi_entropy_a2").module == "sabench.transforms.aggregation"
     assert get_transform_spec("sample_skewness").module == "sabench.transforms.aggregation"
     assert get_transform_spec("sample_kurtosis").module == "sabench.transforms.aggregation"
     assert get_transform_spec("percentile_q10").module == "sabench.transforms.aggregation"
@@ -64,6 +72,10 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["temporal_cumsum"]["fn"] is t_temporal_cumsum
     assert TRANSFORMS["temporal_peak"]["fn"] is t_temporal_peak
     assert TRANSFORMS["sample_variance"]["fn"] is t_sample_variance
+    assert TRANSFORMS["negentropy_proxy"]["fn"] is t_negentropy_proxy
+    assert TRANSFORMS["wasserstein_proxy"]["fn"] is t_wasserstein_proxy
+    assert TRANSFORMS["energy_distance"]["fn"] is t_energy_distance_proxy
+    assert TRANSFORMS["renyi_entropy_a2"]["fn"] is t_entropy_renyi
     assert TRANSFORMS["sample_skewness"]["fn"] is t_sample_skewness
     assert TRANSFORMS["sample_kurtosis"]["fn"] is t_sample_kurtosis
     assert TRANSFORMS["percentile_q10"]["fn"] is t_percentile_q10
@@ -87,6 +99,10 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "temporal_cumsum"), t_temporal_cumsum(y))
     np.testing.assert_allclose(apply_transform(y, "temporal_peak"), t_temporal_peak(y))
     np.testing.assert_allclose(apply_transform(y, "sample_variance"), t_sample_variance(y))
+    np.testing.assert_allclose(apply_transform(y, "negentropy_proxy"), t_negentropy_proxy(y))
+    np.testing.assert_allclose(apply_transform(y, "wasserstein_proxy"), t_wasserstein_proxy(y))
+    np.testing.assert_allclose(apply_transform(y, "energy_distance"), t_energy_distance_proxy(y))
+    np.testing.assert_allclose(apply_transform(y, "renyi_entropy_a2"), t_entropy_renyi(y, alpha=2.0, bins=20))
     np.testing.assert_allclose(apply_transform(y, "sample_skewness"), t_sample_skewness(y))
     np.testing.assert_allclose(apply_transform(y, "sample_kurtosis"), t_sample_kurtosis(y))
     np.testing.assert_allclose(apply_transform(y, "percentile_q10"), t_percentile_q10(y))
