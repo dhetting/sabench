@@ -5,6 +5,7 @@ from pathlib import Path
 
 import numpy as np
 
+import sabench
 from sabench.transforms import (
     AFFINE_TRANSFORMS,
     CONCAVE_TRANSFORMS,
@@ -517,7 +518,8 @@ class TestMetadataFile(unittest.TestCase):
     def _load_json(self, fname):
         import json
 
-        metadata_dir = Path(__file__).resolve().parents[1] / "metadata"
+        package_root = Path(sabench.__file__).resolve().parent
+        metadata_dir = package_root / "metadata"
         path = metadata_dir / fname
         self.assertTrue(path.exists(), f"{fname} not found at {path}")
         with path.open(encoding="utf-8") as f:
