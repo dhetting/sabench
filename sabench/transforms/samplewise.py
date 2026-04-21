@@ -1,4 +1,4 @@
-"""Linear output transformations."""
+"""Samplewise output transformations."""
 
 from __future__ import annotations
 

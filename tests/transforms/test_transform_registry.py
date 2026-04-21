@@ -67,7 +67,7 @@ def test_transform_spec_fields_are_valid() -> None:
         expected_module = {
             "affine_a2_b1": "sabench.transforms.pointwise",
             "tanh_a03": "sabench.transforms.pointwise",
-            "temporal_cumsum": "sabench.transforms.linear",
+            "temporal_cumsum": "sabench.transforms.samplewise",
         }[key]
         assert spec.module == expected_module
         assert spec.function_name.startswith("t_")

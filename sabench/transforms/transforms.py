@@ -17,8 +17,8 @@ from __future__ import annotations
 
 import numpy as np
 
-from sabench.transforms.linear import t_temporal_cumsum
 from sabench.transforms.pointwise import t_affine, t_tanh_pointwise
+from sabench.transforms.samplewise import t_temporal_cumsum
 
 # ── Utility helpers ────────────────────────────────────────────────────────────
 
