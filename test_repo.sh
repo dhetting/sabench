@@ -148,7 +148,7 @@ if $DO_PREPARE; then
 
   # ── ruff format: reformat test suite ─────────────────────────────────────
   info "ruff format: reformatting tests (for consistency)"
-  $PIXI ruff format tests sabench/tests || true
+  $PIXI ruff format tests || true
 
   # ── Strip notebook outputs (keeps git diffs clean) ───────────────────────
   if command -v nbstripout &>/dev/null || $PIXI python -c "import nbstripout" 2>/dev/null; then
@@ -182,7 +182,7 @@ if $DO_CHECK; then
 
   # ── 3d. pytest + coverage ─────────────────────────────────────────────────
   info "pytest with coverage  (mirrors 'test' matrix job)"
-  record "pytest + coverage" $PIXI python -m pytest tests sabench/tests \
+  record "pytest + coverage" $PIXI python -m pytest tests \
     --tb=short -q \
     --cov=sabench --cov-report=term-missing --cov-report=xml
 
