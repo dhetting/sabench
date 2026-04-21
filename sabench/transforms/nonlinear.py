@@ -86,3 +86,43 @@ def t_hard_sigmoid(Y: np.ndarray, scale: float = 0.5) -> np.ndarray:
 def t_hard_tanh(Y: np.ndarray, scale: float = 0.3) -> np.ndarray:
     """Hard tanh: φ(y) = clip(scale·y, -1, 1)."""
     return np.clip(scale * Y, -1.0, 1.0)
+
+
+def t_soft_threshold(Y: np.ndarray, lam: float = 1.0) -> np.ndarray:
+    """Soft threshold: φ(y) = sign(y) · max(|y| - λ, 0)."""
+    return np.sign(Y) * np.maximum(np.abs(Y) - lam, 0.0)
+
+
+def t_hard_threshold(Y: np.ndarray, lam: float = 1.0) -> np.ndarray:
+    """Hard threshold: φ(y) = y · 1[|y| ≥ λ]."""
+    return Y * (np.abs(Y) >= lam).astype(float)
+
+
+def t_ramp(Y: np.ndarray, lo: float = -1.0, hi: float = 1.0) -> np.ndarray:
+    """Ramp / clipped linear map: φ(y) = clip(y, lo, hi)."""
+    return np.clip(Y, lo, hi)
+
+
+def t_spike(Y: np.ndarray, center: float = 0.0, width: float = 1.0) -> np.ndarray:
+    """Gaussian spike: φ(y) = exp(-0.5 · ((y - c) / w)^2)."""
+    return np.exp(-0.5 * ((Y - center) / width) ** 2)
+
+
+def t_breakpoint(
+    Y: np.ndarray,
+    bp: float = 0.0,
+    slope_lo: float = 0.5,
+    slope_hi: float = 2.0,
+) -> np.ndarray:
+    """Piecewise linear breakpoint with a C0 kink at ``bp``."""
+    return np.where(Y < bp, slope_lo * (Y - bp), slope_hi * (Y - bp))
+
+
+def t_hockey_stick(Y: np.ndarray, bp: float = 0.0) -> np.ndarray:
+    """Hockey stick: φ(y) = max(y - bp, 0)."""
+    return np.maximum(Y - bp, 0.0)
+
+
+def t_deadzone(Y: np.ndarray, half_width: float = 1.0) -> np.ndarray:
+    """Deadzone: φ(y) = 0 for |y| < h, otherwise sign(y) · (|y| - h)."""
+    return np.sign(Y) * np.maximum(np.abs(Y) - half_width, 0.0)

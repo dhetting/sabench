@@ -64,5 +64,12 @@ def test_transform_registry_export_uses_canonical_fields() -> None:
     assert exported["softplus_b01"]["module"] == "sabench.transforms.nonlinear"
     assert exported["cosh_pointwise"]["module"] == "sabench.transforms.nonlinear"
     assert exported["logistic_pointwise"]["module"] == "sabench.transforms.nonlinear"
+    assert exported["soft_threshold"]["module"] == "sabench.transforms.nonlinear"
+    assert exported["hard_threshold"]["module"] == "sabench.transforms.nonlinear"
+    assert exported["ramp"]["module"] == "sabench.transforms.nonlinear"
+    assert exported["spike_gaussian"]["module"] == "sabench.transforms.nonlinear"
+    assert exported["breakpoint"]["module"] == "sabench.transforms.nonlinear"
+    assert exported["hockey_stick"]["module"] == "sabench.transforms.nonlinear"
+    assert exported["deadzone"]["module"] == "sabench.transforms.nonlinear"
     assert exported["temporal_cumsum"]["mechanism"] == "samplewise"
     assert exported["gradient_magnitude"]["supported_output_kinds"] == ["spatial"]

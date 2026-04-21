@@ -12,24 +12,34 @@ from sabench.transforms.nonlinear import (
     t_algebraic_sigmoid,
     t_arctan_pointwise,
     t_bent_identity,
+    t_breakpoint,
     t_cbrt_pointwise,
     t_cosh_pointwise,
+    t_deadzone,
     t_gompertz,
     t_hard_sigmoid,
     t_hard_tanh,
+    t_hard_threshold,
+    t_hockey_stick,
     t_logistic_pointwise,
     t_mish,
+    t_ramp,
     t_selu,
     t_sinh_pointwise,
+    t_soft_threshold,
     t_softplus_pointwise,
     t_softsign,
+    t_spike,
     t_swish,
 )
 from sabench.transforms.linear import t_affine
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
     t_cos_pointwise,
+    t_cos_squared,
     t_cube_pointwise,
+    t_damped_sin,
+    t_double_sin,
     t_erf_pointwise,
     t_exp_pointwise,
     t_log1p_abs,
@@ -39,15 +49,12 @@ from sabench.transforms.pointwise import (
     t_sin_cos_product,
     t_sin_pointwise,
     t_sin_squared,
+    t_sinc,
     t_sqrt_abs,
     t_square_pointwise,
     t_square_wave,
     t_step_pointwise,
     t_tanh_pointwise,
-    t_sinc,
-    t_cos_squared,
-    t_damped_sin,
-    t_double_sin,
 )
 from sabench.transforms.samplewise import t_temporal_cumsum
 
@@ -90,6 +97,13 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("bent_identity").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("hard_sigmoid").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("hard_tanh").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("soft_threshold").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("hard_threshold").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("ramp").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("spike_gaussian").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("breakpoint").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("hockey_stick").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("deadzone").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("temporal_cumsum").module == "sabench.transforms.samplewise"
     assert get_transform_spec("temporal_peak").module == "sabench.transforms.aggregation"
     assert get_transform_spec("gradient_magnitude").module == "sabench.transforms.field_ops"
@@ -133,6 +147,13 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["bent_identity"]["fn"] is t_bent_identity
     assert TRANSFORMS["hard_sigmoid"]["fn"] is t_hard_sigmoid
     assert TRANSFORMS["hard_tanh"]["fn"] is t_hard_tanh
+    assert TRANSFORMS["soft_threshold"]["fn"] is t_soft_threshold
+    assert TRANSFORMS["hard_threshold"]["fn"] is t_hard_threshold
+    assert TRANSFORMS["ramp"]["fn"] is t_ramp
+    assert TRANSFORMS["spike_gaussian"]["fn"] is t_spike
+    assert TRANSFORMS["breakpoint"]["fn"] is t_breakpoint
+    assert TRANSFORMS["hockey_stick"]["fn"] is t_hockey_stick
+    assert TRANSFORMS["deadzone"]["fn"] is t_deadzone
     assert TRANSFORMS["temporal_cumsum"]["fn"] is t_temporal_cumsum
     assert TRANSFORMS["temporal_peak"]["fn"] is t_temporal_peak
     assert TRANSFORMS["gradient_magnitude"]["fn"] is t_gradient_magnitude
@@ -178,6 +199,13 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "bent_identity"), t_bent_identity(y, scale=0.5))
     np.testing.assert_allclose(apply_transform(y, "hard_sigmoid"), t_hard_sigmoid(y, scale=0.5))
     np.testing.assert_allclose(apply_transform(y, "hard_tanh"), t_hard_tanh(y, scale=0.3))
+    np.testing.assert_allclose(apply_transform(y, "soft_threshold"), t_soft_threshold(y, lam=1.0))
+    np.testing.assert_allclose(apply_transform(y, "hard_threshold"), t_hard_threshold(y, lam=1.0))
+    np.testing.assert_allclose(apply_transform(y, "ramp"), t_ramp(y, lo=-1.0, hi=1.0))
+    np.testing.assert_allclose(apply_transform(y, "spike_gaussian"), t_spike(y, center=0.0, width=1.0))
+    np.testing.assert_allclose(apply_transform(y, "breakpoint"), t_breakpoint(y, bp=0.0, slope_lo=0.5, slope_hi=2.0))
+    np.testing.assert_allclose(apply_transform(y, "hockey_stick"), t_hockey_stick(y, bp=0.0))
+    np.testing.assert_allclose(apply_transform(y, "deadzone"), t_deadzone(y, half_width=1.0))
     np.testing.assert_allclose(apply_transform(y, "temporal_cumsum"), t_temporal_cumsum(y))
     np.testing.assert_allclose(apply_transform(y, "temporal_peak"), t_temporal_peak(y))
 
