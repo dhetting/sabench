@@ -21,23 +21,7 @@ from sabench.transforms.aggregation import t_temporal_peak
 from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.pointwise import t_affine, t_tanh_pointwise
 from sabench.transforms.samplewise import t_temporal_cumsum
-
-# ── Utility helpers ────────────────────────────────────────────────────────────
-
-
-def _safe_range(Y, eps=1e-12):
-    flat = Y.reshape(len(Y), -1)
-    return (flat.max(1) - flat.min(1)).clip(min=eps)
-
-
-def _ymin(Y):
-    return Y.reshape(len(Y), -1).min(1)
-
-
-def _bc(v, Y):
-    """Broadcast a per-sample scalar vector v to Y's shape."""
-    return v.reshape((len(v),) + (1,) * (Y.ndim - 1))
-
+from sabench.transforms.utilities import _bc, _safe_range, _ymin
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Environmental / Hydrological
