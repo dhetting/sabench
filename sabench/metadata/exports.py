@@ -27,12 +27,18 @@ def _json_compatible(value: Any) -> Any:
 
 def export_registered_benchmark_metadata() -> dict[str, dict[str, Any]]:
     """Return canonical benchmark metadata for the typed benchmark registry."""
-    return {name: _json_compatible(asdict(get_benchmark_spec(name))) for name in list_benchmarks()}
+    return {
+        name: _json_compatible(asdict(get_benchmark_spec(name)))
+        for name in list_benchmarks()
+    }
 
 
 def export_registered_transform_metadata() -> dict[str, dict[str, Any]]:
     """Return canonical transform metadata for the typed transform registry."""
-    return {key: _json_compatible(asdict(get_transform_spec(key))) for key in list_transforms()}
+    return {
+        key: _json_compatible(asdict(get_transform_spec(key)))
+        for key in list_transforms()
+    }
 
 
 def write_registry_metadata_exports(metadata_root: Path | None = None) -> tuple[Path, Path]:

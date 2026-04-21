@@ -1,0 +1,6 @@
+Remove these legacy paths after applying the bundle:
+- sabench/spatial/__init__.py
+- sabench/spatial/campbell2d.py
+- sabench/spatial/campbell2d_exp.py
+- sabench/spatial/campbell3d.py
+- sabench/spatial/
