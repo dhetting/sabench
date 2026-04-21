@@ -73,7 +73,7 @@ def test_transform_spec_fields_are_valid() -> None:
         assert set(spec.supported_output_kinds) <= VALID_OUTPUT_KINDS
         assert set(spec.tags) <= VALID_TAGS
         expected_module = {
-            "affine_a2_b1": "sabench.transforms.pointwise",
+            "affine_a2_b1": "sabench.transforms.linear",
             "tanh_a03": "sabench.transforms.pointwise",
             "softplus_b01": "sabench.transforms.nonlinear",
             "temporal_cumsum": "sabench.transforms.samplewise",

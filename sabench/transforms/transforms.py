@@ -19,8 +19,9 @@ import numpy as np
 
 from sabench.transforms.aggregation import t_temporal_peak
 from sabench.transforms.field_ops import t_gradient_magnitude
+from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import t_softplus_pointwise
-from sabench.transforms.pointwise import t_affine, t_tanh_pointwise
+from sabench.transforms.pointwise import t_tanh_pointwise
 from sabench.transforms.samplewise import t_temporal_cumsum
 from sabench.transforms.utilities import _bc, _safe_range, _ymin
 

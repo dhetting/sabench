@@ -8,13 +8,14 @@ import sabench
 from sabench.transforms import TRANSFORMS, apply_transform, get_transform_spec
 from sabench.transforms.aggregation import t_temporal_peak
 from sabench.transforms.field_ops import t_gradient_magnitude
+from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import t_softplus_pointwise
-from sabench.transforms.pointwise import t_affine, t_tanh_pointwise
+from sabench.transforms.pointwise import t_tanh_pointwise
 from sabench.transforms.samplewise import t_temporal_cumsum
 
 
 def test_representative_transform_specs_point_to_split_modules() -> None:
-    assert get_transform_spec("affine_a2_b1").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("affine_a2_b1").module == "sabench.transforms.linear"
     assert get_transform_spec("tanh_a03").module == "sabench.transforms.pointwise"
     assert get_transform_spec("softplus_b01").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("temporal_cumsum").module == "sabench.transforms.samplewise"
@@ -50,9 +51,9 @@ def test_apply_transform_matches_split_module_functions() -> None:
 
 def test_focused_transform_modules_exist() -> None:
     package_root = Path(sabench.__file__).resolve().parent
+    assert (package_root / "transforms" / "linear.py").exists()
     assert (package_root / "transforms" / "pointwise.py").exists()
     assert (package_root / "transforms" / "nonlinear.py").exists()
     assert (package_root / "transforms" / "samplewise.py").exists()
     assert (package_root / "transforms" / "aggregation.py").exists()
     assert (package_root / "transforms" / "field_ops.py").exists()
-    assert not (package_root / "transforms" / "linear.py").exists()
