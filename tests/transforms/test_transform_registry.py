@@ -16,6 +16,7 @@ from sabench.transforms import (
 EXPECTED_REGISTRY_KEYS = (
     "affine_a2_b1",
     "tanh_a03",
+    "softplus_b01",
     "temporal_cumsum",
     "temporal_peak",
     "gradient_magnitude",
@@ -74,6 +75,7 @@ def test_transform_spec_fields_are_valid() -> None:
         expected_module = {
             "affine_a2_b1": "sabench.transforms.pointwise",
             "tanh_a03": "sabench.transforms.pointwise",
+            "softplus_b01": "sabench.transforms.nonlinear",
             "temporal_cumsum": "sabench.transforms.samplewise",
             "temporal_peak": "sabench.transforms.aggregation",
             "gradient_magnitude": "sabench.transforms.field_ops",
@@ -84,7 +86,7 @@ def test_transform_spec_fields_are_valid() -> None:
 
 
 def test_transform_registry_can_filter_by_mechanism() -> None:
-    assert list_transforms(mechanism="pointwise") == ("affine_a2_b1", "tanh_a03")
+    assert list_transforms(mechanism="pointwise") == ("affine_a2_b1", "softplus_b01", "tanh_a03")
     assert list_transforms(mechanism="samplewise") == ("temporal_cumsum",)
     assert list_transforms(mechanism="aggregation") == ("temporal_peak",)
     assert list_transforms(mechanism="field_op") == ("gradient_magnitude",)

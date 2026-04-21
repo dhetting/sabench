@@ -57,6 +57,7 @@ def _get_legacy_meta(key: str) -> LegacyTransformMeta:
 _MECHANISMS: dict[str, TransformMechanism] = {
     "affine_a2_b1": "pointwise",
     "tanh_a03": "pointwise",
+    "softplus_b01": "pointwise",
     "temporal_cumsum": "samplewise",
     "temporal_peak": "aggregation",
     "gradient_magnitude": "field_op",
@@ -65,6 +66,7 @@ _MECHANISMS: dict[str, TransformMechanism] = {
 _SUPPORTED_OUTPUT_KINDS: dict[str, tuple[TransformOutputKind, ...]] = {
     "affine_a2_b1": ("scalar", "spatial", "functional"),
     "tanh_a03": ("scalar", "spatial", "functional"),
+    "softplus_b01": ("scalar", "spatial", "functional"),
     "temporal_cumsum": ("functional",),
     "temporal_peak": ("functional",),
     "gradient_magnitude": ("spatial",),
@@ -139,6 +141,7 @@ def _build_spec(key: str) -> TransformSpec:
 _REPRESENTATIVE_KEYS: tuple[str, ...] = (
     "affine_a2_b1",
     "tanh_a03",
+    "softplus_b01",
     "temporal_cumsum",
     "temporal_peak",
     "gradient_magnitude",

@@ -19,6 +19,7 @@ import numpy as np
 
 from sabench.transforms.aggregation import t_temporal_peak
 from sabench.transforms.field_ops import t_gradient_magnitude
+from sabench.transforms.nonlinear import t_softplus_pointwise
 from sabench.transforms.pointwise import t_affine, t_tanh_pointwise
 from sabench.transforms.samplewise import t_temporal_cumsum
 from sabench.transforms.utilities import _bc, _safe_range, _ymin
@@ -73,22 +74,6 @@ def t_exceed_q99(Y):
 # ══════════════════════════════════════════════════════════════════════════════
 # Engineering / Physical
 # ══════════════════════════════════════════════════════════════════════════════
-
-
-def t_softplus_pointwise(Y, beta=0.1):
-    """Softplus (smooth ReLU): Z(z) = log(1 + exp(β · Y(z))) / β.
-
-    A GENUINELY POINTWISE smooth monotone transform.  In the limit β → ∞
-    this approaches ReLU; for moderate β it is a smooth bounded-curvature
-    alternative to tanh that does not saturate from above.  Used in neural
-    network activations and dose-response models where only the lower
-    (near-zero) regime is nonlinear.
-
-    Physical context: Softplus arises as the log-partition function in
-    statistical mechanics and as a smooth activation function in deep
-    learning systems where the output represents a probability or intensity.
-    """
-    return np.log1p(np.exp(np.clip(beta * Y, -500, 500))) / beta
 
 
 def t_carnot_quadratic(Y, delta=1.0):
