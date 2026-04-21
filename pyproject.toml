@@ -111,6 +111,7 @@ ignore = [
 # Test names encode mathematical/statistical invariants using conventional
 # Sobol notation (for example, S1, ST, Vi, and N).
 "sabench/tests/*.py" = ["N802"]
+"tests/**/*.py" = ["N802"]
 
 [tool.ruff.lint.pep8-naming]
 # Preserve the public analytical Sobol API used throughout the package and in
