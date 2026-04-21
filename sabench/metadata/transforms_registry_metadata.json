@@ -541,7 +541,7 @@
     "function_name": "t_cos_pointwise",
     "key": "cos_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "cos(y) (periodic, even, bounded)",
     "reference": "Saltelli et al. (2010)",
     "supported_output_kinds": [
@@ -602,7 +602,7 @@
     "function_name": "t_cube_pointwise",
     "key": "cube_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "Cube (odd, convex x>0 / concave x<0)",
     "reference": "Borwein & Lewis (2000)",
     "supported_output_kinds": [
@@ -840,7 +840,7 @@
     "function_name": "t_erf_pointwise",
     "key": "erf_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "erf(y) (monotone, S-shaped, C\u221e)",
     "reference": "Abramowitz & Stegun (1972)",
     "supported_output_kinds": [
@@ -1596,7 +1596,7 @@
     "function_name": "t_log_abs",
     "key": "log_abs_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "log|y| (concave for |y|>1, singular)",
     "reference": "Box & Cox (1964)",
     "supported_output_kinds": [
@@ -2587,7 +2587,7 @@
     "function_name": "t_sin_pointwise",
     "key": "sin_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "sin(y) (periodic, bounded, C\u221e)",
     "reference": "Saltelli et al. (2010)",
     "supported_output_kinds": [
@@ -2908,7 +2908,7 @@
     "function_name": "t_step_pointwise",
     "key": "step_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "Heaviside step (discontinuous)",
     "reference": "Saltelli et al. (2010)",
     "supported_output_kinds": [

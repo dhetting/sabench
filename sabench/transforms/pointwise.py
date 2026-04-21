@@ -38,3 +38,35 @@ def t_sqrt_abs(Y: np.ndarray) -> np.ndarray:
 def t_abs_pointwise(Y: np.ndarray) -> np.ndarray:
     """Absolute value transform."""
     return np.abs(Y)
+
+
+def t_cube_pointwise(Y: np.ndarray) -> np.ndarray:
+    """Cube: φ(y) = y³."""
+    return Y**3
+
+
+def t_erf_pointwise(Y: np.ndarray, scale: float = 0.5) -> np.ndarray:
+    """Error function: φ(y) = erf(scale·y)."""
+    from math import erf as _erf
+
+    return np.vectorize(lambda y: _erf(scale * y))(Y).astype(float)
+
+
+def t_sin_pointwise(Y: np.ndarray, freq: float = 0.5) -> np.ndarray:
+    """Sine: φ(y) = sin(freq·y)."""
+    return np.sin(freq * Y)
+
+
+def t_cos_pointwise(Y: np.ndarray, freq: float = 0.5) -> np.ndarray:
+    """Cosine: φ(y) = cos(freq·y)."""
+    return np.cos(freq * Y)
+
+
+def t_step_pointwise(Y: np.ndarray, threshold: float = 0.0) -> np.ndarray:
+    """Heaviside step: φ(y) = 1[y > threshold]."""
+    return (Y > threshold).astype(float)
+
+
+def t_log_abs(Y: np.ndarray, eps: float = 1.0) -> np.ndarray:
+    """Log of shifted absolute value: φ(y) = log(|y| + eps)."""
+    return np.log(np.abs(Y) + eps)

@@ -12,11 +12,17 @@ from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import t_softplus_pointwise
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
+    t_cos_pointwise,
+    t_cube_pointwise,
+    t_erf_pointwise,
     t_exp_pointwise,
     t_log1p_abs,
+    t_log_abs,
     t_relu_pointwise,
+    t_sin_pointwise,
     t_sqrt_abs,
     t_square_pointwise,
+    t_step_pointwise,
     t_tanh_pointwise,
 )
 from sabench.transforms.samplewise import t_temporal_cumsum
@@ -31,6 +37,12 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("log1p_positive").module == "sabench.transforms.pointwise"
     assert get_transform_spec("sqrt_abs").module == "sabench.transforms.pointwise"
     assert get_transform_spec("abs_pointwise").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("cube_pointwise").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("erf_pointwise").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("sin_pointwise").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("cos_pointwise").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("step_pointwise").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("log_abs_pointwise").module == "sabench.transforms.pointwise"
     assert get_transform_spec("softplus_b01").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("temporal_cumsum").module == "sabench.transforms.samplewise"
     assert get_transform_spec("temporal_peak").module == "sabench.transforms.aggregation"
@@ -46,6 +58,12 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["log1p_positive"]["fn"] is t_log1p_abs
     assert TRANSFORMS["sqrt_abs"]["fn"] is t_sqrt_abs
     assert TRANSFORMS["abs_pointwise"]["fn"] is t_abs_pointwise
+    assert TRANSFORMS["cube_pointwise"]["fn"] is t_cube_pointwise
+    assert TRANSFORMS["erf_pointwise"]["fn"] is t_erf_pointwise
+    assert TRANSFORMS["sin_pointwise"]["fn"] is t_sin_pointwise
+    assert TRANSFORMS["cos_pointwise"]["fn"] is t_cos_pointwise
+    assert TRANSFORMS["step_pointwise"]["fn"] is t_step_pointwise
+    assert TRANSFORMS["log_abs_pointwise"]["fn"] is t_log_abs
     assert TRANSFORMS["softplus_b01"]["fn"] is t_softplus_pointwise
     assert TRANSFORMS["temporal_cumsum"]["fn"] is t_temporal_cumsum
     assert TRANSFORMS["temporal_peak"]["fn"] is t_temporal_peak
@@ -63,6 +81,14 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "log1p_positive"), t_log1p_abs(y))
     np.testing.assert_allclose(apply_transform(y, "sqrt_abs"), t_sqrt_abs(y))
     np.testing.assert_allclose(apply_transform(y, "abs_pointwise"), t_abs_pointwise(y))
+    np.testing.assert_allclose(apply_transform(y, "cube_pointwise"), t_cube_pointwise(y))
+    np.testing.assert_allclose(apply_transform(y, "erf_pointwise"), t_erf_pointwise(y, scale=0.5))
+    np.testing.assert_allclose(apply_transform(y, "sin_pointwise"), t_sin_pointwise(y, freq=0.5))
+    np.testing.assert_allclose(apply_transform(y, "cos_pointwise"), t_cos_pointwise(y, freq=0.5))
+    np.testing.assert_allclose(
+        apply_transform(y, "step_pointwise"), t_step_pointwise(y, threshold=0.0)
+    )
+    np.testing.assert_allclose(apply_transform(y, "log_abs_pointwise"), t_log_abs(y, eps=1.0))
     np.testing.assert_allclose(
         apply_transform(y, "softplus_b01"), t_softplus_pointwise(y, beta=0.1)
     )
