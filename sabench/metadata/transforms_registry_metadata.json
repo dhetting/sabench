@@ -1,4 +1,46 @@
 {
+  "abs_pointwise": {
+    "function_name": "t_abs_pointwise",
+    "key": "abs_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "|y| (convex, non-smooth at 0)",
+    "reference": "Hardy et al. (1934)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "affine_a05_bm3": {
+    "function_name": "t_affine",
+    "key": "affine_a05_bm3",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.linear",
+    "name": "Affine (a=0.5, b=\u22123) \u2014 unit conversion",
+    "reference": "Saltelli et al. (2008)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "affine",
+      "pointwise",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "engineering"
+    ]
+  },
   "affine_a2_b1": {
     "function_name": "t_affine",
     "key": "affine_a2_b1",
@@ -20,6 +62,1101 @@
       "engineering"
     ]
   },
+  "algebraic_sigmoid": {
+    "function_name": "t_algebraic_sigmoid",
+    "key": "algebraic_sigmoid",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Algebraic sigmoid y/sqrt(1+y^2)",
+    "reference": "Glorot et al. (2011)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "anomaly_pct": {
+    "function_name": "t_anomaly_pct",
+    "key": "anomaly_pct",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Anomaly percent departure from mean",
+    "reference": "Jones et al. (1999)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "climate"
+    ]
+  },
+  "anscombe": {
+    "function_name": "t_anscombe",
+    "key": "anscombe",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Anscombe VST (Poisson counts)",
+    "reference": "Anscombe (1948)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "arctan_pointwise": {
+    "function_name": "t_arctan_pointwise",
+    "key": "arctan_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "arctan(y) (monotone, bounded)",
+    "reference": "Abramowitz & Stegun (1972)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "arrhenius": {
+    "function_name": "t_arrhenius",
+    "key": "arrhenius",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Arrhenius reaction rate",
+    "reference": "Saltelli & Tarantola (2002)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "asinh_vst": {
+    "function_name": "t_asinh_vs",
+    "key": "asinh_vst",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Inverse hyperbolic sine (VST, C-inf)",
+    "reference": "Johnson (1949)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "atan2pi": {
+    "function_name": "t_atan2pi",
+    "key": "atan2pi",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "(2/pi)*arctan (bounded monotone)",
+    "reference": "Abramowitz & Stegun (1972)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "bent_identity": {
+    "function_name": "t_bent_identity",
+    "key": "bent_identity",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Bent identity (monotone, near-linear)",
+    "reference": "Glorot et al. (2011)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "bernstein_b3": {
+    "function_name": "t_bernstein_b3",
+    "key": "bernstein_b3",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Bernstein B3 basis polynomial",
+    "reference": "Bernstein (1912)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "bias_correction": {
+    "function_name": "t_bias_correction",
+    "key": "bias_correction",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Bias correction (linear scaling to 1)",
+    "reference": "Piani et al. (2010)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "climate"
+    ]
+  },
+  "bimodal_flip": {
+    "function_name": "t_bimodal_flip",
+    "key": "bimodal_flip",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Bimodal flip (zero crossings at 0,0.5,1)",
+    "reference": "Saltelli et al. (2010)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "block_2x2": {
+    "function_name": "t_block_2x2",
+    "key": "block_2x2",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Block average 2\u00d72 (COS)",
+    "reference": "Gotway & Young (2002)",
+    "supported_output_kinds": [
+      "spatial"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "spatial"
+    ]
+  },
+  "block_4x4": {
+    "function_name": "t_block_4x4",
+    "key": "block_4x4",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Block average 4\u00d74 (COS)",
+    "reference": "Gotway & Young (2002)",
+    "supported_output_kinds": [
+      "spatial"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "spatial"
+    ]
+  },
+  "block_8x8": {
+    "function_name": "t_block_8x8",
+    "key": "block_8x8",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Block average 8\u00d78 (COS)",
+    "reference": "Cressie (1993)",
+    "supported_output_kinds": [
+      "spatial"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "spatial"
+    ]
+  },
+  "box_cox_log": {
+    "function_name": "t_box_cox",
+    "key": "box_cox_log",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Box-Cox (\u03bb\u21920, log)",
+    "reference": "Box & Cox (1964)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "box_cox_sqrt": {
+    "function_name": "t_box_cox",
+    "key": "box_cox_sqrt",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Box-Cox (\u03bb=0.5)",
+    "reference": "Box & Cox (1964)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "breakpoint": {
+    "function_name": "t_breakpoint",
+    "key": "breakpoint",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Piecewise linear breakpoint (C0)",
+    "reference": "Hansen (2000)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "carnot_quadratic": {
+    "function_name": "t_carnot_quadratic",
+    "key": "carnot_quadratic",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Carnot quadratic efficiency",
+    "reference": "Williams et al. (2008)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "convex",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "cbrt_pointwise": {
+    "function_name": "t_cbrt_pointwise",
+    "key": "cbrt_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Cube root (monotone, concave x>0)",
+    "reference": "Borwein & Lewis (2000)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "monotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "chebyshev_t4": {
+    "function_name": "t_chebyshev_t4",
+    "key": "chebyshev_t4",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Chebyshev T4 polynomial",
+    "reference": "Szego (1939)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "chord_normalise": {
+    "function_name": "t_chord_dist",
+    "key": "chord_normalise",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Chord normalisation (L2 sphere proj)",
+    "reference": "Orloci (1967)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "ecological"
+    ]
+  },
+  "clamp_sigma": {
+    "function_name": "t_clamp_sigma",
+    "key": "clamp_sigma",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Clamp to \u00b12\u03c3 (soft winsorisation)",
+    "reference": "Tukey (1977)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "clipped_excess_q90": {
+    "function_name": "t_clipped_excess",
+    "key": "clipped_excess_q90",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Clipped excess POT (q=0.90)",
+    "reference": "Coles (2001)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "monotone",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "contour_exceedance": {
+    "function_name": "t_contour_exceedance",
+    "key": "contour_exceedance",
+    "mechanism": "field_op",
+    "module": "sabench.transforms.transforms",
+    "name": "Signed contour distance (q=0.75)",
+    "reference": "Openshaw (1984)",
+    "supported_output_kinds": [
+      "spatial"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "spatial"
+    ]
+  },
+  "cos_pointwise": {
+    "function_name": "t_cos_pointwise",
+    "key": "cos_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "cos(y) (periodic, even, bounded)",
+    "reference": "Saltelli et al. (2010)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "cos_squared": {
+    "function_name": "t_cos_squared",
+    "key": "cos_squared",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "cos^2(fy) (even, non-negative)",
+    "reference": "Saltelli et al. (2010)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "cosh_pointwise": {
+    "function_name": "t_cosh_pointwise",
+    "key": "cosh_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Cosh (convex, even, C\u221e)",
+    "reference": "Abramowitz & Stegun (1972)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "cube_pointwise": {
+    "function_name": "t_cube_pointwise",
+    "key": "cube_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Cube (odd, convex x>0 / concave x<0)",
+    "reference": "Borwein & Lewis (2000)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "cumulative_damage": {
+    "function_name": "t_cumulative_damage",
+    "key": "cumulative_damage",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Cumulative damage |y|^m m=3 (Miner)",
+    "reference": "Miner (1945)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "monotone",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "cvar_q95": {
+    "function_name": "t_cvar",
+    "key": "cvar_q95",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "CVaR/ES q=0.95 (nonlocal tail mean)",
+    "reference": "Artzner et al. (1999)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "financial"
+    ]
+  },
+  "damped_sin": {
+    "function_name": "t_damped_sin",
+    "key": "damped_sin",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Damped sine (decaying oscillation)",
+    "reference": "Stein (1999)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "deadzone": {
+    "function_name": "t_deadzone",
+    "key": "deadzone",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Deadzone (zero band, C0)",
+    "reference": "Donoho & Johnstone (1994)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "donut": {
+    "function_name": "t_donut",
+    "key": "donut",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Donut/ring indicator (C-inf)",
+    "reference": "Wendland (2004)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "double_sin": {
+    "function_name": "t_double_sin",
+    "key": "double_sin",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Double-frequency sin+sin (interference)",
+    "reference": "Saltelli et al. (2010)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "drawdown": {
+    "function_name": "t_drawdown",
+    "key": "drawdown",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Max drawdown (temporal, nonlocal)",
+    "reference": "Magdon-Ismail et al. (2004)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "financial"
+    ]
+  },
+  "dual_power_lam03": {
+    "function_name": "t_dual_power",
+    "key": "dual_power_lam03",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Dual power lam=0.3 (C1, all-real)",
+    "reference": "Yeo & Johnson (2000)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "monotone",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "emax_model": {
+    "function_name": "t_emax_model",
+    "key": "emax_model",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Emax pharmacodynamic model n=1",
+    "reference": "Holford & Sheiner (1981)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "medical"
+    ]
+  },
+  "energy_distance": {
+    "function_name": "t_energy_distance_proxy",
+    "key": "energy_distance",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Energy distance proxy (E-statistic)",
+    "reference": "Szekely & Rizzo (2013)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "information"
+    ]
+  },
+  "entropy_proxy": {
+    "function_name": "t_entropy_proxy",
+    "key": "entropy_proxy",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Entropy proxy \u2212(Y\u2212mean)\u00b2",
+    "reference": "Shannon (1948)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "erf_pointwise": {
+    "function_name": "t_erf_pointwise",
+    "key": "erf_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "erf(y) (monotone, S-shaped, C\u221e)",
+    "reference": "Abramowitz & Stegun (1972)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "exceedance_area": {
+    "function_name": "t_exceedance_area",
+    "key": "exceedance_area",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Exceedance area fraction (q=0.75)",
+    "reference": "Beven & Binley (1992)",
+    "supported_output_kinds": [
+      "spatial"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "spatial"
+    ]
+  },
+  "exceedance_q75": {
+    "function_name": "t_exceed_q75",
+    "key": "exceedance_q75",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Exceedance indicator (q=0.75)",
+    "reference": "Saltelli et al. (2008)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "exceedance_q90": {
+    "function_name": "t_exceed_q90",
+    "key": "exceedance_q90",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Exceedance indicator (q=0.90)",
+    "reference": "Saltelli et al. (2008)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "exceedance_q95": {
+    "function_name": "t_exceed_q95",
+    "key": "exceedance_q95",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Exceedance indicator (q=0.95)",
+    "reference": "Coles (2001)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "exceedance_q99": {
+    "function_name": "t_exceed_q99",
+    "key": "exceedance_q99",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Exceedance indicator (q=0.99)",
+    "reference": "Coles (2001)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "excess_return": {
+    "function_name": "t_excess_return",
+    "key": "excess_return",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Excess return (mean-centred)",
+    "reference": "Sharpe (1966)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "financial"
+    ]
+  },
+  "exp_neg_sq": {
+    "function_name": "t_exp_neg_sq",
+    "key": "exp_neg_sq",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Gaussian kernel exp(-s^2*y^2) (C-inf)",
+    "reference": "Rasmussen & Williams (2006)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "exp_pointwise": {
+    "function_name": "t_exp_pointwise",
+    "key": "exp_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Exponential (convex, monotone)",
+    "reference": "Hardy et al. (1934)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "exp_pos_sq": {
+    "function_name": "t_exp_pos_sq",
+    "key": "exp_pos_sq",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Anti-Gaussian exp(+s^2*y^2) (convex)",
+    "reference": "Hardy et al. (1934)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "fatigue_miner": {
+    "function_name": "t_fatigue_miner",
+    "key": "fatigue_miner",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Palmgren-Miner fatigue accumulation",
+    "reference": "Miner (1945)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "monotone",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "fold_change": {
+    "function_name": "t_fold_change",
+    "key": "fold_change",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Log2 fold-change from sample mean",
+    "reference": "Pfaffl (2001)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "financial"
+    ]
+  },
+  "frechet_cdf": {
+    "function_name": "t_frechet_cdf",
+    "key": "frechet_cdf",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Fr\u00e9chet CDF (EV type-II, shape=2)",
+    "reference": "Fr\u00e9chet (1927)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "freeman_tukey": {
+    "function_name": "t_freeman_tukey",
+    "key": "freeman_tukey",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Freeman-Tukey VST (count data)",
+    "reference": "Freeman & Tukey (1950)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "gev_cdf": {
+    "function_name": "t_gev_cdf",
+    "key": "gev_cdf",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "GEV CDF xi=0.3 (Frechet type)",
+    "reference": "Jenkinson (1955)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "gompertz_cdf": {
+    "function_name": "t_gompertz",
+    "key": "gompertz_cdf",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Gompertz CDF (asymmetric sigmoid)",
+    "reference": "Gompertz (1825)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
   "gradient_magnitude": {
     "function_name": "t_gradient_magnitude",
     "key": "gradient_magnitude",
@@ -37,6 +1174,1555 @@
       "spatial"
     ]
   },
+  "growing_degree_days": {
+    "function_name": "t_growing_degree_days",
+    "key": "growing_degree_days",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Growing degree days base=10",
+    "reference": "McMaster & Wilhelm (1997)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "monotone",
+      "nonlinear",
+      "climate"
+    ]
+  },
+  "gumbel_cdf": {
+    "function_name": "t_gumbel_cdf",
+    "key": "gumbel_cdf",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Gumbel CDF (EV type-I)",
+    "reference": "Gumbel (1958)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "hard_sigmoid": {
+    "function_name": "t_hard_sigmoid",
+    "key": "hard_sigmoid",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Hard sigmoid (piecewise linear, C0)",
+    "reference": "Goodfellow et al. (2016)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "hard_tanh": {
+    "function_name": "t_hard_tanh",
+    "key": "hard_tanh",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Hard tanh clip(-1,1) (piecewise, C0)",
+    "reference": "Goodfellow et al. (2016)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "hard_threshold": {
+    "function_name": "t_hard_threshold",
+    "key": "hard_threshold",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Hard threshold (discontinuous)",
+    "reference": "Donoho & Johnstone (1994)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "hellinger": {
+    "function_name": "t_hellinger",
+    "key": "hellinger",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Hellinger transform (chi^2 equaliser)",
+    "reference": "Legendre & Gallagher (2001)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "ecological"
+    ]
+  },
+  "hermite_he2": {
+    "function_name": "t_hermite_he2",
+    "key": "hermite_he2",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Hermite He2 polynomial",
+    "reference": "Szego (1939)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "hermite_he3": {
+    "function_name": "t_hermite_he3",
+    "key": "hermite_he3",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Hermite He3 polynomial",
+    "reference": "Szego (1939)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "hill_response": {
+    "function_name": "t_hill_response",
+    "key": "hill_response",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Hill equation response n=2 (saturation)",
+    "reference": "Hill (1910)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "medical"
+    ]
+  },
+  "hockey_stick": {
+    "function_name": "t_hockey_stick",
+    "key": "hockey_stick",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Hockey stick ReLU-shift (convex, C0)",
+    "reference": "Glorot et al. (2011)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "monotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "inverse_normal": {
+    "function_name": "t_inverse_normal",
+    "key": "inverse_normal",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Inverse normal score (probit)",
+    "reference": "Blom (1958)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "inverse_pointwise": {
+    "function_name": "t_inverse_abs",
+    "key": "inverse_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "1/|y| (convex, singular at 0)",
+    "reference": "Hardy et al. (1934)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "inverse_sq": {
+    "function_name": "t_inverse_sq",
+    "key": "inverse_sq",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "1/(y^2+eps) (convex, even, regularised)",
+    "reference": "Hardy et al. (1934)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "iqr": {
+    "function_name": "t_interquartile_range",
+    "key": "iqr",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Interquartile range (nonlocal spread)",
+    "reference": "Tukey (1977)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "isoline_length": {
+    "function_name": "t_isoline_length",
+    "key": "isoline_length",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Isoline perimeter (q=0.75)",
+    "reference": "Openshaw (1984)",
+    "supported_output_kinds": [
+      "spatial"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "spatial"
+    ]
+  },
+  "johnson_su": {
+    "function_name": "t_johnson_su",
+    "key": "johnson_su",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Johnson SU (4-parameter normalisation)",
+    "reference": "Johnson (1949)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "laplacian_roughness": {
+    "function_name": "t_laplacian_roughness",
+    "key": "laplacian_roughness",
+    "mechanism": "field_op",
+    "module": "sabench.transforms.transforms",
+    "name": "Laplacian roughness |\u2207\u00b2Y|",
+    "reference": "Cressie (1993)",
+    "supported_output_kinds": [
+      "spatial"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "spatial"
+    ]
+  },
+  "legendre_p3": {
+    "function_name": "t_legendre_p3",
+    "key": "legendre_p3",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Legendre P3 polynomial",
+    "reference": "Szego (1939)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "log10_shift": {
+    "function_name": "t_log10_shift",
+    "key": "log10_shift",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Log base-10 (order-of-magnitude)",
+    "reference": "Richter (1935)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "log1p_positive": {
+    "function_name": "t_log1p_abs",
+    "key": "log1p_positive",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "log(1+|y|) (concave for y>0)",
+    "reference": "Box & Cox (1964)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "monotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "log2_shift": {
+    "function_name": "t_log2_shift",
+    "key": "log2_shift",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Log base-2 (bit/octave scaling)",
+    "reference": "Shannon (1948)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "log_abs_pointwise": {
+    "function_name": "t_log_abs",
+    "key": "log_abs_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "log|y| (concave for |y|>1, singular)",
+    "reference": "Box & Cox (1964)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "monotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "log_auc": {
+    "function_name": "t_log_auc",
+    "key": "log_auc",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Log area-under-curve proxy",
+    "reference": "Gabrielsson & Weiner (2000)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "medical"
+    ]
+  },
+  "log_flow": {
+    "function_name": "t_log_flow",
+    "key": "log_flow",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Log streamflow (hydrological VST)",
+    "reference": "Vogel & Wilson (1996)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "hydrology"
+    ]
+  },
+  "log_log": {
+    "function_name": "t_log_log",
+    "key": "log_log",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Double log log(1+log(y)) (extreme compr)",
+    "reference": "Box & Cox (1964)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "concave",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "log_logistic_cdf": {
+    "function_name": "t_log_logistic_cdf",
+    "key": "log_logistic_cdf",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Log-logistic CDF beta=2 (S-shaped tail)",
+    "reference": "Tadikamalla (1980)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "log_normal_cdf": {
+    "function_name": "t_log_normal_cdf",
+    "key": "log_normal_cdf",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Log-normal CDF (\u03c3=0.5)",
+    "reference": "Limpert et al. (2001)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "log_ratio": {
+    "function_name": "t_log_ratio",
+    "key": "log_ratio",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Log-ratio (ILR-like, mean-centred)",
+    "reference": "Aitchison (1986)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "ecological"
+    ]
+  },
+  "log_shift": {
+    "function_name": "t_log_shift",
+    "key": "log_shift",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Log-shift",
+    "reference": "Vogel & Wilson (1996)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "logistic_pointwise": {
+    "function_name": "t_logistic_pointwise",
+    "key": "logistic_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Logistic \u03c3(y) (monotone, S-shaped)",
+    "reference": "Verhulst (1838)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "matern_smooth": {
+    "function_name": "t_matern_smooth",
+    "key": "matern_smooth",
+    "mechanism": "field_op",
+    "module": "sabench.transforms.transforms",
+    "name": "Matern-1.5 spatial smoothing",
+    "reference": "Stein (1999)",
+    "supported_output_kinds": [
+      "spatial"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "spatial"
+    ]
+  },
+  "min_max_normalise": {
+    "function_name": "t_min_max_normalise",
+    "key": "min_max_normalise",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Min-max normalisation [0,1]",
+    "reference": "Saltelli et al. (2008)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "mish": {
+    "function_name": "t_mish",
+    "key": "mish",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Mish activation (smooth non-monotone)",
+    "reference": "Misra (2020)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "modulus_lam05": {
+    "function_name": "t_modulus",
+    "key": "modulus_lam05",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Modulus transform lam=0.5 (C1 VST)",
+    "reference": "John & Draper (1980)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "nash_sutcliffe": {
+    "function_name": "t_nash_sutcliffe",
+    "key": "nash_sutcliffe",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Nash-Sutcliffe efficiency proxy",
+    "reference": "Nash & Sutcliffe (1970)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "hydrology"
+    ]
+  },
+  "neg_square": {
+    "function_name": "t_neg_square",
+    "key": "neg_square",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "\u2212y\u00b2 (concave, even)",
+    "reference": "Hardy et al. (1934)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "nonmonotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "negentropy_proxy": {
+    "function_name": "t_negentropy_proxy",
+    "key": "negentropy_proxy",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Negentropy proxy (ICA contrast function)",
+    "reference": "Hyvarinen & Oja (2000)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "information"
+    ]
+  },
+  "normalised_stress": {
+    "function_name": "t_normalised_stress",
+    "key": "normalised_stress",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Goodman normalised stress",
+    "reference": "Socie & Marquis (2000)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "pareto_tail": {
+    "function_name": "t_pareto_tail",
+    "key": "pareto_tail",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Pareto tail transform alpha=1.5",
+    "reference": "Pickands (1975)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "concave",
+      "monotone",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "percentile_q10": {
+    "function_name": "t_percentile_q10",
+    "key": "percentile_q10",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "10th percentile (nonlocal quantile)",
+    "reference": "Hyndman & Fan (1996)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "percentile_q90": {
+    "function_name": "t_percentile_q90",
+    "key": "percentile_q90",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "90th percentile (nonlocal quantile)",
+    "reference": "Hyndman & Fan (1996)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "poly4": {
+    "function_name": "t_poly4",
+    "key": "poly4",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "y^4 (quartic, even, convex)",
+    "reference": "Hardy et al. (1934)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "poly5": {
+    "function_name": "t_poly5",
+    "key": "poly5",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "y^5 (quintic, odd, C-inf)",
+    "reference": "Hardy et al. (1934)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "poly6": {
+    "function_name": "t_poly6",
+    "key": "poly6",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "y^6 (sextic, even, strictly convex)",
+    "reference": "Hardy et al. (1934)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "pot_log": {
+    "function_name": "t_pot_log",
+    "key": "pot_log",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Log peaks-over-threshold q=0.90",
+    "reference": "Coles (2001)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "monotone",
+      "nonlinear",
+      "hydrology"
+    ]
+  },
+  "power_exp": {
+    "function_name": "t_power_exp",
+    "key": "power_exp",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "y^2*exp(-|y|) (hump, C-inf)",
+    "reference": "Stein (1999)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "power_law_beta05": {
+    "function_name": "t_power_law",
+    "key": "power_law_beta05",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Power-law (\u03b2=0.5, square-root)",
+    "reference": "Merz et al. (2010)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "concave",
+      "nonmonotone",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "power_law_beta2": {
+    "function_name": "t_power_law",
+    "key": "power_law_beta2",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Power-law (\u03b2=2, depth-damage)",
+    "reference": "Merz et al. (2010)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "convex",
+      "nonmonotone",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "quantile_delta": {
+    "function_name": "t_quantile_delta",
+    "key": "quantile_delta",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Quantile delta mapping q=0.90",
+    "reference": "Cannon et al. (2015)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "climate"
+    ]
+  },
+  "quantile_transform": {
+    "function_name": "t_quantile_normalise",
+    "key": "quantile_transform",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Quantile normalise (empirical CDF)",
+    "reference": "Blom (1958)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "ramp": {
+    "function_name": "t_ramp",
+    "key": "ramp",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Ramp/clip (piecewise linear, C0)",
+    "reference": "Saltelli et al. (2008)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "rank_transform": {
+    "function_name": "t_rank_transform",
+    "key": "rank_transform",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Rank / PIT transform",
+    "reference": "Saltelli et al. (2008)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "rankine_failure": {
+    "function_name": "t_rankine_failure",
+    "key": "rankine_failure",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Rankine failure criterion (max principal)",
+    "reference": "Timoshenko (1951)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "rational_quadratic": {
+    "function_name": "t_rational_quadratic",
+    "key": "rational_quadratic",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Rational quadratic 1/(1+y\u00b2) (convex)",
+    "reference": "Rasmussen & Williams (2006)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "regional_mean": {
+    "function_name": "t_regional_mean",
+    "key": "regional_mean",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Regional mean",
+    "reference": "Gotway & Young (2002)",
+    "supported_output_kinds": [
+      "spatial"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "spatial"
+    ]
+  },
+  "relative_abundance": {
+    "function_name": "t_relative_abundance",
+    "key": "relative_abundance",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Relative abundance (simplex projection)",
+    "reference": "Legendre & Legendre (1998)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "ecological"
+    ]
+  },
+  "relu_pointwise": {
+    "function_name": "t_relu_pointwise",
+    "key": "relu_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "ReLU max(y,0) (convex, non-smooth)",
+    "reference": "Glorot et al. (2011)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "renyi_entropy_a2": {
+    "function_name": "t_entropy_renyi",
+    "key": "renyi_entropy_a2",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Renyi entropy alpha=2 (collision entropy)",
+    "reference": "Renyi (1961)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "information"
+    ]
+  },
+  "return_period": {
+    "function_name": "t_return_period",
+    "key": "return_period",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Return period T=1/(1-CDF)",
+    "reference": "Coles (2001)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "monotone",
+      "nonlinear",
+      "environmental"
+    ]
+  },
+  "robust_scale": {
+    "function_name": "t_robust_scale",
+    "key": "robust_scale",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Robust scaling (IQR-based)",
+    "reference": "Huber (1981)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "safety_factor": {
+    "function_name": "t_safety_factor",
+    "key": "safety_factor",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Safety factor (inverse magnitude)",
+    "reference": "Haldar & Mahadevan (2000)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "sample_kurtosis": {
+    "function_name": "t_sample_kurtosis",
+    "key": "sample_kurtosis",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Excess kurtosis (4th moment - 3)",
+    "reference": "Fisher (1925)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "sample_skewness": {
+    "function_name": "t_sample_skewness",
+    "key": "sample_skewness",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Sample skewness (3rd moment)",
+    "reference": "Fisher (1925)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "sample_variance": {
+    "function_name": "t_sample_variance",
+    "key": "sample_variance",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Sample variance (nonlocal spread)",
+    "reference": "Fisher (1925)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "sawtooth": {
+    "function_name": "t_sawtooth",
+    "key": "sawtooth",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Sawtooth wave (C0, periodic)",
+    "reference": "Oppenheim & Schafer (1989)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "selu": {
+    "function_name": "t_selu",
+    "key": "selu",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "SELU activation (C1, piecewise)",
+    "reference": "Klambauer et al. (2017)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "monotone",
+      "nonsmooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "sharpe_proxy": {
+    "function_name": "t_sharpe_proxy",
+    "key": "sharpe_proxy",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Sharpe ratio proxy (mean/std)",
+    "reference": "Sharpe (1966)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "financial"
+    ]
+  },
+  "sigmoid_dose": {
+    "function_name": "t_sigmoid_dose",
+    "key": "sigmoid_dose",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Hill dose-response (n=4)",
+    "reference": "Hill (1910)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "signed_power_p05": {
+    "function_name": "t_signed_power",
+    "key": "signed_power_p05",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Signed power p=0.5 (monotone, C1)",
+    "reference": "Sklar (1959)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "monotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "signed_power_p15": {
+    "function_name": "t_signed_power",
+    "key": "signed_power_p15",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Signed power p=1.5 (monotone, C1)",
+    "reference": "Sklar (1959)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "sin_cos_product": {
+    "function_name": "t_sin_cos_product",
+    "key": "sin_cos_product",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "sin*cos = 0.5*sin(2f) (harmonic)",
+    "reference": "Abramowitz & Stegun (1972)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "sin_pointwise": {
+    "function_name": "t_sin_pointwise",
+    "key": "sin_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "sin(y) (periodic, bounded, C\u221e)",
+    "reference": "Saltelli et al. (2010)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "sin_squared": {
+    "function_name": "t_sin_squared",
+    "key": "sin_squared",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "sin^2(fy) (bounded, non-negative)",
+    "reference": "Saltelli et al. (2010)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "sinc": {
+    "function_name": "t_sinc",
+    "key": "sinc",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Normalised sinc (decaying oscillation)",
+    "reference": "Whittaker (1915)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "sinh_pointwise": {
+    "function_name": "t_sinh_pointwise",
+    "key": "sinh_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "sinh(y) (monotone, convex x>0)",
+    "reference": "Abramowitz & Stegun (1972)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "smooth_bump": {
+    "function_name": "t_smooth_bump",
+    "key": "smooth_bump",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Smooth bump (C\u221e, compact support)",
+    "reference": "Wendland (2004)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "soft_threshold": {
+    "function_name": "t_soft_threshold",
+    "key": "soft_threshold",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Soft threshold (lasso/shrinkage, C0)",
+    "reference": "Donoho & Johnstone (1994)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "softmax_shift": {
+    "function_name": "t_softmax_shift",
+    "key": "softmax_shift",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Shifted softmax normalisation",
+    "reference": "Goodfellow et al. (2016)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
   "softplus_b01": {
     "function_name": "t_softplus_pointwise",
     "key": "softplus_b01",
@@ -44,6 +2730,247 @@
     "module": "sabench.transforms.nonlinear",
     "name": "Softplus (\u03b2=0.1, smooth ReLU)",
     "reference": "Glorot et al. (2011)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "softplus_b10": {
+    "function_name": "t_softplus_pointwise",
+    "key": "softplus_b10",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.nonlinear",
+    "name": "Softplus (\u03b2=1.0)",
+    "reference": "Glorot et al. (2011)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "softsign": {
+    "function_name": "t_softsign",
+    "key": "softsign",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Softsign y/(1+|y|) (monotone, C1)",
+    "reference": "Glorot & Bengio (2010)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "monotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "spike_gaussian": {
+    "function_name": "t_spike",
+    "key": "spike_gaussian",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Gaussian spike (C-inf, compact-ish)",
+    "reference": "Wendland (2004)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "sqrt_abs": {
+    "function_name": "t_sqrt_abs",
+    "key": "sqrt_abs",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "\u221a|y| (concave, non-smooth at 0)",
+    "reference": "Hardy et al. (1934)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "monotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "square_pointwise": {
+    "function_name": "t_square_pointwise",
+    "key": "square_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Square (convex, even)",
+    "reference": "Hardy et al. (1934)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "square_wave": {
+    "function_name": "t_square_wave",
+    "key": "square_wave",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Square wave (discontinuous, periodic)",
+    "reference": "Oppenheim & Schafer (1989)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "standardised_anomaly": {
+    "function_name": "t_standardised_anomaly",
+    "key": "standardised_anomaly",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Standardised anomaly (Z-score)",
+    "reference": "Saltelli et al. (2008)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "std_precip_idx": {
+    "function_name": "t_standardised_precip_idx",
+    "key": "std_precip_idx",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Standardised precip index (Z-score)",
+    "reference": "McKee et al. (1993)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "climate"
+    ]
+  },
+  "step_pointwise": {
+    "function_name": "t_step_pointwise",
+    "key": "step_pointwise",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Heaviside step (discontinuous)",
+    "reference": "Saltelli et al. (2010)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "stress_life": {
+    "function_name": "t_stress_life",
+    "key": "stress_life",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "S-N Basquin curve (fatigue life)",
+    "reference": "Basquin (1910)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "swish": {
+    "function_name": "t_swish",
+    "key": "swish",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Swish activation (non-monotone)",
+    "reference": "Ramachandran et al. (2017)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "tanh_a005": {
+    "function_name": "t_tanh_pointwise",
+    "key": "tanh_a005",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.pointwise",
+    "name": "Tanh saturation (\u03b1=0.05, near-linear)",
+    "reference": "Amari (1977)",
     "supported_output_kinds": [
       "scalar",
       "spatial",
@@ -79,6 +3006,79 @@
       "engineering"
     ]
   },
+  "tanh_a10": {
+    "function_name": "t_tanh_pointwise",
+    "key": "tanh_a10",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.pointwise",
+    "name": "Tanh saturation (\u03b1=1.0)",
+    "reference": "Amari (1977)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "concave",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "temporal_autocorr": {
+    "function_name": "t_temporal_autocorr",
+    "key": "temporal_autocorr",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Lag-1 temporal autocorrelation",
+    "reference": "Box et al. (2015)",
+    "supported_output_kinds": [
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "temporal"
+    ]
+  },
+  "temporal_bandpass": {
+    "function_name": "t_temporal_bandpass",
+    "key": "temporal_bandpass",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Bandpass filter (linear)",
+    "reference": "Rabiner & Gold (1975)",
+    "supported_output_kinds": [
+      "functional"
+    ],
+    "tags": [
+      "linear",
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "temporal"
+    ]
+  },
+  "temporal_block_avg": {
+    "function_name": "t_temporal_block_avg",
+    "key": "temporal_block_avg",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Temporal block avg (temporal COS)",
+    "reference": "Gotway & Young (2002)",
+    "supported_output_kinds": [
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "temporal"
+    ]
+  },
   "temporal_cumsum": {
     "function_name": "t_temporal_cumsum",
     "key": "temporal_cumsum",
@@ -94,6 +3094,59 @@
       "nonlocal",
       "monotone",
       "smooth",
+      "temporal"
+    ]
+  },
+  "temporal_envelope": {
+    "function_name": "t_temporal_envelope",
+    "key": "temporal_envelope",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Running maximum envelope",
+    "reference": "Sudret (2008)",
+    "supported_output_kinds": [
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "monotone",
+      "nonsmooth",
+      "nonlinear",
+      "temporal"
+    ]
+  },
+  "temporal_exceedance_duration": {
+    "function_name": "t_temporal_exceedance_duration",
+    "key": "temporal_exceedance_duration",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Exceedance duration (q=0.75)",
+    "reference": "Coles (2001)",
+    "supported_output_kinds": [
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "temporal"
+    ]
+  },
+  "temporal_log_cumsum": {
+    "function_name": "t_temporal_log_cumsum",
+    "key": "temporal_log_cumsum",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Log cumulative sum",
+    "reference": "Saltelli et al. (2005)",
+    "supported_output_kinds": [
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
       "temporal"
     ]
   },
@@ -113,6 +3166,231 @@
       "nonsmooth",
       "nonlinear",
       "temporal"
+    ]
+  },
+  "temporal_quantile_q10": {
+    "function_name": "t_temporal_quantile",
+    "key": "temporal_quantile_q10",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Temporal lower decile (q=0.10)",
+    "reference": "Saltelli et al. (2008)",
+    "supported_output_kinds": [
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "temporal"
+    ]
+  },
+  "temporal_quantile_q50": {
+    "function_name": "t_temporal_quantile",
+    "key": "temporal_quantile_q50",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Temporal median (q=0.50)",
+    "reference": "Saltelli et al. (2008)",
+    "supported_output_kinds": [
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "temporal"
+    ]
+  },
+  "temporal_quantile_q90": {
+    "function_name": "t_temporal_quantile",
+    "key": "temporal_quantile_q90",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Temporal upper decile (q=0.90)",
+    "reference": "Saltelli et al. (2008)",
+    "supported_output_kinds": [
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "temporal"
+    ]
+  },
+  "temporal_range": {
+    "function_name": "t_temporal_range",
+    "key": "temporal_range",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Temporal range max\u2212min",
+    "reference": "Sudret (2008)",
+    "supported_output_kinds": [
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "temporal"
+    ]
+  },
+  "temporal_rms": {
+    "function_name": "t_temporal_rms",
+    "key": "temporal_rms",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Temporal RMS (root mean square)",
+    "reference": "Sudret (2008)",
+    "supported_output_kinds": [
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonlinear",
+      "temporal"
+    ]
+  },
+  "triangle_wave": {
+    "function_name": "t_triangle_wave",
+    "key": "triangle_wave",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Triangle wave (periodic, non-smooth)",
+    "reference": "Stein (1999)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "nonmonotone",
+      "nonlinear",
+      "mathematical"
+    ]
+  },
+  "var_q95": {
+    "function_name": "t_var_proxy",
+    "key": "var_q95",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "VaR proxy q=0.95 (nonlocal quantile)",
+    "reference": "Artzner et al. (1999)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "financial"
+    ]
+  },
+  "von_mises_stress": {
+    "function_name": "t_von_mises",
+    "key": "von_mises_stress",
+    "mechanism": "pointwise",
+    "module": "sabench.transforms.transforms",
+    "name": "Von Mises stress proxy (scaled |y|)",
+    "reference": "von Mises (1913)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "pointwise",
+      "convex",
+      "nonmonotone",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "wasserstein_proxy": {
+    "function_name": "t_wasserstein_proxy",
+    "key": "wasserstein_proxy",
+    "mechanism": "aggregation",
+    "module": "sabench.transforms.transforms",
+    "name": "Wasserstein-1 proxy (MAD)",
+    "reference": "Villani (2009)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "smooth",
+      "nonlinear",
+      "information"
+    ]
+  },
+  "weibull_reliability": {
+    "function_name": "t_weibull_reliability",
+    "key": "weibull_reliability",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Weibull failure probability",
+    "reference": "Haldar & Mahadevan (2000)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "convex",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "engineering"
+    ]
+  },
+  "winsorise_q10_q90": {
+    "function_name": "t_winsorise",
+    "key": "winsorise_q10_q90",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Winsorise to [q10, q90]",
+    "reference": "Tukey (1977)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "nonmonotone",
+      "nonsmooth",
+      "nonlinear",
+      "statistical"
+    ]
+  },
+  "yeo_johnson": {
+    "function_name": "t_yeo_johnson",
+    "key": "yeo_johnson",
+    "mechanism": "samplewise",
+    "module": "sabench.transforms.transforms",
+    "name": "Yeo-Johnson transform (\u03bb=0.5)",
+    "reference": "Yeo & Johnson (2000)",
+    "supported_output_kinds": [
+      "scalar",
+      "spatial",
+      "functional"
+    ],
+    "tags": [
+      "nonlocal",
+      "monotone",
+      "smooth",
+      "nonlinear",
+      "statistical"
     ]
   }
 }

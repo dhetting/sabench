@@ -18,12 +18,18 @@ TransformTag = Literal[
     "nonmonotone",
     "smooth",
     "nonsmooth",
-    "environmental",
+    "climate",
+    "ecological",
     "engineering",
-    "spatial",
-    "temporal",
-    "statistical",
+    "environmental",
+    "financial",
+    "hydrology",
+    "information",
     "mathematical",
+    "medical",
+    "spatial",
+    "statistical",
+    "temporal",
 ]
 TransformOutputKind = Literal["scalar", "spatial", "functional"]
 

@@ -49,27 +49,44 @@ class LegacyTransformMeta(TypedDict):
     reference: str
 
 
-def _get_legacy_meta(key: str) -> LegacyTransformMeta:
-    """Return a typed view of a legacy transform metadata entry."""
-    return cast(LegacyTransformMeta, TRANSFORMS[key])
+def _build_spatial_example() -> np.ndarray:
+    grid = np.linspace(-1.0, 1.0, 6)
+    x_coord, y_coord = np.meshgrid(grid, grid, indexing="ij")
+    return np.stack(
+        [
+            np.sin(np.pi * x_coord) * np.cos(np.pi * y_coord),
+            x_coord**2 - y_coord + 0.25 * np.sin(2.0 * np.pi * x_coord * y_coord),
+            np.exp(-(x_coord**2 + y_coord**2)) - 0.5 * x_coord,
+        ],
+        axis=0,
+    )
 
 
-_MECHANISMS: dict[str, TransformMechanism] = {
-    "affine_a2_b1": "pointwise",
-    "tanh_a03": "pointwise",
-    "softplus_b01": "pointwise",
-    "temporal_cumsum": "samplewise",
-    "temporal_peak": "aggregation",
-    "gradient_magnitude": "field_op",
+EXAMPLE_INPUTS: dict[TransformOutputKind, np.ndarray] = {
+    "scalar": np.array([-1.5, 0.2, 1.3, -0.7, 2.1], dtype=float),
+    "functional": np.vstack(
+        [
+            np.sin(np.linspace(0.0, 2.0 * np.pi, 12)),
+            np.cos(np.linspace(0.0, 2.0 * np.pi, 12)) + 0.1 * np.linspace(-1.0, 1.0, 12),
+            np.linspace(-1.0, 1.0, 12) ** 3 - 0.2 * np.linspace(-1.0, 1.0, 12),
+        ]
+    ),
+    "spatial": _build_spatial_example(),
 }
 
-_SUPPORTED_OUTPUT_KINDS: dict[str, tuple[TransformOutputKind, ...]] = {
-    "affine_a2_b1": ("scalar", "spatial", "functional"),
-    "tanh_a03": ("scalar", "spatial", "functional"),
-    "softplus_b01": ("scalar", "spatial", "functional"),
-    "temporal_cumsum": ("functional",),
-    "temporal_peak": ("functional",),
-    "gradient_magnitude": ("spatial",),
+_DOMAIN_TAGS: dict[str, TransformTag] = {
+    "climate": "climate",
+    "ecological": "ecological",
+    "engineering": "engineering",
+    "environmental": "environmental",
+    "financial": "financial",
+    "hydrology": "hydrology",
+    "information": "information",
+    "mathematical": "mathematical",
+    "medical": "medical",
+    "spatial": "spatial",
+    "statistical": "statistical",
+    "temporal": "temporal",
 }
 
 _PROPERTY_TAG_SOURCES: tuple[tuple[TransformTag, set[str]], ...] = (
@@ -85,14 +102,19 @@ _PROPERTY_TAG_SOURCES: tuple[tuple[TransformTag, set[str]], ...] = (
     ("nonsmooth", NONSMOOTH_TRANSFORMS),
 )
 
-_DOMAIN_TAGS: dict[str, TransformTag] = {
-    "environmental": "environmental",
-    "engineering": "engineering",
-    "spatial": "spatial",
-    "temporal": "temporal",
-    "statistical": "statistical",
-    "mathematical": "mathematical",
-}
+_FIELD_OP_KEYS: frozenset[str] = frozenset(
+    {
+        "contour_exceedance",
+        "gradient_magnitude",
+        "laplacian_roughness",
+        "matern_smooth",
+    }
+)
+
+
+def _get_legacy_meta(key: str) -> LegacyTransformMeta:
+    """Return a typed view of a legacy transform metadata entry."""
+    return cast(LegacyTransformMeta, TRANSFORMS[key])
 
 
 def _bind_transform(meta: LegacyTransformMeta) -> BoundTransform:
@@ -104,6 +126,45 @@ def _bind_transform(meta: LegacyTransformMeta) -> BoundTransform:
         return fn(y, **params)
 
     return bound_transform
+
+
+def _broadcasts_sample_constant(output: np.ndarray) -> bool:
+    """Return whether each sample is constant across its output support."""
+    flat = output.reshape(len(output), -1)
+    return np.allclose(flat, flat[:, :1])
+
+
+def _infer_supported_output_kinds(key: str, category: str) -> tuple[TransformOutputKind, ...]:
+    """Infer supported output kinds from canonical legacy categories."""
+    if category == "spatial":
+        return ("spatial",)
+    if category == "temporal" or key.startswith("temporal_"):
+        return ("functional",)
+    return ("scalar", "spatial", "functional")
+
+
+def _infer_mechanism(
+    key: str,
+    category: str,
+    transform: BoundTransform,
+    supported_output_kinds: tuple[TransformOutputKind, ...],
+) -> TransformMechanism:
+    """Infer the typed transform mechanism from legacy code behavior."""
+    if key in POINTWISE_TRANSFORMS:
+        return "pointwise"
+
+    if category == "spatial":
+        return "field_op" if key in _FIELD_OP_KEYS else "aggregation"
+
+    exemplar_kind: TransformOutputKind = "functional"
+    if exemplar_kind not in supported_output_kinds:
+        exemplar_kind = supported_output_kinds[0]
+
+    exemplar = EXAMPLE_INPUTS[exemplar_kind]
+    output = transform(exemplar)
+    if output.shape != exemplar.shape or _broadcasts_sample_constant(output):
+        return "aggregation"
+    return "samplewise"
 
 
 def _collect_tags(key: str, category: str) -> tuple[TransformTag, ...]:
@@ -121,37 +182,28 @@ def _collect_tags(key: str, category: str) -> tuple[TransformTag, ...]:
 def _build_spec(key: str) -> TransformSpec:
     """Build canonical typed metadata from the legacy transform registry."""
     meta = _get_legacy_meta(key)
-    fn = meta["fn"]
+    transform = _bind_transform(meta)
     category = meta["category"]
-    name = meta["name"]
-    reference = meta["reference"]
+    fn = meta["fn"]
+    supported_output_kinds = _infer_supported_output_kinds(key, category)
 
     return TransformSpec(
         key=key,
-        name=name,
-        mechanism=_MECHANISMS[key],
+        name=meta["name"],
+        mechanism=_infer_mechanism(key, category, transform, supported_output_kinds),
         module=fn.__module__,
         function_name=fn.__name__,
-        supported_output_kinds=_SUPPORTED_OUTPUT_KINDS[key],
+        supported_output_kinds=supported_output_kinds,
         tags=_collect_tags(key, category),
-        reference=reference,
+        reference=meta["reference"],
     )
 
-
-_REPRESENTATIVE_KEYS: tuple[str, ...] = (
-    "affine_a2_b1",
-    "tanh_a03",
-    "softplus_b01",
-    "temporal_cumsum",
-    "temporal_peak",
-    "gradient_magnitude",
-)
 
 _REGISTRY: dict[str, TransformDefinition] = {
     key: TransformDefinition(
         spec=_build_spec(key), transform=_bind_transform(_get_legacy_meta(key))
     )
-    for key in _REPRESENTATIVE_KEYS
+    for key in TRANSFORMS
 }
 
 TRANSFORM_REGISTRY: Mapping[str, TransformDefinition] = MappingProxyType(_REGISTRY)
