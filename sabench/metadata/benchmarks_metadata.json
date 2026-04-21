@@ -1,0 +1,2885 @@
+{
+  "Ishigami": {
+    "name": "Ishigami",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 3,
+    "input_names": [
+      "X1",
+      "X2",
+      "X3"
+    ],
+    "input_distributions": [
+      "Uniform(-pi, pi)",
+      "Uniform(-pi, pi)",
+      "Uniform(-pi, pi)"
+    ],
+    "input_bounds": [
+      [
+        -3.14159,
+        3.14159
+      ],
+      [
+        -3.14159,
+        3.14159
+      ],
+      [
+        -3.14159,
+        3.14159
+      ]
+    ],
+    "formula_latex": "f(X) = \\sin(X_1) + a\\sin^2(X_2) + b X_3^4 \\sin(X_1)",
+    "default_params": {
+      "a": 7.0,
+      "b": 0.1
+    },
+    "analytical_S1_available": true,
+    "analytical_ST_available": true,
+    "analytical_variance_available": true,
+    "analytical_S1_formula": "V1=(1+b*pi^4/5)^2/2, V2=a^2/8, V3=0",
+    "dominant_inputs": [
+      "X1",
+      "X2"
+    ],
+    "sensitivity_structure": "mixed: first-order + high-order interaction (X1,X3)",
+    "interaction_order": 3,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "high",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      -11.0,
+      18.0
+    ],
+    "output_mean_analytical": 0.0,
+    "output_variance_analytical": "a^2/8 + b*pi^4/5 + b^2*pi^8/18 + 1/2",
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "canonical",
+    "primary_use_case": "SA method validation; interaction effect testing",
+    "known_challenges": "X3 has zero first-order but nonzero total-order index",
+    "reference_authors": [
+      "Ishigami, T.",
+      "Homma, T."
+    ],
+    "reference_years": [
+      1990
+    ],
+    "reference_title": "An importance quantification technique in uncertainty analysis for computer models",
+    "reference_journal": "Proc. 1st Int. Symp. Uncertainty Modelling and Analysis",
+    "reference_full": "Ishigami, T., & Homma, T. (1990). An importance quantification technique in uncertainty analysis for computer models. In Proc. 1st Int. Symp. Uncertainty Modelling and Analysis (pp. 398-403). IEEE.",
+    "reference_doi": "10.1109/ISUMA.1990.151285",
+    "sobol_usage_count_approx": 500,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": true,
+    "notes": "De facto standard SA benchmark. The non-zero b*X3^4*sin(X1) term creates a pure interaction with no first-order effect for X3. Extremely widely used."
+  },
+  "SobolG": {
+    "name": "SobolG",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 8,
+    "input_names": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5",
+      "X6",
+      "X7",
+      "X8"
+    ],
+    "input_distributions": [
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)"
+    ],
+    "input_bounds": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "formula_latex": "f(X) = \\prod_{i=1}^{d} \\frac{|4X_i - 2| + a_i}{1 + a_i}",
+    "default_params": {
+      "a": [
+        0,
+        1,
+        4.5,
+        9,
+        99,
+        99,
+        99,
+        99
+      ]
+    },
+    "analytical_S1_available": true,
+    "analytical_ST_available": true,
+    "analytical_variance_available": true,
+    "analytical_S1_formula": "S1_i = D_i / V_total, D_i = 1/(3*(1+a_i)^2)",
+    "dominant_inputs": [
+      "X1",
+      "X2"
+    ],
+    "sensitivity_structure": "product form; analytical decomposition via Hoeffding",
+    "interaction_order": 8,
+    "has_inactive_inputs": true,
+    "num_inactive_inputs": 4,
+    "nonlinearity_degree": "moderate",
+    "smoothness_class": "C0_piecewise",
+    "output_range_typical": [
+      0.0,
+      4.0
+    ],
+    "output_mean_analytical": 1.0,
+    "output_variance_analytical": "prod(1+D_i) - 1",
+    "convergence_rate_sobol": "O(1/sqrt(N))",
+    "benchmark_class": "canonical",
+    "primary_use_case": "Benchmarking with tunable importance; analytical validation",
+    "known_challenges": "Non-smooth kink at X_i=0.5; affects PCE convergence",
+    "reference_authors": [
+      "Saltelli, A.",
+      "Sobol, I.M."
+    ],
+    "reference_years": [
+      1995,
+      2010
+    ],
+    "reference_title": "About the use of rank transformation in sensitivity analysis of model output",
+    "reference_journal": "Reliability Engineering & System Safety",
+    "reference_full": "Saltelli, A., & Sobol, I. M. (1995). About the use of rank transformation in sensitivity analysis of model output. Reliability Engineering & System Safety, 50(3), 225-239.",
+    "reference_doi": "10.1016/0951-8320(95)00099-2",
+    "sobol_usage_count_approx": 400,
+    "is_product_form": true,
+    "is_additive": false,
+    "has_analytical_sobol": true,
+    "notes": "G-function family with tunable a_i. With a=[0,1,4.5,9,99,99,99,99] the first four inputs are dominant. Exact Sobol indices available via Hoeffding product decomposition."
+  },
+  "Borehole": {
+    "name": "Borehole",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 8,
+    "input_names": [
+      "rw",
+      "r",
+      "Tu",
+      "Hu",
+      "Tl",
+      "Hl",
+      "L",
+      "Kw"
+    ],
+    "input_distributions": [
+      "Normal(0.1, 0.0161812)",
+      "LogNormal(7.71, 1.0056)",
+      "Uniform(63070, 115600)",
+      "Uniform(990, 1110)",
+      "Uniform(63.1, 116)",
+      "Uniform(700, 820)",
+      "Uniform(1120, 1680)",
+      "Uniform(9855, 12045)"
+    ],
+    "input_bounds": [
+      [
+        0.05,
+        0.15
+      ],
+      [
+        100.0,
+        50000.0
+      ],
+      [
+        63070.0,
+        115600.0
+      ],
+      [
+        990.0,
+        1110.0
+      ],
+      [
+        63.1,
+        116.0
+      ],
+      [
+        700.0,
+        820.0
+      ],
+      [
+        1120.0,
+        1680.0
+      ],
+      [
+        9855.0,
+        12045.0
+      ]
+    ],
+    "formula_latex": "f = \\frac{2\\pi T_u (H_u - H_l)}{\\ln(r/r_w)[1 + \\frac{2LT_u}{\\ln(r/r_w)r_w^2 K_w} + \\frac{T_u}{T_l}]}",
+    "default_params": {},
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "Tu",
+      "Hu",
+      "Hl",
+      "r"
+    ],
+    "sensitivity_structure": "nonlinear rational; logarithmic; mixed dominance",
+    "interaction_order": 3,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "moderate",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.0,
+      300.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "physical",
+    "primary_use_case": "Groundwater flow modeling; sensitivity analysis validation",
+    "known_challenges": "Input distributions are non-uniform (log-normal for r); bounds approximation common",
+    "reference_authors": [
+      "Harper, W.V.",
+      "Gupta, S.K."
+    ],
+    "reference_years": [
+      1983
+    ],
+    "reference_title": "Sensitivity/uncertainty analysis of a borehole scenario comparing Latin Hypercube Sampling and deterministic sensitivity approaches",
+    "reference_journal": "BMI/ONWI-516, Battelle Memorial Institute",
+    "reference_full": "Harper, W. V., & Gupta, S. K. (1983). Sensitivity/uncertainty analysis of a borehole scenario comparing Latin Hypercube Sampling and deterministic sensitivity approaches. BMI/ONWI-516, Battelle Memorial Institute.",
+    "reference_doi": null,
+    "sobol_usage_count_approx": 200,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "Classic hydrogeology benchmark. Widely used in emulation/surrogate modeling literature. The logarithmic and rational structure creates moderate nonlinearity."
+  },
+  "Piston": {
+    "name": "Piston",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 7,
+    "input_names": [
+      "M",
+      "S",
+      "V0",
+      "k",
+      "P0",
+      "Ta",
+      "T0"
+    ],
+    "input_distributions": [
+      "Uniform(30,60)",
+      "Uniform(0.005,0.02)",
+      "Uniform(0.002,0.01)",
+      "Uniform(1000,5000)",
+      "Uniform(90000,110000)",
+      "Uniform(290,296)",
+      "Uniform(340,360)"
+    ],
+    "input_bounds": [
+      [
+        30.0,
+        60.0
+      ],
+      [
+        0.005,
+        0.02
+      ],
+      [
+        0.002,
+        0.01
+      ],
+      [
+        1000.0,
+        5000.0
+      ],
+      [
+        90000.0,
+        110000.0
+      ],
+      [
+        290.0,
+        296.0
+      ],
+      [
+        340.0,
+        360.0
+      ]
+    ],
+    "formula_latex": "C(t) = 2\\pi\\sqrt{\\frac{M}{k + S^2 P_0 V_0 T_a/(T_0 V^2)}}",
+    "default_params": {},
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "M",
+      "S",
+      "k"
+    ],
+    "sensitivity_structure": "nonlinear rational/square-root; moderate interactions",
+    "interaction_order": 3,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "moderate",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.5,
+      1.5
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "physical",
+    "primary_use_case": "Engine/mechanical system SA; emulator benchmark",
+    "known_challenges": "Physical constraint: volume V must be positive",
+    "reference_authors": [
+      "Ben-Ari, E.N.",
+      "Steinberg, D.M."
+    ],
+    "reference_years": [
+      2007
+    ],
+    "reference_title": "Modeling data from computer experiments: an empirical comparison of kriging with MARS and projection pursuit regression",
+    "reference_journal": "Quality Engineering",
+    "reference_full": "Ben-Ari, E. N., & Steinberg, D. M. (2007). Modeling data from computer experiments: an empirical comparison of kriging with MARS and projection pursuit regression. Quality Engineering, 19(4), 327-338.",
+    "reference_doi": "10.1080/08982110701580930",
+    "sobol_usage_count_approx": 120,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "Piston cycle time model. The square-root structure creates bounded output. Commonly used for emulator comparison studies."
+  },
+  "WingWeight": {
+    "name": "WingWeight",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 10,
+    "input_names": [
+      "Sw",
+      "Wfw",
+      "A",
+      "Lam",
+      "q",
+      "lam",
+      "tc",
+      "Nz",
+      "Wdg",
+      "Wp"
+    ],
+    "input_distributions": [
+      "Uniform(150,200)",
+      "Uniform(220,300)",
+      "Uniform(6,10)",
+      "Uniform(-10,10)",
+      "Uniform(16,45)",
+      "Uniform(0.5,1.0)",
+      "Uniform(0.08,0.18)",
+      "Uniform(2.5,6.0)",
+      "Uniform(1700,2500)",
+      "Uniform(0.025,0.08)"
+    ],
+    "input_bounds": [
+      [
+        150.0,
+        200.0
+      ],
+      [
+        220.0,
+        300.0
+      ],
+      [
+        6.0,
+        10.0
+      ],
+      [
+        -10.0,
+        10.0
+      ],
+      [
+        16.0,
+        45.0
+      ],
+      [
+        0.5,
+        1.0
+      ],
+      [
+        0.08,
+        0.18
+      ],
+      [
+        2.5,
+        6.0
+      ],
+      [
+        1700.0,
+        2500.0
+      ],
+      [
+        0.025,
+        0.08
+      ]
+    ],
+    "formula_latex": "W = 0.036 S_w^{0.758} W_{fw}^{0.0035} (A/\\cos^2\\Lambda)^{0.6} q^{0.006} \\lambda^{0.04} (100 t_c / \\cos\\Lambda)^{-0.3} (N_z W_{dg})^{0.49} + S_w W_p",
+    "default_params": {},
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "Sw",
+      "Wdg",
+      "A",
+      "Nz"
+    ],
+    "sensitivity_structure": "power-law product; additive correction term",
+    "interaction_order": 3,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "moderate",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      100.0,
+      400.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "physical",
+    "primary_use_case": "Aerospace structural SA; high-dimensional emulation",
+    "known_challenges": "10-dimensional; power-law interactions make PCE convergence slow",
+    "reference_authors": [
+      "Forrester, A.",
+      "Sobester, A.",
+      "Keane, A."
+    ],
+    "reference_years": [
+      2008
+    ],
+    "reference_title": "Engineering Design via Surrogate Modelling",
+    "reference_journal": "Wiley",
+    "reference_full": "Forrester, A., Sobester, A., & Keane, A. (2008). Engineering Design via Surrogate Modelling. Wiley.",
+    "reference_doi": "10.1002/9780470770801",
+    "sobol_usage_count_approx": 150,
+    "is_product_form": true,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "Aircraft wing weight formula from aeronautical engineering. Power-law product structure (partially log-linear). Widely used in metamodeling benchmarks."
+  },
+  "OTLCircuit": {
+    "name": "OTLCircuit",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 6,
+    "input_names": [
+      "Rb1",
+      "Rb2",
+      "Rf",
+      "Rc1",
+      "Rc2",
+      "beta"
+    ],
+    "input_distributions": [
+      "Uniform(50,150)",
+      "Uniform(25,70)",
+      "Uniform(0.5,3)",
+      "Uniform(1.2,2.5)",
+      "Uniform(0.25,1.2)",
+      "Uniform(50,300)"
+    ],
+    "input_bounds": [
+      [
+        50.0,
+        150.0
+      ],
+      [
+        25.0,
+        70.0
+      ],
+      [
+        0.5,
+        3.0
+      ],
+      [
+        1.2,
+        2.5
+      ],
+      [
+        0.25,
+        1.2
+      ],
+      [
+        50.0,
+        300.0
+      ]
+    ],
+    "formula_latex": "V_m = \\frac{(V_{b1} + 0.74)\\beta(R_{c2}+9)}{\\beta(R_{c2}+9) + R_f} + \\frac{11.35 R_f}{\\beta(R_{c2}+9)+R_f} + \\frac{0.74 R_f \\beta (R_{c2}+9)}{(\\beta(R_{c2}+9)+R_f)R_{c1}}",
+    "default_params": {},
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "Rb1",
+      "Rb2",
+      "Rf"
+    ],
+    "sensitivity_structure": "rational nonlinear; voltage divider structure",
+    "interaction_order": 3,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "moderate",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      4.0,
+      8.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "physical",
+    "primary_use_case": "Electronics/circuit SA; emulation benchmark",
+    "known_challenges": "Rational structure; output depends on complex interaction of all 6 inputs",
+    "reference_authors": [
+      "Ben-Ari, E.N.",
+      "Steinberg, D.M."
+    ],
+    "reference_years": [
+      2007
+    ],
+    "reference_title": "Modeling data from computer experiments: an empirical comparison of kriging with MARS and projection pursuit regression",
+    "reference_journal": "Quality Engineering",
+    "reference_full": "Ben-Ari, E. N., & Steinberg, D. M. (2007). Modeling data from computer experiments. Quality Engineering, 19(4), 327-338.",
+    "reference_doi": "10.1080/08982110701580930",
+    "sobol_usage_count_approx": 80,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "OTL (output transformer less) push-pull circuit. Output is midpoint voltage. Classic small-dimensionality electronic benchmark."
+  },
+  "Morris": {
+    "name": "Morris",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 20,
+    "input_names": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5",
+      "X6",
+      "X7",
+      "X8",
+      "X9",
+      "X10",
+      "X11",
+      "X12",
+      "X13",
+      "X14",
+      "X15",
+      "X16",
+      "X17",
+      "X18",
+      "X19",
+      "X20"
+    ],
+    "input_distributions": [
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)"
+    ],
+    "input_bounds": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "formula_latex": "y = \\sum_{i=1}^{20} \\beta_i \\omega_i + \\sum_{i<j} \\beta_{ij}\\omega_i\\omega_j + \\sum_{i<j<l}\\beta_{ijl}\\omega_i\\omega_j\\omega_l + \\sum_{i<j<l<s}\\beta_{ijls}\\omega_i\\omega_j\\omega_l\\omega_s",
+    "default_params": {},
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X10"
+    ],
+    "sensitivity_structure": "designed interaction structure; Morris screening target",
+    "interaction_order": 4,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "high",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      -100.0,
+      500.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "canonical",
+    "primary_use_case": "Morris screening method validation; high-d SA",
+    "known_challenges": "20 inputs with constructed 4th-order interactions; curvature from w=2(x-0.5) transformation",
+    "reference_authors": [
+      "Morris, M.D."
+    ],
+    "reference_years": [
+      1991
+    ],
+    "reference_title": "Factorial sampling plans for preliminary computational experiments",
+    "reference_journal": "Technometrics",
+    "reference_full": "Morris, M. D. (1991). Factorial sampling plans for preliminary computational experiments. Technometrics, 33(2), 161-174.",
+    "reference_doi": "10.1080/00401706.1991.10484804",
+    "sobol_usage_count_approx": 300,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "Canonical benchmark for elementary effects (Morris screening). Nonlinearity arises from omega_i = 2(X_i - 0.5) substitution for some inputs."
+  },
+  "LinearModel": {
+    "name": "LinearModel",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 5,
+    "input_names": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5"
+    ],
+    "input_distributions": [
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)"
+    ],
+    "input_bounds": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "formula_latex": "f(X) = \\sum_{i=1}^{d} w_i X_i",
+    "default_params": {
+      "weights": [
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0
+      ]
+    },
+    "analytical_S1_available": true,
+    "analytical_ST_available": true,
+    "analytical_variance_available": true,
+    "analytical_S1_formula": "S1_i = ST_i = w_i^2 / (12 * sum(w_j^2/12))",
+    "dominant_inputs": [
+      "X5"
+    ],
+    "sensitivity_structure": "purely additive; no interactions",
+    "interaction_order": 1,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "none",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.0,
+      15.0
+    ],
+    "output_mean_analytical": "sum(w_i)/2",
+    "output_variance_analytical": "sum(w_i^2)/12",
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "baseline",
+    "primary_use_case": "Baseline/sanity check; affine transform commutativity test",
+    "known_challenges": "None (trivial structure)",
+    "reference_authors": [
+      "Saltelli, A."
+    ],
+    "reference_years": [
+      2002
+    ],
+    "reference_title": "Making best use of model evaluations to compute sensitivity indices",
+    "reference_journal": "Computer Physics Communications",
+    "reference_full": "Saltelli, A. (2002). Making best use of model evaluations to compute sensitivity indices. Computer Physics Communications, 145(2), 280-297.",
+    "reference_doi": "10.1016/S0010-4655(02)00280-1",
+    "sobol_usage_count_approx": 200,
+    "is_product_form": false,
+    "is_additive": true,
+    "has_analytical_sobol": true,
+    "notes": "Pure linear model. S1=ST by construction (no interactions). Affine transforms commute exactly. Used as ground truth for estimator validation."
+  },
+  "AdditiveQuadratic": {
+    "name": "AdditiveQuadratic",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 5,
+    "input_names": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5"
+    ],
+    "input_distributions": [
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)"
+    ],
+    "input_bounds": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "formula_latex": "f(X) = \\sum_{i=1}^{d} (a_i X_i^2 + b_i X_i)",
+    "default_params": {
+      "a": [
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0
+      ],
+      "b": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "analytical_S1_available": true,
+    "analytical_ST_available": true,
+    "analytical_variance_available": true,
+    "analytical_S1_formula": "V_i = a_i^2*(4/45) + b_i^2/12 + a_i*b_i/6; S1_i=ST_i=V_i/sum(V_j)",
+    "dominant_inputs": [
+      "X5"
+    ],
+    "sensitivity_structure": "purely additive; no interactions; quadratic curvature",
+    "interaction_order": 1,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "low",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.0,
+      20.0
+    ],
+    "output_mean_analytical": "sum(a_i/3 + b_i/2)",
+    "output_variance_analytical": "sum(a_i^2*4/45 + b_i^2/12 + a_i*b_i/6)",
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "baseline",
+    "primary_use_case": "Closed-form SA validation; nonlinear but non-interactive benchmark",
+    "known_challenges": "None",
+    "reference_authors": [
+      "Saltelli, A.",
+      "Ratto, M.",
+      "Andres, T."
+    ],
+    "reference_years": [
+      2008
+    ],
+    "reference_title": "Global Sensitivity Analysis: The Primer",
+    "reference_journal": "Wiley",
+    "reference_full": "Saltelli, A., Ratto, M., Andres, T., et al. (2008). Global Sensitivity Analysis: The Primer. Wiley.",
+    "reference_doi": "10.1002/9780470725184",
+    "sobol_usage_count_approx": 50,
+    "is_product_form": false,
+    "is_additive": true,
+    "has_analytical_sobol": true,
+    "notes": "Purely additive quadratic. S1=ST exact. Tests sensitivity of SA estimators to mild nonlinearity without interaction effects."
+  },
+  "PCETestFunction": {
+    "name": "PCETestFunction",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 4,
+    "input_names": [
+      "X1",
+      "X2",
+      "X3",
+      "X4"
+    ],
+    "input_distributions": [
+      "Uniform(-1,1)",
+      "Uniform(-1,1)",
+      "Uniform(-1,1)",
+      "Uniform(-1,1)"
+    ],
+    "input_bounds": [
+      [
+        -1.0,
+        1.0
+      ],
+      [
+        -1.0,
+        1.0
+      ],
+      [
+        -1.0,
+        1.0
+      ],
+      [
+        -1.0,
+        1.0
+      ]
+    ],
+    "formula_latex": "f = \\sum_i c_i P_1(X_i) + \\sum_i c_i^{(2)} P_2(X_i) + c_{12} P_1(X_1)P_1(X_2) + c_{13} P_1(X_1)P_1(X_3)",
+    "default_params": {
+      "c1": [
+        1.0,
+        0.7,
+        0.4,
+        0.2
+      ],
+      "c2": [
+        0.5,
+        0.3,
+        0.2,
+        0.1
+      ],
+      "c12": 0.6,
+      "c13": 0.3
+    },
+    "analytical_S1_available": true,
+    "analytical_ST_available": true,
+    "analytical_variance_available": true,
+    "analytical_S1_formula": "V_i = c1[i]^2/3 + c2[i]^2/5; cross terms V12=c12^2/9, V13=c13^2/9",
+    "dominant_inputs": [
+      "X1",
+      "X2"
+    ],
+    "sensitivity_structure": "Legendre PCE; known interaction structure (X1,X2) and (X1,X3)",
+    "interaction_order": 2,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "low",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      -3.0,
+      3.0
+    ],
+    "output_mean_analytical": 0.0,
+    "output_variance_analytical": "sum(c1^2/3 + c2^2/5) + c12^2/9 + c13^2/9",
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "analytical",
+    "primary_use_case": "PCE method validation; known Sobol structure",
+    "known_challenges": "None (purpose-built for analytical verification)",
+    "reference_authors": [
+      "Sudret, B."
+    ],
+    "reference_years": [
+      2008
+    ],
+    "reference_title": "Global sensitivity analysis using polynomial chaos expansions",
+    "reference_journal": "Reliability Engineering & System Safety",
+    "reference_full": "Sudret, B. (2008). Global sensitivity analysis using polynomial chaos expansions. Reliability Engineering & System Safety, 93(7), 964-979.",
+    "reference_doi": "10.1016/j.ress.2007.04.002",
+    "sobol_usage_count_approx": 80,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": true,
+    "notes": "Designed for exact PCE/Sobol validation. Legendre orthogonality gives exact variance decomposition from PCE coefficients."
+  },
+  "Friedman": {
+    "name": "Friedman",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 10,
+    "input_names": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5",
+      "X6",
+      "X7",
+      "X8",
+      "X9",
+      "X10"
+    ],
+    "input_distributions": [
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)"
+    ],
+    "input_bounds": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "formula_latex": "f = 10\\sin(\\pi X_1 X_2) + 20(X_3-0.5)^2 + 10X_4 + 5X_5",
+    "default_params": {},
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5"
+    ],
+    "sensitivity_structure": "5 active, 5 completely inactive; nonlinear interaction (X1,X2)",
+    "interaction_order": 2,
+    "has_inactive_inputs": true,
+    "num_inactive_inputs": 5,
+    "nonlinearity_degree": "moderate",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      -5.0,
+      35.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "canonical",
+    "primary_use_case": "Variable selection; dimension reduction; feature importance",
+    "known_challenges": "X1 and X2 are entangled via sin(pi*X1*X2) interaction",
+    "reference_authors": [
+      "Friedman, J.H."
+    ],
+    "reference_years": [
+      1991
+    ],
+    "reference_title": "Multivariate adaptive regression splines",
+    "reference_journal": "Annals of Statistics",
+    "reference_full": "Friedman, J. H. (1991). Multivariate adaptive regression splines. Annals of Statistics, 19(1), 1-67.",
+    "reference_doi": "10.1214/aos/1176347963",
+    "sobol_usage_count_approx": 250,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "Originally proposed for MARS regression. X6-X10 are pure noise. Widely used to test variable selection and screening methods."
+  },
+  "OakleyOHagan": {
+    "name": "OakleyOHagan",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 15,
+    "input_names": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5",
+      "X6",
+      "X7",
+      "X8",
+      "X9",
+      "X10",
+      "X11",
+      "X12",
+      "X13",
+      "X14",
+      "X15"
+    ],
+    "input_distributions": [
+      "Normal(0,1)",
+      "Normal(0,1)",
+      "Normal(0,1)",
+      "Normal(0,1)",
+      "Normal(0,1)",
+      "Normal(0,1)",
+      "Normal(0,1)",
+      "Normal(0,1)",
+      "Normal(0,1)",
+      "Normal(0,1)",
+      "Normal(0,1)",
+      "Normal(0,1)",
+      "Normal(0,1)",
+      "Normal(0,1)",
+      "Normal(0,1)"
+    ],
+    "input_bounds": [
+      [
+        -3.0,
+        3.0
+      ],
+      [
+        -3.0,
+        3.0
+      ],
+      [
+        -3.0,
+        3.0
+      ],
+      [
+        -3.0,
+        3.0
+      ],
+      [
+        -3.0,
+        3.0
+      ],
+      [
+        -3.0,
+        3.0
+      ],
+      [
+        -3.0,
+        3.0
+      ],
+      [
+        -3.0,
+        3.0
+      ],
+      [
+        -3.0,
+        3.0
+      ],
+      [
+        -3.0,
+        3.0
+      ],
+      [
+        -3.0,
+        3.0
+      ],
+      [
+        -3.0,
+        3.0
+      ],
+      [
+        -3.0,
+        3.0
+      ],
+      [
+        -3.0,
+        3.0
+      ],
+      [
+        -3.0,
+        3.0
+      ]
+    ],
+    "formula_latex": "f(X) = a_1^T x + a_2^T \\sin(x) + a_3^T \\cos(x) + x^T M x",
+    "default_params": {},
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5"
+    ],
+    "sensitivity_structure": "linear + sinusoidal + cosine + quadratic interaction matrix M",
+    "interaction_order": 2,
+    "has_inactive_inputs": true,
+    "num_inactive_inputs": 9,
+    "nonlinearity_degree": "moderate",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      -30.0,
+      30.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "canonical",
+    "primary_use_case": "GP emulation; Bayesian SA; high-dimensional benchmark",
+    "known_challenges": "15 inputs; 9 inputs have negligible effect; normal input distributions",
+    "reference_authors": [
+      "Oakley, J.E.",
+      "O'Hagan, A."
+    ],
+    "reference_years": [
+      2004
+    ],
+    "reference_title": "Probabilistic sensitivity analysis of complex models: a Bayesian approach",
+    "reference_journal": "Journal of the Royal Statistical Society, Series B",
+    "reference_full": "Oakley, J. E., & O'Hagan, A. (2004). Probabilistic sensitivity analysis of complex models: a Bayesian approach. Journal of the Royal Statistical Society: Series B, 66(3), 751-769.",
+    "reference_doi": "10.1111/j.1467-9868.2004.05304.x",
+    "sobol_usage_count_approx": 100,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "Purpose-designed for Bayesian GP emulation SA. Standard benchmarks from Oakley & O'Hagan (2004) using their published a1, a2, a3, M matrices."
+  },
+  "MoonHerrera": {
+    "name": "MoonHerrera",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 20,
+    "input_names": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5",
+      "X6",
+      "X7",
+      "X8",
+      "X9",
+      "X10",
+      "X11",
+      "X12",
+      "X13",
+      "X14",
+      "X15",
+      "X16",
+      "X17",
+      "X18",
+      "X19",
+      "X20"
+    ],
+    "input_distributions": [
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)"
+    ],
+    "input_bounds": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "formula_latex": "f(X) = \\exp\\!\\left(c \\sum_{i=1}^{20} w_i X_i\\right)",
+    "default_params": {
+      "c": 0.5,
+      "w": null
+    },
+    "analytical_S1_available": true,
+    "analytical_ST_available": true,
+    "analytical_variance_available": true,
+    "analytical_S1_formula": "S1_i via MGF: E[e^{c*w_i*X_i}]=(e^{cw_i}-1)/(cw_i)",
+    "dominant_inputs": [
+      "X1",
+      "X2",
+      "X3"
+    ],
+    "sensitivity_structure": "active subspace; exponential coupling; all inputs interact",
+    "interaction_order": 20,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "high",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.5,
+      3.0
+    ],
+    "output_mean_analytical": "prod((e^{cw_i}-1)/(cw_i))",
+    "output_variance_analytical": "prod(M2_i) - prod(M1_i)^2",
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "active_subspace",
+    "primary_use_case": "Active subspace method testing; dimension reduction",
+    "known_challenges": "All 20 inputs interact via the exponential; high interaction order",
+    "reference_authors": [
+      "Moon, H.",
+      "Herrera, L."
+    ],
+    "reference_years": [
+      2010
+    ],
+    "reference_title": "Designing computer experiments for simulation-based methods",
+    "reference_journal": "NA",
+    "reference_full": "Moon, H., Dean, A. M., & Santner, T. J. (2012). Two-stage sensitivity-based group screening in computer experiments. Technometrics, 54(4), 376-387.",
+    "reference_doi": "10.1080/00401706.2012.725994",
+    "sobol_usage_count_approx": 60,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": true,
+    "notes": "Exponential function of a linear combination. Active subspace is 1D (direction w). Exact Sobol indices via moment-generating function of Uniform(0,1)."
+  },
+  "CornerPeak": {
+    "name": "CornerPeak",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 6,
+    "input_names": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5",
+      "X6"
+    ],
+    "input_distributions": [
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)"
+    ],
+    "input_bounds": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "formula_latex": "f(X) = \\left(1 + \\sum_{i=1}^{d} c_i X_i\\right)^{-(d+1)}",
+    "default_params": {
+      "c": [
+        1.0,
+        0.8,
+        0.6,
+        0.4,
+        0.2,
+        0.1
+      ]
+    },
+    "analytical_S1_available": true,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": "S1_i via 1D Gauss-Legendre quadrature on product-form decomposition",
+    "dominant_inputs": [
+      "X1",
+      "X2"
+    ],
+    "sensitivity_structure": "rational power; all-input interaction via denominator",
+    "interaction_order": 6,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "high",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.001,
+      1.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "quadrature",
+    "primary_use_case": "Numerical quadrature integration benchmarking; SA comparison",
+    "known_challenges": "Peaked behavior near origin; c_i controls difficulty",
+    "reference_authors": [
+      "Genz, A."
+    ],
+    "reference_years": [
+      1984
+    ],
+    "reference_title": "Testing multidimensional integration routines",
+    "reference_journal": "Tools, Methods, and Languages for Scientific and Engineering Computation",
+    "reference_full": "Genz, A. (1984). Testing multidimensional integration routines. In Tools, Methods, and Languages for Scientific and Engineering Computation (pp. 81-94). North-Holland.",
+    "reference_doi": null,
+    "sobol_usage_count_approx": 70,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": true,
+    "notes": "One of the Genz test functions for multidimensional integration. The corner peak function is strongly peaked near X=0. All inputs interact via the denominator power."
+  },
+  "ProductPeak": {
+    "name": "ProductPeak",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 6,
+    "input_names": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5",
+      "X6"
+    ],
+    "input_distributions": [
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)"
+    ],
+    "input_bounds": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "formula_latex": "f(X) = \\prod_{i=1}^{d} \\left[(X_i - u_i)^2 + c_i^2\\right]^{-1}",
+    "default_params": {
+      "c": [
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8
+      ],
+      "u": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "analytical_S1_available": true,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": "S1_i via Gauss-Legendre: E[g_i^2(X_i)] * prod_{j!=i}(E[g_j(X_j)])^2 / V_total",
+    "dominant_inputs": [
+      "X1",
+      "X2"
+    ],
+    "sensitivity_structure": "product form (Genz); Lorentzian factors",
+    "interaction_order": 6,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "high",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.0,
+      500.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "quadrature",
+    "primary_use_case": "Numerical integration benchmarking; SA for product-form functions",
+    "known_challenges": "Sharp peaks for small c_i values; high variance",
+    "reference_authors": [
+      "Genz, A."
+    ],
+    "reference_years": [
+      1984
+    ],
+    "reference_title": "Testing multidimensional integration routines",
+    "reference_journal": "Tools, Methods, and Languages for Scientific and Engineering Computation",
+    "reference_full": "Genz, A. (1984). Testing multidimensional integration routines. In Tools, Methods, and Languages for Scientific and Engineering Computation (pp. 81-94). North-Holland.",
+    "reference_doi": null,
+    "sobol_usage_count_approx": 50,
+    "is_product_form": true,
+    "is_additive": false,
+    "has_analytical_sobol": true,
+    "notes": "Genz product peak function. Lorentzian (Cauchy-like) factors per dimension. Exact S1 via Gauss-Legendre quadrature on each 1D marginal."
+  },
+  "Rosenbrock": {
+    "name": "Rosenbrock",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 6,
+    "input_names": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5",
+      "X6"
+    ],
+    "input_distributions": [
+      "Uniform(-2,2)",
+      "Uniform(-2,2)",
+      "Uniform(-2,2)",
+      "Uniform(-2,2)",
+      "Uniform(-2,2)",
+      "Uniform(-2,2)"
+    ],
+    "input_bounds": [
+      [
+        -2.0,
+        2.0
+      ],
+      [
+        -2.0,
+        2.0
+      ],
+      [
+        -2.0,
+        2.0
+      ],
+      [
+        -2.0,
+        2.0
+      ],
+      [
+        -2.0,
+        2.0
+      ],
+      [
+        -2.0,
+        2.0
+      ]
+    ],
+    "formula_latex": "f(X) = \\sum_{i=1}^{d-1} [100(X_{i+1}-X_i^2)^2 + (X_i-1)^2]",
+    "default_params": {},
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "X1",
+      "X2"
+    ],
+    "sensitivity_structure": "chained pairwise interactions; banana valley; near-zero Hessian at minimum",
+    "interaction_order": 2,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "very_high",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.0,
+      10000.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/sqrt(N))",
+    "benchmark_class": "optimization",
+    "primary_use_case": "Optimization algorithm testing; SA for highly nonlinear functions",
+    "known_challenges": "Extremely large variance; heavy tail; Saltelli N must be very large",
+    "reference_authors": [
+      "Rosenbrock, H.H."
+    ],
+    "reference_years": [
+      1960
+    ],
+    "reference_title": "An automatic method for finding the greatest or least value of a function",
+    "reference_journal": "The Computer Journal",
+    "reference_full": "Rosenbrock, H. H. (1960). An automatic method for finding the greatest or least value of a function. The Computer Journal, 3(3), 175-184.",
+    "reference_doi": "10.1093/comjnl/3.3.175",
+    "sobol_usage_count_approx": 100,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "Banana function from optimization. Extremely high dynamic range; Sobol estimation requires N>10000. Chain of X_i,X_{i+1} interactions."
+  },
+  "EnvironModel": {
+    "name": "EnvironModel",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 4,
+    "input_names": [
+      "M",
+      "D",
+      "L",
+      "tau"
+    ],
+    "input_distributions": [
+      "LogNormal(10,1)",
+      "Uniform(0.02,0.12)",
+      "Uniform(0.01,3)",
+      "Uniform(0.01,0.5)"
+    ],
+    "input_bounds": [
+      [
+        0.1,
+        30.0
+      ],
+      [
+        0.02,
+        0.12
+      ],
+      [
+        0.01,
+        3.0
+      ],
+      [
+        0.01,
+        0.5
+      ]
+    ],
+    "formula_latex": "C(x,t^*) = \\frac{M}{\\sqrt{4\\pi D t^*}} \\exp\\!\\left(-\\frac{(x-L)^2}{4Dt^*} - \\frac{x}{D}\\right)",
+    "default_params": {
+      "x_eval": 0.5,
+      "t_star": 0.3
+    },
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "M",
+      "D"
+    ],
+    "sensitivity_structure": "multiplicative Gaussian; log-normal input",
+    "interaction_order": 3,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "high",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.0,
+      50.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "physical",
+    "primary_use_case": "Contaminant transport; environmental risk assessment SA",
+    "known_challenges": "Log-normal input for M creates heavy-tailed output",
+    "reference_authors": [
+      "Saltelli, A.",
+      "Chan, K.",
+      "Scott, M."
+    ],
+    "reference_years": [
+      2000
+    ],
+    "reference_title": "Sensitivity Analysis",
+    "reference_journal": "Wiley",
+    "reference_full": "Saltelli, A., Chan, K., & Scott, M. (Eds.). (2000). Sensitivity Analysis. Wiley.",
+    "reference_doi": null,
+    "sobol_usage_count_approx": 70,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "1D Gaussian plume model for contaminant diffusion. Physical model from environmental engineering. Log-normal inputs produce right-skewed output."
+  },
+  "CSTRReactor": {
+    "name": "CSTRReactor",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 5,
+    "input_names": [
+      "T_feed",
+      "c_feed",
+      "Q_flow",
+      "E_a",
+      "k0"
+    ],
+    "input_distributions": [
+      "Uniform(300,350)",
+      "Uniform(0.5,2.0)",
+      "Uniform(0.5,2.0)",
+      "Uniform(5000,15000)",
+      "Uniform(1e4,1e6)"
+    ],
+    "input_bounds": [
+      [
+        300.0,
+        350.0
+      ],
+      [
+        0.5,
+        2.0
+      ],
+      [
+        0.5,
+        2.0
+      ],
+      [
+        5000.0,
+        15000.0
+      ],
+      [
+        10000.0,
+        1000000.0
+      ]
+    ],
+    "formula_latex": "k(T) = k_0 e^{-E_a/(RT)}; \\quad c_{out} = c_{feed}/(1+k(T)\\tau)",
+    "default_params": {
+      "V_reactor": 1.0,
+      "R_gas": 8.314
+    },
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "E_a",
+      "k0",
+      "T_feed"
+    ],
+    "sensitivity_structure": "Arrhenius exponential; rational steady-state; strong nonlinearity",
+    "interaction_order": 3,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "very_high",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.0,
+      2.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/sqrt(N))",
+    "benchmark_class": "physical",
+    "primary_use_case": "Chemical engineering process SA; Arrhenius kinetics sensitivity",
+    "known_challenges": "Exponential in E_a/T creates very high nonlinearity; iterative solution for T",
+    "reference_authors": [
+      "Walas, S.M."
+    ],
+    "reference_years": [
+      1991
+    ],
+    "reference_title": "Modeling with Differential Equations in Chemical Engineering",
+    "reference_journal": "Butterworth-Heinemann",
+    "reference_full": "Walas, S. M. (1991). Modeling with Differential Equations in Chemical Engineering. Butterworth-Heinemann.",
+    "reference_doi": null,
+    "sobol_usage_count_approx": 30,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "CSTR (Continuous Stirred Tank Reactor) steady-state model with Arrhenius kinetics. Physical energy balance solved iteratively. E_a dominates."
+  },
+  "DetPep8D": {
+    "name": "DetPep8D",
+    "module": "sabench.benchmarks.scalar",
+    "output_type": "scalar",
+    "d": 8,
+    "input_names": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5",
+      "X6",
+      "X7",
+      "X8"
+    ],
+    "input_distributions": [
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)"
+    ],
+    "input_bounds": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "formula_latex": "f(x) = 4(x_1-2+8x_2-8x_2^2)^2+(3-4x_2)^2+16\\sqrt{x_3+1}(2x_3-1)^2+\\sum_{i=4}^{8}(i-3)\\log(1+\\sum_{j=3}^{i}x_j)",
+    "default_params": {},
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "X1",
+      "X2",
+      "X3"
+    ],
+    "sensitivity_structure": "polynomial + logarithmic; decaying importance by dimension",
+    "interaction_order": 3,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "high",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.0,
+      500.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "canonical",
+    "primary_use_case": "Emulation comparison; 8D smooth benchmark",
+    "known_challenges": "Monotonically decaying sensitivity structure by index",
+    "reference_authors": [
+      "Dette, H.",
+      "Pepelyshev, A."
+    ],
+    "reference_years": [
+      2010
+    ],
+    "reference_title": "Generalized Latin hypercube design for computer experiments",
+    "reference_journal": "Technometrics",
+    "reference_full": "Dette, H., & Pepelyshev, A. (2010). Generalized Latin hypercube design for computer experiments. Technometrics, 52(4), 421-429.",
+    "reference_doi": "10.1198/TECH.2010.09157",
+    "sobol_usage_count_approx": 40,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "Dette-Pepelyshev 8D function designed for computer experiment design comparison. Naturally decaying sensitivity from X1 to X8."
+  },
+  "Campbell2D": {
+    "name": "Campbell2D",
+    "module": "sabench.benchmarks.spatial",
+    "output_type": "spatial_2d",
+    "d": 2,
+    "input_names": [
+      "s1",
+      "s2"
+    ],
+    "input_distributions": [
+      "Uniform(0,1)",
+      "Uniform(0,1)"
+    ],
+    "input_bounds": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "formula_latex": "f(s_1, s_2; \\xi) = \\sin(c_1 \\pi s_1) \\sin(c_2 \\pi s_2) + \\theta_1 s_1 s_2",
+    "default_params": {
+      "c1": 2.0,
+      "c2": 2.0
+    },
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "s1",
+      "s2"
+    ],
+    "sensitivity_structure": "sinusoidal product; spatial interaction",
+    "interaction_order": 2,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "moderate",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      -2.0,
+      2.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "spatial",
+    "primary_use_case": "Spatial sensitivity analysis; change-of-support testing",
+    "known_challenges": "Output depends on grid resolution; Sobol indices vary with spatial aggregation",
+    "reference_authors": [
+      "Campbell, K.",
+      "McKay, M.D.",
+      "Williams, B.J."
+    ],
+    "reference_years": [
+      2006
+    ],
+    "reference_title": "Sensitivity analysis when model outputs are functions",
+    "reference_journal": "Reliability Engineering & System Safety",
+    "reference_full": "Campbell, K., McKay, M. D., & Williams, B. J. (2006). Sensitivity analysis when model outputs are functions. Reliability Engineering & System Safety, 91(10-11), 1468-1472.",
+    "reference_doi": "10.1016/j.ress.2005.11.049",
+    "sobol_usage_count_approx": 45,
+    "is_product_form": true,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "2D spatial benchmark for functional SA. Output is a surface f(s1,s2). COS (change-of-support) aggregation changes Sobol structure."
+  },
+  "ExponentialCampbell2D": {
+    "name": "ExponentialCampbell2D",
+    "module": "sabench.benchmarks.spatial",
+    "output_type": "spatial_2d",
+    "d": 2,
+    "input_names": [
+      "s1",
+      "s2"
+    ],
+    "input_distributions": [
+      "Uniform(0,1)",
+      "Uniform(0,1)"
+    ],
+    "input_bounds": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "formula_latex": "f(s_1, s_2; \\xi) = \\exp(c_1 s_1 + c_2 s_2)",
+    "default_params": {
+      "c1": 1.0,
+      "c2": 2.0
+    },
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "s2"
+    ],
+    "sensitivity_structure": "multiplicative exponential; separable",
+    "interaction_order": 2,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "high",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      1.0,
+      20.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "spatial",
+    "primary_use_case": "Spatial SA with exponential structure; log-transform testing",
+    "known_challenges": "Right-skewed output; COS aggregation highly sensitive to transform",
+    "reference_authors": [
+      "Campbell, K.",
+      "McKay, M.D.",
+      "Williams, B.J."
+    ],
+    "reference_years": [
+      2006
+    ],
+    "reference_title": "Sensitivity analysis when model outputs are functions",
+    "reference_journal": "Reliability Engineering & System Safety",
+    "reference_full": "Campbell, K., McKay, M. D., & Williams, B. J. (2006). Sensitivity analysis when model outputs are functions. Reliability Engineering & System Safety, 91(10-11), 1468-1472.",
+    "reference_doi": "10.1016/j.ress.2005.11.049",
+    "sobol_usage_count_approx": 20,
+    "is_product_form": true,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "Exponential variant of Campbell 2D. Output is always positive; log transform restores additivity. Tests noncommutativity under log."
+  },
+  "Campbell3D": {
+    "name": "Campbell3D",
+    "module": "sabench.benchmarks.spatial",
+    "output_type": "spatial_3d",
+    "d": 3,
+    "input_names": [
+      "s1",
+      "s2",
+      "s3"
+    ],
+    "input_distributions": [
+      "Uniform(0,1)",
+      "Uniform(0,1)",
+      "Uniform(0,1)"
+    ],
+    "input_bounds": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "formula_latex": "f(s_1, s_2, s_3; \\xi) = \\sin(c_1 \\pi s_1)\\sin(c_2 \\pi s_2)\\sin(c_3 \\pi s_3) + \\theta s_1 s_2 s_3",
+    "default_params": {
+      "c1": 2.0,
+      "c2": 2.0,
+      "c3": 2.0
+    },
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "s1",
+      "s2",
+      "s3"
+    ],
+    "sensitivity_structure": "triple sinusoidal product; 3D spatial",
+    "interaction_order": 3,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "moderate",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      -2.0,
+      2.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "spatial",
+    "primary_use_case": "3D volumetric SA; change-of-support aggregation",
+    "known_challenges": "3D grid; Sobol indices depend on resolution and aggregation operator",
+    "reference_authors": [
+      "Campbell, K.",
+      "McKay, M.D.",
+      "Williams, B.J."
+    ],
+    "reference_years": [
+      2006
+    ],
+    "reference_title": "Sensitivity analysis when model outputs are functions",
+    "reference_journal": "Reliability Engineering & System Safety",
+    "reference_full": "Campbell, K., McKay, M. D., & Williams, B. J. (2006). Sensitivity analysis when model outputs are functions. Reliability Engineering & System Safety, 91(10-11), 1468-1472.",
+    "reference_doi": "10.1016/j.ress.2005.11.049",
+    "sobol_usage_count_approx": 15,
+    "is_product_form": true,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "3D generalisation of Campbell benchmark. Full 3-way interaction via triple product. Used for volumetric aggregation SA studies."
+  },
+  "BoussinesqRecession": {
+    "name": "BoussinesqRecession",
+    "module": "sabench.benchmarks.functional",
+    "output_type": "functional_1d",
+    "d": 3,
+    "input_names": [
+      "Q0",
+      "k",
+      "Tr"
+    ],
+    "input_distributions": [
+      "LogNormal(1,0.5)",
+      "Uniform(1.01,3.0)",
+      "Uniform(1,100)"
+    ],
+    "input_bounds": [
+      [
+        0.01,
+        10.0
+      ],
+      [
+        1.01,
+        3.0
+      ],
+      [
+        1.0,
+        100.0
+      ]
+    ],
+    "formula_latex": "Q(t) = Q_0 \\left(1 + (k-1)\\frac{t}{T_r}\\right)^{-1/(k-1)}",
+    "default_params": {
+      "n_t": 100,
+      "t_max": 200.0
+    },
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "Q0",
+      "k"
+    ],
+    "sensitivity_structure": "power-law recession; strong nonlinearity in k",
+    "interaction_order": 2,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "high",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.0,
+      10.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "hydrological",
+    "primary_use_case": "Groundwater recession SA; functional sensitivity analysis",
+    "known_challenges": "Time-varying sensitivity; early vs late recession dominated by different inputs",
+    "reference_authors": [
+      "Boussinesq, J."
+    ],
+    "reference_years": [
+      1904
+    ],
+    "reference_title": "Recherches theoriques sur l'ecoulement des nappes d'eau",
+    "reference_journal": "Journal de Mathematiques Pures et Appliquees",
+    "reference_full": "Boussinesq, J. (1904). Recherches theoriques sur l'ecoulement des nappes d'eau. Journal de Mathematiques Pures et Appliquees, 10, 5-78.",
+    "reference_doi": null,
+    "sobol_usage_count_approx": 25,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "Generalised power-law recession curve. Sensitivity shifts from Q0 (early) to k,Tr (late recession). Functional SA captures time-varying structure."
+  },
+  "DampedOscillator": {
+    "name": "DampedOscillator",
+    "module": "sabench.benchmarks.functional",
+    "output_type": "functional_1d",
+    "d": 6,
+    "input_names": [
+      "m",
+      "c",
+      "k",
+      "F0",
+      "omega_f",
+      "x0"
+    ],
+    "input_distributions": [
+      "Uniform(0.5,2.0)",
+      "Uniform(0.1,1.0)",
+      "Uniform(1.0,10.0)",
+      "Uniform(0.5,2.0)",
+      "Uniform(0.5,3.0)",
+      "Uniform(-1.0,1.0)"
+    ],
+    "input_bounds": [
+      [
+        0.5,
+        2.0
+      ],
+      [
+        0.1,
+        1.0
+      ],
+      [
+        1.0,
+        10.0
+      ],
+      [
+        0.5,
+        2.0
+      ],
+      [
+        0.5,
+        3.0
+      ],
+      [
+        -1.0,
+        1.0
+      ]
+    ],
+    "formula_latex": "m\\ddot{x} + c\\dot{x} + kx = F_0 \\cos(\\omega_f t)",
+    "default_params": {
+      "n_t": 200,
+      "t_max": 20.0
+    },
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": "Analytical closed-form exists but complex; dominant m,k near resonance",
+    "dominant_inputs": [
+      "m",
+      "k",
+      "omega_f"
+    ],
+    "sensitivity_structure": "near-resonance interaction (m,k,omega_f); analytically tractable",
+    "interaction_order": 3,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "moderate",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      -3.0,
+      3.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "structural_dynamics",
+    "primary_use_case": "Structural/mechanical SA; functional sensitivity for dynamic systems",
+    "known_challenges": "Sensitivity highly dependent on proximity to resonance (omega_f ~ sqrt(k/m))",
+    "reference_authors": [
+      "Saltelli, A.",
+      "Ratto, M.",
+      "Tarantola, S.",
+      "Campolongo, F."
+    ],
+    "reference_years": [
+      2005
+    ],
+    "reference_title": "Sensitivity analysis for chemical models",
+    "reference_journal": "Chemical Reviews",
+    "reference_full": "Saltelli, A., Ratto, M., Tarantola, S., & Campolongo, F. (2005). Sensitivity analysis for chemical models. Chemical Reviews, 105(7), 2811-2827.",
+    "reference_doi": "10.1021/cr040659d",
+    "sobol_usage_count_approx": 60,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "Linear 2nd-order ODE with harmonic forcing. Resonance at omega_f=sqrt(k/m) creates extreme sensitivity. Output is time-series displacement."
+  },
+  "LotkaVolterra": {
+    "name": "LotkaVolterra",
+    "module": "sabench.benchmarks.functional",
+    "output_type": "functional_1d",
+    "d": 4,
+    "input_names": [
+      "alpha",
+      "beta",
+      "delta",
+      "gamma"
+    ],
+    "input_distributions": [
+      "Uniform(0.5,1.5)",
+      "Uniform(0.05,0.2)",
+      "Uniform(0.05,0.2)",
+      "Uniform(0.5,1.5)"
+    ],
+    "input_bounds": [
+      [
+        0.5,
+        1.5
+      ],
+      [
+        0.05,
+        0.2
+      ],
+      [
+        0.05,
+        0.2
+      ],
+      [
+        0.5,
+        1.5
+      ]
+    ],
+    "formula_latex": "\\dot{x}=\\alpha x - \\beta xy, \\quad \\dot{y}=\\delta xy - \\gamma y",
+    "default_params": {
+      "x0": 10.0,
+      "y0": 5.0,
+      "n_t": 200,
+      "t_max": 30.0
+    },
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "alpha",
+      "gamma"
+    ],
+    "sensitivity_structure": "coupled ODE; oscillatory; all parameters interact",
+    "interaction_order": 4,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "very_high",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.0,
+      30.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/sqrt(N))",
+    "benchmark_class": "dynamical_systems",
+    "primary_use_case": "Ecology/population SA; coupled ODE system sensitivity",
+    "known_challenges": "Oscillatory output; period and amplitude both sensitive to parameters",
+    "reference_authors": [
+      "Lotka, A.J.",
+      "Volterra, V."
+    ],
+    "reference_years": [
+      1925,
+      1926
+    ],
+    "reference_title": "Elements of Physical Biology",
+    "reference_journal": "Williams and Wilkins",
+    "reference_full": "Lotka, A. J. (1925). Elements of Physical Biology. Williams and Wilkins. / Volterra, V. (1926). Variazioni e fluttuazioni del numero d'individui in specie animali conviventi.",
+    "reference_doi": null,
+    "sobol_usage_count_approx": 50,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "Classic predator-prey ODE. Oscillatory dynamics; period ~2pi/sqrt(alpha*gamma). SA reveals alpha,gamma dominate period; beta,delta dominate amplitude."
+  },
+  "EpidemicSIR": {
+    "name": "EpidemicSIR",
+    "module": "sabench.benchmarks.functional",
+    "output_type": "functional_1d",
+    "d": 3,
+    "input_names": [
+      "beta_sir",
+      "gamma_sir",
+      "I0"
+    ],
+    "input_distributions": [
+      "Uniform(0.1,0.5)",
+      "Uniform(0.05,0.2)",
+      "Uniform(0.001,0.05)"
+    ],
+    "input_bounds": [
+      [
+        0.1,
+        0.5
+      ],
+      [
+        0.05,
+        0.2
+      ],
+      [
+        0.001,
+        0.05
+      ]
+    ],
+    "formula_latex": "\\dot{S}=-\\beta SI,\\quad \\dot{I}=\\beta SI-\\gamma I,\\quad \\dot{R}=\\gamma I",
+    "default_params": {
+      "S0": 0.999,
+      "n_t": 200,
+      "t_max": 100.0
+    },
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "beta_sir",
+      "gamma_sir"
+    ],
+    "sensitivity_structure": "nonlinear ODE; R0=beta/gamma determines epidemic; threshold behavior",
+    "interaction_order": 3,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "very_high",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.0,
+      0.5
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/sqrt(N))",
+    "benchmark_class": "epidemiology",
+    "primary_use_case": "Epidemic modeling SA; infectious disease parameter sensitivity",
+    "known_challenges": "Threshold behavior at R0=beta/gamma=1; sharp sensitivity transition",
+    "reference_authors": [
+      "Kermack, W.O.",
+      "McKendrick, A.G."
+    ],
+    "reference_years": [
+      1927
+    ],
+    "reference_title": "A contribution to the mathematical theory of epidemics",
+    "reference_journal": "Proceedings of the Royal Society of London A",
+    "reference_full": "Kermack, W. O., & McKendrick, A. G. (1927). A contribution to the mathematical theory of epidemics. Proceedings of the Royal Society of London A, 115(772), 700-721.",
+    "reference_doi": "10.1098/rspa.1927.0118",
+    "sobol_usage_count_approx": 80,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "Classic SIR compartmental model. Peak infected fraction I_max is highly sensitive to R0=beta/gamma. Widely used for COVID-19 policy SA."
+  },
+  "HeatDiffusion1D": {
+    "name": "HeatDiffusion1D",
+    "module": "sabench.benchmarks.functional",
+    "output_type": "functional_2d",
+    "d": 4,
+    "input_names": [
+      "alpha_diff",
+      "T_left",
+      "T_right",
+      "T_init"
+    ],
+    "input_distributions": [
+      "Uniform(0.01,0.1)",
+      "Uniform(0,100)",
+      "Uniform(0,100)",
+      "Uniform(0,100)"
+    ],
+    "input_bounds": [
+      [
+        0.01,
+        0.1
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ]
+    ],
+    "formula_latex": "T(x,t) = T_L + (T_R-T_L)x + \\sum_{n=1}^{N} \\frac{2}{n\\pi}[T_{init}-T_L-(T_R-T_L)x] \\sin(n\\pi x) e^{-\\alpha n^2 \\pi^2 t}",
+    "default_params": {
+      "n_x": 50,
+      "n_t": 50,
+      "t_max": 1.0,
+      "n_terms": 50
+    },
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "T_left",
+      "T_right",
+      "T_init"
+    ],
+    "sensitivity_structure": "Fourier series; analytical solution; sensitivity shifts in time",
+    "interaction_order": 2,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "low",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.0,
+      100.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "partial_differential_equation",
+    "primary_use_case": "PDE-based SA; functional sensitivity for heat transfer",
+    "known_challenges": "Output is (n_x, n_t) surface; functional SA required for full characterization",
+    "reference_authors": [
+      "Fourier, J.B.J."
+    ],
+    "reference_years": [
+      1822
+    ],
+    "reference_title": "Theorie analytique de la chaleur",
+    "reference_journal": "Firmin Didot",
+    "reference_full": "Fourier, J. B. J. (1822). Theorie analytique de la chaleur. Firmin Didot.",
+    "reference_doi": null,
+    "sobol_usage_count_approx": 30,
+    "is_product_form": false,
+    "is_additive": true,
+    "has_analytical_sobol": false,
+    "notes": "1D heat equation with Dirichlet BCs solved analytically via Fourier series. Output is (n_x, n_t) temperature surface. Sensitivity dominated by BCs at early times, initial condition later."
+  },
+  "Lorenz96": {
+    "name": "Lorenz96",
+    "module": "sabench.benchmarks.functional",
+    "output_type": "functional_1d",
+    "d": 8,
+    "input_names": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5",
+      "X6",
+      "X7",
+      "X8"
+    ],
+    "input_distributions": [
+      "Uniform(F-0.5, F+0.5)",
+      "Uniform(F-0.5, F+0.5)",
+      "Uniform(F-0.5, F+0.5)",
+      "Uniform(F-0.5, F+0.5)",
+      "Uniform(F-0.5, F+0.5)",
+      "Uniform(F-0.5, F+0.5)",
+      "Uniform(F-0.5, F+0.5)",
+      "Uniform(F-0.5, F+0.5)"
+    ],
+    "input_bounds": [
+      [
+        7.5,
+        8.5
+      ],
+      [
+        7.5,
+        8.5
+      ],
+      [
+        7.5,
+        8.5
+      ],
+      [
+        7.5,
+        8.5
+      ],
+      [
+        7.5,
+        8.5
+      ],
+      [
+        7.5,
+        8.5
+      ],
+      [
+        7.5,
+        8.5
+      ],
+      [
+        7.5,
+        8.5
+      ]
+    ],
+    "formula_latex": "\\dot{X}_k = (X_{k+1}-X_{k-2})X_{k-1} - X_k + F",
+    "default_params": {
+      "N": 8,
+      "F": 8.0,
+      "n_t": 100,
+      "t_max": 10.0
+    },
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": null,
+    "dominant_inputs": [
+      "X1"
+    ],
+    "sensitivity_structure": "chaotic; butterfly-effect; extreme sensitivity to initial conditions",
+    "interaction_order": 8,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "extreme",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      -10.0,
+      10.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N) short-time; undefined long-time",
+    "benchmark_class": "chaotic_dynamical",
+    "primary_use_case": "Data assimilation; ensemble SA; chaotic system sensitivity",
+    "known_challenges": "Sensitivity diverges exponentially (Lyapunov); only meaningful for short time horizons",
+    "reference_authors": [
+      "Lorenz, E.N."
+    ],
+    "reference_years": [
+      1996
+    ],
+    "reference_title": "Predictability: A problem partly solved",
+    "reference_journal": "ECMWF Seminar on Predictability",
+    "reference_full": "Lorenz, E. N. (1996). Predictability: A problem partly solved. In Proceedings of the Seminar on Predictability, ECMWF, Vol. 1, pp. 1-18.",
+    "reference_doi": null,
+    "sobol_usage_count_approx": 40,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "Toy atmospheric model. F=8 is standard chaotic forcing. Positive Lyapunov exponent ~1.67. SA valid only for t < Lyapunov time (~0.6). Used in ensemble NWP SA."
+  },
+  "TwoCompartmentPK": {
+    "name": "TwoCompartmentPK",
+    "module": "sabench.benchmarks.functional",
+    "output_type": "functional_1d",
+    "d": 5,
+    "input_names": [
+      "D",
+      "k10",
+      "k12",
+      "k21",
+      "V1"
+    ],
+    "input_distributions": [
+      "Uniform(50,200)",
+      "Uniform(0.05,0.3)",
+      "Uniform(0.01,0.2)",
+      "Uniform(0.01,0.15)",
+      "Uniform(5,20)"
+    ],
+    "input_bounds": [
+      [
+        50.0,
+        200.0
+      ],
+      [
+        0.05,
+        0.3
+      ],
+      [
+        0.01,
+        0.2
+      ],
+      [
+        0.01,
+        0.15
+      ],
+      [
+        5.0,
+        20.0
+      ]
+    ],
+    "formula_latex": "C(t) = A e^{-\\alpha t} + B e^{-\\beta t}",
+    "default_params": {
+      "n_t": 100,
+      "t_max": 24.0
+    },
+    "analytical_S1_available": false,
+    "analytical_ST_available": false,
+    "analytical_variance_available": false,
+    "analytical_S1_formula": "Analytical AUC Sobol indices derivable from bi-exponential form",
+    "dominant_inputs": [
+      "D",
+      "V1"
+    ],
+    "sensitivity_structure": "bi-exponential; eigenvalue structure of 2-compartment system",
+    "interaction_order": 3,
+    "has_inactive_inputs": false,
+    "num_inactive_inputs": 0,
+    "nonlinearity_degree": "moderate",
+    "smoothness_class": "C_inf",
+    "output_range_typical": [
+      0.0,
+      30.0
+    ],
+    "output_mean_analytical": null,
+    "output_variance_analytical": null,
+    "convergence_rate_sobol": "O(1/N)",
+    "benchmark_class": "pharmacokinetic",
+    "primary_use_case": "Drug dosing SA; PK model parameter sensitivity",
+    "known_challenges": "Discriminant of eigenvalue equation can be negative; clamped to 0",
+    "reference_authors": [
+      "Gibaldi, M.",
+      "Perrier, D."
+    ],
+    "reference_years": [
+      1982
+    ],
+    "reference_title": "Pharmacokinetics (2nd ed.)",
+    "reference_journal": "Marcel Dekker",
+    "reference_full": "Gibaldi, M., & Perrier, D. (1982). Pharmacokinetics (2nd ed.). Marcel Dekker.",
+    "reference_doi": null,
+    "sobol_usage_count_approx": 35,
+    "is_product_form": false,
+    "is_additive": false,
+    "has_analytical_sobol": false,
+    "notes": "Standard two-compartment PK model. Dose D and volume V1 dominate Cmax. Rate constants k10,k12,k21 dominate decay phase. AUC Sobol analytically tractable."
+  }
+}

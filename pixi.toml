@@ -1,0 +1,65 @@
+[workspace]
+name    = "sabench"
+version = "0.3.0"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
+
+# ── Runtime dependencies ──────────────────────────────────────────────────────
+[dependencies]
+python  = ">=3.10,<3.13"
+numpy   = ">=1.24"
+scipy   = ">=1.10"
+
+# ── Development extras ────────────────────────────────────────────────────────
+[feature.dev.dependencies]
+pytest       = ">=7.4"
+pytest-cov   = ">=4.1"
+ruff         = ">=0.4"
+mypy         = ">=1.8"
+pre-commit   = ">=3.6"
+hatch        = ">=1.9"
+python-build = ">=1.0"
+twine        = ">=5.0"
+pip          = "*"
+editables    = ">=0.5"
+
+[feature.notebook.dependencies]
+matplotlib   = ">=3.7"
+jupyter      = ">=1.0"
+ipykernel    = ">=6.0"
+nbconvert    = ">=7.0"
+nbformat     = ">=5.9"
+
+# ── Task definitions ──────────────────────────────────────────────────────────
+[tasks]
+# Testing
+test        = "python -m pytest tests -q"
+test-cov    = "python -m pytest tests --cov=sabench --cov-report=term-missing -q"
+
+# Linting + formatting
+lint        = "ruff check sabench tests"
+fmt         = "ruff format sabench tests"
+fmt-check   = "ruff format --check sabench tests"
+typecheck   = "mypy sabench --ignore-missing-imports"
+check-all   = { depends-on = ["lint", "fmt-check", "typecheck", "test"] }
+
+# Pre-commit
+pre-commit-install = "pre-commit install"
+pre-commit-run     = "pre-commit run --all-files"
+
+# Build & publish
+build       = "python -m build"
+publish-test = "twine upload --repository testpypi dist/*"
+publish     = "twine upload dist/*"
+
+# Notebooks
+nb-run      = "jupyter nbconvert --to notebook --execute notebooks/demo.ipynb --output notebooks/demo_executed.ipynb"
+nb-html     = "jupyter nbconvert --to html notebooks/demo.ipynb --output notebooks/demo.html"
+
+[feature.dev.tasks]
+install-dev = "pip install -e '.[dev]'"
+
+[environments]
+default  = { features = ["dev", "notebook"], solve-group = "default" }
+notebook = { features = ["notebook"], solve-group = "notebook" }
+ci       = { features = ["dev"], solve-group = "ci" }

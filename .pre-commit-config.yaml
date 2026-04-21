@@ -1,0 +1,56 @@
+# .pre-commit-config.yaml
+# Run: pixi run pre-commit-install  (once)
+# Then: pixi run pre-commit-run     (to run manually)
+repos:
+  # ── Ruff: fast Python linter + formatter ───────────────────────────────────
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.10
+    hooks:
+      - id: ruff
+        name: ruff-lint
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        name: ruff-format
+
+  # ── Standard file hygiene ──────────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=2000]
+      - id: debug-statements
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  # ── Mypy type checking ─────────────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.10.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [numpy]
+        args: [--ignore-missing-imports, --no-strict-optional]
+        exclude: ^(tests/|notebooks/)
+
+  # ── Pytest: fast smoke test on staged changes ──────────────────────────────
+  - repo: local
+    hooks:
+      - id: pytest-fast
+        name: pytest (fast smoke)
+        language: system
+        entry: python -m pytest tests/transforms/test_transforms.py tests/benchmarks/test_scalar.py -q --tb=short
+        pass_filenames: false
+        always_run: false
+        stages: [pre-push]
+
+  # ── Notebook output strip (keep repos clean) ──────────────────────────────
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.7.1
+    hooks:
+      - id: nbstripout
+        name: strip notebook outputs
