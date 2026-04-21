@@ -59,6 +59,7 @@ _MECHANISMS: dict[str, TransformMechanism] = {
     "tanh_a03": "pointwise",
     "temporal_cumsum": "samplewise",
     "temporal_peak": "aggregation",
+    "gradient_magnitude": "field_op",
 }
 
 _SUPPORTED_OUTPUT_KINDS: dict[str, tuple[TransformOutputKind, ...]] = {
@@ -66,6 +67,7 @@ _SUPPORTED_OUTPUT_KINDS: dict[str, tuple[TransformOutputKind, ...]] = {
     "tanh_a03": ("scalar", "spatial", "functional"),
     "temporal_cumsum": ("functional",),
     "temporal_peak": ("functional",),
+    "gradient_magnitude": ("spatial",),
 }
 
 _PROPERTY_TAG_SOURCES: tuple[tuple[TransformTag, set[str]], ...] = (
@@ -139,6 +141,7 @@ _REPRESENTATIVE_KEYS: tuple[str, ...] = (
     "tanh_a03",
     "temporal_cumsum",
     "temporal_peak",
+    "gradient_magnitude",
 )
 
 _REGISTRY: dict[str, TransformDefinition] = {

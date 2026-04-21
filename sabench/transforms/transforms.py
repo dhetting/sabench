@@ -18,6 +18,7 @@ from __future__ import annotations
 import numpy as np
 
 from sabench.transforms.aggregation import t_temporal_peak
+from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.pointwise import t_affine, t_tanh_pointwise
 from sabench.transforms.samplewise import t_temporal_cumsum
 
@@ -268,16 +269,6 @@ def t_laplacian_roughness(Y):
         for ax in range(n_spatial):
             lap += np.roll(f, 1, ax) + np.roll(f, -1, ax)
         Yout[s] = np.abs(lap)
-    return Yout
-
-
-def t_gradient_magnitude(Y):
-    if Y.ndim < 3:
-        return np.zeros_like(Y)
-    Yout = np.empty_like(Y, dtype=float)
-    for s in range(len(Y)):
-        grads = np.gradient(Y[s].astype(float))
-        Yout[s] = np.sqrt(sum(g**2 for g in grads))
     return Yout
 
 

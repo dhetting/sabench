@@ -13,7 +13,14 @@ from sabench.transforms import (
     list_transforms,
 )
 
-EXPECTED_KEYS = ("affine_a2_b1", "tanh_a03", "temporal_cumsum", "temporal_peak")
+EXPECTED_REGISTRY_KEYS = (
+    "affine_a2_b1",
+    "tanh_a03",
+    "temporal_cumsum",
+    "temporal_peak",
+    "gradient_magnitude",
+)
+EXPECTED_LIST_KEYS = tuple(sorted(EXPECTED_REGISTRY_KEYS))
 VALID_OUTPUT_KINDS = {"scalar", "spatial", "functional"}
 VALID_MECHANISMS = {"pointwise", "samplewise", "aggregation", "field_op"}
 VALID_TAGS = {
@@ -38,14 +45,14 @@ VALID_TAGS = {
 
 
 def test_transform_registry_exposes_expected_subset() -> None:
-    assert list_transforms() == EXPECTED_KEYS
-    assert tuple(TRANSFORM_REGISTRY.keys()) == EXPECTED_KEYS
+    assert list_transforms() == EXPECTED_LIST_KEYS
+    assert tuple(TRANSFORM_REGISTRY.keys()) == EXPECTED_REGISTRY_KEYS
 
 
 def test_transform_registry_entries_are_typed_and_callable() -> None:
     y = np.linspace(-2.0, 2.0, 12, dtype=float).reshape(3, 4)
 
-    for key in EXPECTED_KEYS:
+    for key in EXPECTED_REGISTRY_KEYS:
         definition = get_transform_definition(key)
         assert isinstance(definition, TransformDefinition)
         assert isinstance(definition.spec, TransformSpec)
@@ -57,7 +64,7 @@ def test_transform_registry_entries_are_typed_and_callable() -> None:
 
 
 def test_transform_spec_fields_are_valid() -> None:
-    for key in EXPECTED_KEYS:
+    for key in EXPECTED_REGISTRY_KEYS:
         spec = get_transform_spec(key)
         assert spec.key == key
         assert spec.mechanism in VALID_MECHANISMS
@@ -69,6 +76,7 @@ def test_transform_spec_fields_are_valid() -> None:
             "tanh_a03": "sabench.transforms.pointwise",
             "temporal_cumsum": "sabench.transforms.samplewise",
             "temporal_peak": "sabench.transforms.aggregation",
+            "gradient_magnitude": "sabench.transforms.field_ops",
         }[key]
         assert spec.module == expected_module
         assert spec.function_name.startswith("t_")
@@ -79,7 +87,7 @@ def test_transform_registry_can_filter_by_mechanism() -> None:
     assert list_transforms(mechanism="pointwise") == ("affine_a2_b1", "tanh_a03")
     assert list_transforms(mechanism="samplewise") == ("temporal_cumsum",)
     assert list_transforms(mechanism="aggregation") == ("temporal_peak",)
-    assert list_transforms(mechanism="field_op") == ()
+    assert list_transforms(mechanism="field_op") == ("gradient_magnitude",)
 
 
 def test_unknown_transform_lookup_raises_clear_error() -> None:
