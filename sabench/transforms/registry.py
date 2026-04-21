@@ -58,12 +58,14 @@ _MECHANISMS: dict[str, TransformMechanism] = {
     "affine_a2_b1": "pointwise",
     "tanh_a03": "pointwise",
     "temporal_cumsum": "samplewise",
+    "temporal_peak": "aggregation",
 }
 
 _SUPPORTED_OUTPUT_KINDS: dict[str, tuple[TransformOutputKind, ...]] = {
     "affine_a2_b1": ("scalar", "spatial", "functional"),
     "tanh_a03": ("scalar", "spatial", "functional"),
     "temporal_cumsum": ("functional",),
+    "temporal_peak": ("functional",),
 }
 
 _PROPERTY_TAG_SOURCES: tuple[tuple[TransformTag, set[str]], ...] = (
@@ -132,7 +134,12 @@ def _build_spec(key: str) -> TransformSpec:
     )
 
 
-_REPRESENTATIVE_KEYS: tuple[str, ...] = ("affine_a2_b1", "tanh_a03", "temporal_cumsum")
+_REPRESENTATIVE_KEYS: tuple[str, ...] = (
+    "affine_a2_b1",
+    "tanh_a03",
+    "temporal_cumsum",
+    "temporal_peak",
+)
 
 _REGISTRY: dict[str, TransformDefinition] = {
     key: TransformDefinition(

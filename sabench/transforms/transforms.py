@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from sabench.transforms.aggregation import t_temporal_peak
 from sabench.transforms.pointwise import t_affine, t_tanh_pointwise
 from sabench.transforms.samplewise import t_temporal_cumsum
 
@@ -337,20 +338,6 @@ def t_isoline_length(Y, quantile=0.75):
 # ══════════════════════════════════════════════════════════════════════════════
 # Temporal  (1-D functional outputs: Y shape (n_eval, n_t))
 # ══════════════════════════════════════════════════════════════════════════════
-
-
-def t_temporal_peak(Y):
-    """Scalar peak value max_t Y(t).
-
-    Reduces a time series to its peak response, which is the most common
-    engineering summary statistic (peak demand, maximum flood stage, peak
-    ground acceleration). Compressing n_t dimensions to 1 is a severe
-    reduction that destroys temporal structure and hence strongly alters
-    which inputs appear dominant.
-    """
-    flat = Y.reshape(len(Y), -1)
-    peak = flat.max(axis=1)
-    return (peak[:, None] * np.ones_like(flat)).reshape(Y.shape)
 
 
 def t_temporal_log_cumsum(Y, eps=1.0):

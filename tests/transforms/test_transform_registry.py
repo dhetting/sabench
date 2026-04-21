@@ -13,7 +13,7 @@ from sabench.transforms import (
     list_transforms,
 )
 
-EXPECTED_KEYS = ("affine_a2_b1", "tanh_a03", "temporal_cumsum")
+EXPECTED_KEYS = ("affine_a2_b1", "tanh_a03", "temporal_cumsum", "temporal_peak")
 VALID_OUTPUT_KINDS = {"scalar", "spatial", "functional"}
 VALID_MECHANISMS = {"pointwise", "samplewise", "aggregation", "field_op"}
 VALID_TAGS = {
@@ -68,10 +68,18 @@ def test_transform_spec_fields_are_valid() -> None:
             "affine_a2_b1": "sabench.transforms.pointwise",
             "tanh_a03": "sabench.transforms.pointwise",
             "temporal_cumsum": "sabench.transforms.samplewise",
+            "temporal_peak": "sabench.transforms.aggregation",
         }[key]
         assert spec.module == expected_module
         assert spec.function_name.startswith("t_")
         assert spec.reference
+
+
+def test_transform_registry_can_filter_by_mechanism() -> None:
+    assert list_transforms(mechanism="pointwise") == ("affine_a2_b1", "tanh_a03")
+    assert list_transforms(mechanism="samplewise") == ("temporal_cumsum",)
+    assert list_transforms(mechanism="aggregation") == ("temporal_peak",)
+    assert list_transforms(mechanism="field_op") == ()
 
 
 def test_unknown_transform_lookup_raises_clear_error() -> None:
