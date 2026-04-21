@@ -5,11 +5,10 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 from types import MappingProxyType
+from typing import Any, cast
 
+from sabench.benchmarks import functional, scalar, spatial
 from sabench.benchmarks.base import BenchmarkFunction
-from sabench.benchmarks.functional import Lorenz96
-from sabench.benchmarks.scalar import Ishigami
-from sabench.benchmarks.spatial import Campbell2D
 from sabench.benchmarks.types import BenchmarkFamily, BenchmarkOutputKind, BenchmarkSpec
 
 
@@ -31,7 +30,6 @@ def _build_spec(
     *,
     family: BenchmarkFamily,
     output_kind: BenchmarkOutputKind,
-    module_name: str,
 ) -> BenchmarkSpec:
     """Build canonical typed metadata directly from the benchmark class."""
     instance = benchmark_cls()
@@ -39,7 +37,7 @@ def _build_spec(
         name=benchmark_cls.name,
         family=family,
         module=benchmark_cls.__module__,
-        module_name=module_name,
+        module_name=benchmark_cls.__module__.rsplit(".", maxsplit=1)[-1],
         class_name=benchmark_cls.__name__,
         output_kind=output_kind,
         d=instance.d,
@@ -50,35 +48,45 @@ def _build_spec(
     )
 
 
-_REGISTRY: dict[str, BenchmarkDefinition] = {
-    "Ishigami": BenchmarkDefinition(
+def _build_definition(
+    benchmark_cls: type[BenchmarkFunction],
+    *,
+    family: BenchmarkFamily,
+    output_kind: BenchmarkOutputKind,
+) -> BenchmarkDefinition:
+    """Build a canonical benchmark definition for a benchmark class."""
+    return BenchmarkDefinition(
         spec=_build_spec(
-            Ishigami,
-            family="scalar",
-            output_kind="scalar",
-            module_name="ishigami",
+            benchmark_cls,
+            family=family,
+            output_kind=output_kind,
         ),
-        benchmark_cls=Ishigami,
-    ),
-    "Campbell2D": BenchmarkDefinition(
-        spec=_build_spec(
-            Campbell2D,
-            family="spatial",
-            output_kind="spatial",
-            module_name="campbell2d",
-        ),
-        benchmark_cls=Campbell2D,
-    ),
-    "Lorenz96": BenchmarkDefinition(
-        spec=_build_spec(
-            Lorenz96,
-            family="functional",
-            output_kind="functional",
-            module_name="lorenz96",
-        ),
-        benchmark_cls=Lorenz96,
-    ),
-}
+        benchmark_cls=benchmark_cls,
+    )
+
+
+def _build_family_registry(
+    package_module: Any,
+    *,
+    family: BenchmarkFamily,
+    output_kind: BenchmarkOutputKind,
+) -> dict[str, BenchmarkDefinition]:
+    """Build canonical registry entries for a benchmark family package."""
+    names = cast(list[str], package_module.__all__)
+    return {
+        name: _build_definition(
+            cast(type[BenchmarkFunction], getattr(package_module, name)),
+            family=family,
+            output_kind=output_kind,
+        )
+        for name in names
+    }
+
+
+_REGISTRY: dict[str, BenchmarkDefinition] = {}
+_REGISTRY.update(_build_family_registry(scalar, family="scalar", output_kind="scalar"))
+_REGISTRY.update(_build_family_registry(spatial, family="spatial", output_kind="spatial"))
+_REGISTRY.update(_build_family_registry(functional, family="functional", output_kind="functional"))
 
 BENCHMARK_REGISTRY: Mapping[str, BenchmarkDefinition] = MappingProxyType(_REGISTRY)
 

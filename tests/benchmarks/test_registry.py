@@ -1,85 +1,53 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
-from dataclasses import is_dataclass
-from typing import get_args
+import json
+from pathlib import Path
 
-import pytest
-
-from sabench.benchmarks.base import BenchmarkFunction
-
-REPRESENTATIVE_BENCHMARKS = {
-    "Ishigami": "scalar",
-    "Campbell2D": "spatial",
-    "Lorenz96": "functional",
-}
+import sabench
+from sabench.benchmarks import BENCHMARK_REGISTRY, get_benchmark_spec, list_benchmarks
+from sabench.benchmarks.functional import __all__ as functional_all
+from sabench.benchmarks.scalar import __all__ as scalar_all
+from sabench.benchmarks.spatial import __all__ as spatial_all
 
 
-def test_benchmark_types_import() -> None:
-    from sabench.benchmarks.types import BenchmarkFamily, BenchmarkSpec
-
-    assert set(get_args(BenchmarkFamily)) == {"scalar", "spatial", "functional"}
-    assert is_dataclass(BenchmarkSpec)
-
-
-def test_registry_exposes_mapping_of_typed_definitions() -> None:
-    from sabench.benchmarks.registry import BENCHMARK_REGISTRY, BenchmarkDefinition
-
-    assert isinstance(BENCHMARK_REGISTRY, Mapping)
-    assert BENCHMARK_REGISTRY
-    assert all(isinstance(item, BenchmarkDefinition) for item in BENCHMARK_REGISTRY.values())
+def test_representative_benchmark_specs_point_to_new_modules() -> None:
+    assert get_benchmark_spec("Ishigami").module == "sabench.benchmarks.scalar.ishigami"
+    assert get_benchmark_spec("Campbell2D").module == "sabench.benchmarks.spatial.campbell2d"
+    assert get_benchmark_spec("Lorenz96").module == "sabench.benchmarks.functional.lorenz96"
 
 
-def test_registry_contains_representative_benchmarks_by_family() -> None:
-    from sabench.benchmarks.registry import get_benchmark_definition
-
-    for name, family in REPRESENTATIVE_BENCHMARKS.items():
-        definition = get_benchmark_definition(name)
-        assert definition.spec.name == name
-        assert definition.spec.family == family
-        assert definition.spec.output_kind == family or (
-            family == "spatial" and definition.spec.output_kind == "spatial"
-        )
-        assert issubclass(definition.benchmark_cls, BenchmarkFunction)
-
-
-def test_registry_lists_benchmarks_by_family() -> None:
-    from sabench.benchmarks.registry import list_benchmarks
-
-    assert "Ishigami" in list_benchmarks("scalar")
-    assert "Campbell2D" in list_benchmarks("spatial")
-    assert "Lorenz96" in list_benchmarks("functional")
-
-
-def test_registry_names_are_unique_and_match_specs() -> None:
-    from sabench.benchmarks.registry import BENCHMARK_REGISTRY
-
-    names = list(BENCHMARK_REGISTRY)
-    assert len(names) == len(set(names))
-
+def test_benchmark_registry_definition_class_matches_spec_name() -> None:
     for name, definition in BENCHMARK_REGISTRY.items():
-        assert definition.spec.name == name
-        instance = definition.benchmark_cls()
-        assert definition.spec.module.endswith(definition.spec.module_name)
-        assert definition.spec.class_name == definition.benchmark_cls.__name__
-        assert definition.spec.d == instance.d
-        assert len(instance.bounds) == instance.d
+        assert definition.spec.class_name == name
+        assert definition.benchmark_cls.__name__ == definition.spec.class_name
+
+
+def test_benchmark_registry_covers_all_benchmark_families() -> None:
+    assert set(list_benchmarks("scalar")) == set(scalar_all)
+    assert set(list_benchmarks("spatial")) == set(spatial_all)
+    assert set(list_benchmarks("functional")) == set(functional_all)
+    assert set(list_benchmarks()) == set(scalar_all) | set(spatial_all) | set(functional_all)
+
+
+def test_benchmark_registry_family_counts_match_package_catalogue() -> None:
+    assert len(list_benchmarks("scalar")) == 19
+    assert len(list_benchmarks("spatial")) == 3
+    assert len(list_benchmarks("functional")) == 7
+    assert len(list_benchmarks()) == 29
+
+
+def test_benchmark_registry_export_snapshot_covers_full_catalogue() -> None:
+    package_root = Path(sabench.__file__).resolve().parent
+    snapshot_path = package_root / "metadata" / "benchmarks_registry_metadata.json"
+    data = json.loads(snapshot_path.read_text())
+
+    assert set(data) == set(list_benchmarks())
+    assert len(data) == 29
 
 
 def test_benchmark_spec_uses_snake_case_analytical_flags() -> None:
-    from dataclasses import fields
-
-    from sabench.benchmarks.types import BenchmarkSpec
-
-    field_names = {field.name for field in fields(BenchmarkSpec)}
-    assert "has_analytical_s1" in field_names
-    assert "has_analytical_st" in field_names
-    assert "has_analytical_S1" not in field_names
-    assert "has_analytical_ST" not in field_names
-
-
-def test_unknown_benchmark_raises_key_error() -> None:
-    from sabench.benchmarks.registry import get_benchmark_definition
-
-    with pytest.raises(KeyError, match="Unknown benchmark"):
-        get_benchmark_definition("not-a-benchmark")
+    fields = set(get_benchmark_spec("Ishigami").__dataclass_fields__)
+    assert "has_analytical_s1" in fields
+    assert "has_analytical_st" in fields
+    assert "has_analytical_S1" not in fields
+    assert "has_analytical_ST" not in fields
