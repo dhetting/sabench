@@ -64,45 +64,24 @@ EXAMPLE_INPUTS: dict[str, np.ndarray] = {
     ),
     "spatial": np.stack(
         [
-            np.sin(
-                np.pi
-                * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[
-                    0
-                ]
-            )
-            * np.cos(
-                np.pi
-                * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[
-                    1
-                ]
-            ),
+            np.sin(np.pi * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[0])
+            * np.cos(np.pi * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[1]),
             np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[0] ** 2
             - np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[1]
             + 0.25
             * np.sin(
                 2.0
                 * np.pi
-                * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[
-                    0
-                ]
-                * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[
-                    1
-                ]
+                * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[0]
+                * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[1]
             ),
             np.exp(
                 -(
-                    np.meshgrid(
-                        np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij"
-                    )[0]
-                    ** 2
-                    + np.meshgrid(
-                        np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij"
-                    )[1]
-                    ** 2
+                    np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[0] ** 2
+                    + np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[1] ** 2
                 )
             )
-            - 0.5
-            * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[0],
+            - 0.5 * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[0],
         ],
         axis=0,
     ),
@@ -120,6 +99,12 @@ def _example_input(spec: TransformSpec) -> np.ndarray:
     ("key", "expected_module", "expected_mechanism"),
     [
         ("affine_a2_b1", "sabench.transforms.linear", "pointwise"),
+        ("square_pointwise", "sabench.transforms.pointwise", "pointwise"),
+        ("exp_pointwise", "sabench.transforms.pointwise", "pointwise"),
+        ("relu_pointwise", "sabench.transforms.pointwise", "pointwise"),
+        ("log1p_positive", "sabench.transforms.pointwise", "pointwise"),
+        ("sqrt_abs", "sabench.transforms.pointwise", "pointwise"),
+        ("abs_pointwise", "sabench.transforms.pointwise", "pointwise"),
         ("softplus_b01", "sabench.transforms.nonlinear", "pointwise"),
         ("temporal_cumsum", "sabench.transforms.samplewise", "samplewise"),
         ("temporal_peak", "sabench.transforms.aggregation", "aggregation"),

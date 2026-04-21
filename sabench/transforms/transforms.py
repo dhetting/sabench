@@ -19,9 +19,17 @@ import numpy as np
 
 from sabench.transforms.aggregation import t_temporal_peak
 from sabench.transforms.field_ops import t_gradient_magnitude
-from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import t_softplus_pointwise
-from sabench.transforms.pointwise import t_tanh_pointwise
+from sabench.transforms.linear import t_affine
+from sabench.transforms.pointwise import (
+    t_abs_pointwise,
+    t_exp_pointwise,
+    t_log1p_abs,
+    t_relu_pointwise,
+    t_sqrt_abs,
+    t_square_pointwise,
+    t_tanh_pointwise,
+)
 from sabench.transforms.samplewise import t_temporal_cumsum
 from sabench.transforms.utilities import _bc, _safe_range, _ymin
 
@@ -301,6 +309,7 @@ def t_isoline_length(Y, quantile=0.75):
 # ══════════════════════════════════════════════════════════════════════════════
 
 
+
 def t_temporal_log_cumsum(Y, eps=1.0):
     """Log of the cumulative sum: Z(t) = log(sum_{s<=t} Y(s) + eps).
 
@@ -402,24 +411,6 @@ def t_entropy_proxy(Y):
 # ── Convex pointwise ──────────────────────────────────────────────────────────
 
 
-def t_square_pointwise(Y):
-    """Square: φ(y) = y².
-    Convex (φ''=2>0), even (φ(−y)=φ(y)), non-monotone.
-    Commutes with Sobol computation only when Y is symmetric about 0.
-    Analytical result: for Y~N(μ,σ²), Var[Y²]=2σ⁴+4μ²σ².
-    """
-    return Y**2
-
-
-def t_exp_pointwise(Y, scale=0.1):
-    """Exponential: φ(y) = exp(scale·y).
-    Strictly convex (φ''=scale²·φ>0), monotone increasing, C∞.
-    The canonical nonlinear pointwise transform for Sobol index analysis.
-    By Jensen: E[exp(Y)] ≥ exp(E[Y]), always amplifying variance.
-    """
-    return np.exp(np.clip(scale * Y, -100, 100))
-
-
 def t_cube_pointwise(Y):
     """Cube: φ(y) = y³.
     Odd function; convex for y>0, concave for y<0 (inflection at 0).
@@ -436,15 +427,6 @@ def t_cosh_pointwise(Y, scale=0.1):
     return np.cosh(np.clip(scale * Y, -100, 100))
 
 
-def t_relu_pointwise(Y):
-    """ReLU: φ(y) = max(0, y).
-    Convex, monotone non-decreasing, piecewise linear (C⁰ at y=0).
-    Standard neural-network activation; non-smooth kink at y=0.
-    Preserves positive values, zeros out negatives.
-    """
-    return np.maximum(Y, 0.0)
-
-
 def t_softmax_shift(Y):
     """Shifted softmax normalisation: Z_k = exp(Y_k) / sum_k exp(Y_k).
     Nonlocal (uses sum across outputs), always produces outputs in (0,1).
@@ -456,23 +438,7 @@ def t_softmax_shift(Y):
     return (ex / ex.sum(axis=1, keepdims=True)).reshape(Y.shape)
 
 
-def t_log1p_abs(Y):
-    """log(1 + |y|): monotone increasing for y>0, concave, C¹ everywhere.
-    Avoids domain restriction of log; handles negative values symmetrically.
-    Commonly used in heavy-tailed data transformation.
-    """
-    return np.log1p(np.abs(Y)) * np.sign(Y)
-
-
 # ── Concave pointwise ─────────────────────────────────────────────────────────
-
-
-def t_sqrt_abs(Y):
-    """Square root of |y|: φ(y) = √|y| · sign(y).
-    Concave for y>0, convex for y<0, C⁰ at y=0 (non-smooth).
-    Variance-stabilising transform for Poisson-like data.
-    """
-    return np.sqrt(np.abs(Y)) * np.sign(Y)
 
 
 def t_cbrt_pointwise(Y):
@@ -547,14 +513,6 @@ def t_cos_pointwise(Y, freq=0.5):
     Like sine but with maximum at origin.
     """
     return np.cos(freq * Y)
-
-
-def t_abs_pointwise(Y):
-    """Absolute value: φ(y) = |y|.
-    Convex, even, non-smooth at y=0 (kink, C⁰ but not C¹).
-    Maps to non-negative reals; classic non-differentiable convex function.
-    """
-    return np.abs(Y)
 
 
 def t_step_pointwise(Y, threshold=0.0):

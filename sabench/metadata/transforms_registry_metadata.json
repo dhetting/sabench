@@ -3,7 +3,7 @@
     "function_name": "t_abs_pointwise",
     "key": "abs_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "|y| (convex, non-smooth at 0)",
     "reference": "Hardy et al. (1934)",
     "supported_output_kinds": [
@@ -1000,7 +1000,7 @@
     "function_name": "t_exp_pointwise",
     "key": "exp_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "Exponential (convex, monotone)",
     "reference": "Hardy et al. (1934)",
     "supported_output_kinds": [
@@ -1555,7 +1555,7 @@
     "function_name": "t_log1p_abs",
     "key": "log1p_positive",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "log(1+|y|) (concave for y>0)",
     "reference": "Box & Cox (1964)",
     "supported_output_kinds": [
@@ -2289,7 +2289,7 @@
     "function_name": "t_relu_pointwise",
     "key": "relu_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "ReLU max(y,0) (convex, non-smooth)",
     "reference": "Glorot et al. (2011)",
     "supported_output_kinds": [
@@ -2809,7 +2809,7 @@
     "function_name": "t_sqrt_abs",
     "key": "sqrt_abs",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "\u221a|y| (concave, non-smooth at 0)",
     "reference": "Hardy et al. (1934)",
     "supported_output_kinds": [
@@ -2829,7 +2829,7 @@
     "function_name": "t_square_pointwise",
     "key": "square_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pointwise",
     "name": "Square (convex, even)",
     "reference": "Hardy et al. (1934)",
     "supported_output_kinds": [
