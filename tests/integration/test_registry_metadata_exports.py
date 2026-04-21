@@ -59,5 +59,7 @@ def test_transform_registry_export_uses_canonical_fields() -> None:
     assert exported["affine_a2_b1"]["module"] == "sabench.transforms.linear"
     assert exported["cube_pointwise"]["module"] == "sabench.transforms.pointwise"
     assert exported["softplus_b01"]["module"] == "sabench.transforms.nonlinear"
+    assert exported["cosh_pointwise"]["module"] == "sabench.transforms.nonlinear"
+    assert exported["logistic_pointwise"]["module"] == "sabench.transforms.nonlinear"
     assert exported["temporal_cumsum"]["mechanism"] == "samplewise"
     assert exported["gradient_magnitude"]["supported_output_kinds"] == ["spatial"]

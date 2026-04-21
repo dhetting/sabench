@@ -128,7 +128,7 @@
     "function_name": "t_arctan_pointwise",
     "key": "arctan_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "arctan(y) (monotone, bounded)",
     "reference": "Abramowitz & Stegun (1972)",
     "supported_output_kinds": [
@@ -424,7 +424,7 @@
     "function_name": "t_cbrt_pointwise",
     "key": "cbrt_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Cube root (monotone, concave x>0)",
     "reference": "Borwein & Lewis (2000)",
     "supported_output_kinds": [
@@ -581,7 +581,7 @@
     "function_name": "t_cosh_pointwise",
     "key": "cosh_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Cosh (convex, even, C\u221e)",
     "reference": "Abramowitz & Stegun (1972)",
     "supported_output_kinds": [
@@ -1757,7 +1757,7 @@
     "function_name": "t_logistic_pointwise",
     "key": "logistic_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Logistic \u03c3(y) (monotone, S-shaped)",
     "reference": "Verhulst (1838)",
     "supported_output_kinds": [
@@ -2647,7 +2647,7 @@
     "function_name": "t_sinh_pointwise",
     "key": "sinh_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "sinh(y) (monotone, convex x>0)",
     "reference": "Abramowitz & Stegun (1972)",
     "supported_output_kinds": [

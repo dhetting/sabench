@@ -9,7 +9,14 @@ from sabench.transforms import TRANSFORMS, apply_transform, get_transform_spec
 from sabench.transforms.aggregation import t_temporal_peak
 from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
-from sabench.transforms.nonlinear import t_softplus_pointwise
+from sabench.transforms.nonlinear import (
+    t_arctan_pointwise,
+    t_cbrt_pointwise,
+    t_cosh_pointwise,
+    t_logistic_pointwise,
+    t_sinh_pointwise,
+    t_softplus_pointwise,
+)
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
     t_cos_pointwise,
@@ -44,6 +51,11 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("step_pointwise").module == "sabench.transforms.pointwise"
     assert get_transform_spec("log_abs_pointwise").module == "sabench.transforms.pointwise"
     assert get_transform_spec("softplus_b01").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("cosh_pointwise").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("cbrt_pointwise").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("logistic_pointwise").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("arctan_pointwise").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("sinh_pointwise").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("temporal_cumsum").module == "sabench.transforms.samplewise"
     assert get_transform_spec("temporal_peak").module == "sabench.transforms.aggregation"
     assert get_transform_spec("gradient_magnitude").module == "sabench.transforms.field_ops"
@@ -65,6 +77,11 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["step_pointwise"]["fn"] is t_step_pointwise
     assert TRANSFORMS["log_abs_pointwise"]["fn"] is t_log_abs
     assert TRANSFORMS["softplus_b01"]["fn"] is t_softplus_pointwise
+    assert TRANSFORMS["cosh_pointwise"]["fn"] is t_cosh_pointwise
+    assert TRANSFORMS["cbrt_pointwise"]["fn"] is t_cbrt_pointwise
+    assert TRANSFORMS["logistic_pointwise"]["fn"] is t_logistic_pointwise
+    assert TRANSFORMS["arctan_pointwise"]["fn"] is t_arctan_pointwise
+    assert TRANSFORMS["sinh_pointwise"]["fn"] is t_sinh_pointwise
     assert TRANSFORMS["temporal_cumsum"]["fn"] is t_temporal_cumsum
     assert TRANSFORMS["temporal_peak"]["fn"] is t_temporal_peak
     assert TRANSFORMS["gradient_magnitude"]["fn"] is t_gradient_magnitude
@@ -92,6 +109,15 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(
         apply_transform(y, "softplus_b01"), t_softplus_pointwise(y, beta=0.1)
     )
+    np.testing.assert_allclose(apply_transform(y, "cosh_pointwise"), t_cosh_pointwise(y, scale=0.1))
+    np.testing.assert_allclose(apply_transform(y, "cbrt_pointwise"), t_cbrt_pointwise(y))
+    np.testing.assert_allclose(
+        apply_transform(y, "logistic_pointwise"), t_logistic_pointwise(y, k=1.0)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "arctan_pointwise"), t_arctan_pointwise(y, scale=1.0)
+    )
+    np.testing.assert_allclose(apply_transform(y, "sinh_pointwise"), t_sinh_pointwise(y, scale=0.1))
     np.testing.assert_allclose(apply_transform(y, "temporal_cumsum"), t_temporal_cumsum(y))
     np.testing.assert_allclose(apply_transform(y, "temporal_peak"), t_temporal_peak(y))
 
