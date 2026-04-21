@@ -58,8 +58,10 @@ pixi run check-all     # lint + format-check + typecheck + test
 
 ```python
 import numpy as np
-from sabench import Ishigami, saltelli_sample, jansen_s1_st
-from sabench import apply_transform, score_transform
+from sabench.analysis import jansen_s1_st
+from sabench.benchmarks.scalar import Ishigami
+from sabench.sampling import saltelli_sample
+from sabench.transforms import get_transform, score_transform
 
 # 1. Build a Saltelli sample
 model = Ishigami()
@@ -73,7 +75,8 @@ S1, ST = jansen_s1_st(Y, N=2048, d=model.d)
 print("S1:", S1)  # analytical: [0.314, 0.442, 0.000]
 
 # 4. Apply a nonlinear transform and score the non-commutativity
-Y_trans = apply_transform(Y, "tanh_a03")
+transform = get_transform("tanh_a03")
+Y_trans = transform(Y)
 S1_trans, _ = jansen_s1_st(Y_trans, N=2048, d=model.d)
 scores = score_transform(S1, S1_trans, Y, Y_trans)
 print(f"D={scores['D']:.3f}  Δ={scores['delta']:.3f}")
