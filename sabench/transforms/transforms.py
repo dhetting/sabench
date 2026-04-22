@@ -48,19 +48,25 @@ from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import t_softplus_pointwise
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
+    t_cos_pointwise,
     t_cos_squared,
+    t_cube_pointwise,
     t_damped_sin,
     t_double_sin,
+    t_erf_pointwise,
     t_exp_pointwise,
     t_log1p_abs,
+    t_log_abs,
     t_relu_pointwise,
     t_sawtooth,
     t_sin_cos_product,
+    t_sin_pointwise,
     t_sin_squared,
     t_sinc,
     t_sqrt_abs,
     t_square_pointwise,
     t_square_wave,
+    t_step_pointwise,
     t_tanh_pointwise,
 )
 from sabench.transforms.samplewise import t_temporal_cumsum
@@ -441,13 +447,6 @@ def t_temporal_block_avg(Y, block=10):
 # ── Convex pointwise ──────────────────────────────────────────────────────────
 
 
-def t_cube_pointwise(Y):
-    """Cube: φ(y) = y³.
-    Odd function; convex for y>0, concave for y<0 (inflection at 0).
-    C∞, monotone increasing, φ'=3y²≥0, φ''=6y changes sign.
-    """
-    return Y**3
-
 
 def t_cosh_pointwise(Y, scale=0.1):
     """Hyperbolic cosine: φ(y) = cosh(scale·y).
@@ -493,15 +492,6 @@ def t_arctan_pointwise(Y, scale=1.0):
     return np.arctan(scale * Y)
 
 
-def t_erf_pointwise(Y, scale=0.5):
-    """Error function: φ(y) = erf(scale·y).
-    Monotone, bounded in (−1,1), C∞, odd function.
-    Concave for y>0; related to normal CDF by erf(y)=2Φ(√2 y)−1.
-    """
-    from math import erf as _erf
-
-    return np.vectorize(lambda y: _erf(scale * y))(Y).astype(float)
-
 
 def t_sinh_pointwise(Y, scale=0.1):
     """Sinh: φ(y) = sinh(scale·y).
@@ -514,29 +504,7 @@ def t_sinh_pointwise(Y, scale=0.1):
 # ── Oscillatory / non-monotone ────────────────────────────────────────────────
 
 
-def t_sin_pointwise(Y, freq=0.5):
-    """Sine: φ(y) = sin(freq·y).
-    Periodic (T=2π/freq), bounded in [−1,1], C∞.
-    Alternately convex and concave; zero mean for uniform Y.
-    Alternates sensitivity signs with period: high-frequency → strong noncommutativity.
-    """
-    return np.sin(freq * Y)
 
-
-def t_cos_pointwise(Y, freq=0.5):
-    """Cosine: φ(y) = cos(freq·y).
-    Periodic, even, bounded in [−1,1], C∞.
-    Like sine but with maximum at origin.
-    """
-    return np.cos(freq * Y)
-
-
-def t_step_pointwise(Y, threshold=0.0):
-    """Heaviside step: φ(y) = 1[y > threshold].
-    Discontinuous (C⁻¹), non-monotone in the sense of being constant piecewise.
-    Extreme noncommutativity expected; destroys all metric information.
-    """
-    return (Y > threshold).astype(float)
 
 
 def t_triangle_wave(Y, period=4.0):
@@ -576,16 +544,6 @@ def t_inverse_abs(Y, eps=1.0):
     Singular at y=0 for eps=0; eps provides regularisation.
     """
     return 1.0 / (np.abs(Y) + eps)
-
-
-def t_log_abs(Y, eps=1.0):
-    """Log of shifted absolute value: φ(y) = log(|y| + eps).
-    Concave for |y|>0, symmetric (even), grows logarithmically.
-    """
-    return np.log(np.abs(Y) + eps)
-
-
-# ── Normalisation / standardisation ──────────────────────────────────────────
 
 
 # ══════════════════════════════════════════════════════════════════════════════

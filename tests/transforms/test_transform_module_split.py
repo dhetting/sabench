@@ -37,19 +37,25 @@ from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import t_softplus_pointwise
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
+    t_cos_pointwise,
     t_cos_squared,
+    t_cube_pointwise,
     t_damped_sin,
     t_double_sin,
+    t_erf_pointwise,
     t_exp_pointwise,
     t_log1p_abs,
+    t_log_abs,
     t_relu_pointwise,
     t_sawtooth,
     t_sin_cos_product,
+    t_sin_pointwise,
     t_sin_squared,
     t_sinc,
     t_sqrt_abs,
     t_square_pointwise,
     t_square_wave,
+    t_step_pointwise,
     t_tanh_pointwise,
 )
 from sabench.transforms.samplewise import t_temporal_cumsum
@@ -84,6 +90,12 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("log1p_positive").module == "sabench.transforms.pointwise"
     assert get_transform_spec("sqrt_abs").module == "sabench.transforms.pointwise"
     assert get_transform_spec("abs_pointwise").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("cube_pointwise").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("erf_pointwise").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("sin_pointwise").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("cos_pointwise").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("step_pointwise").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("log_abs_pointwise").module == "sabench.transforms.pointwise"
     assert get_transform_spec("sinc").module == "sabench.transforms.pointwise"
     assert get_transform_spec("sin_squared").module == "sabench.transforms.pointwise"
     assert get_transform_spec("cos_squared").module == "sabench.transforms.pointwise"
@@ -148,6 +160,12 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["log1p_positive"]["fn"] is t_log1p_abs
     assert TRANSFORMS["sqrt_abs"]["fn"] is t_sqrt_abs
     assert TRANSFORMS["abs_pointwise"]["fn"] is t_abs_pointwise
+    assert TRANSFORMS["cube_pointwise"]["fn"] is t_cube_pointwise
+    assert TRANSFORMS["erf_pointwise"]["fn"] is t_erf_pointwise
+    assert TRANSFORMS["sin_pointwise"]["fn"] is t_sin_pointwise
+    assert TRANSFORMS["cos_pointwise"]["fn"] is t_cos_pointwise
+    assert TRANSFORMS["step_pointwise"]["fn"] is t_step_pointwise
+    assert TRANSFORMS["log_abs_pointwise"]["fn"] is t_log_abs
     assert TRANSFORMS["sinc"]["fn"] is t_sinc
     assert TRANSFORMS["sin_squared"]["fn"] is t_sin_squared
     assert TRANSFORMS["cos_squared"]["fn"] is t_cos_squared
@@ -214,6 +232,12 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "log1p_positive"), t_log1p_abs(y))
     np.testing.assert_allclose(apply_transform(y, "sqrt_abs"), t_sqrt_abs(y))
     np.testing.assert_allclose(apply_transform(y, "abs_pointwise"), t_abs_pointwise(y))
+    np.testing.assert_allclose(apply_transform(y, "cube_pointwise"), t_cube_pointwise(y))
+    np.testing.assert_allclose(apply_transform(y, "erf_pointwise"), t_erf_pointwise(y, scale=0.5))
+    np.testing.assert_allclose(apply_transform(y, "sin_pointwise"), t_sin_pointwise(y, freq=0.5))
+    np.testing.assert_allclose(apply_transform(y, "cos_pointwise"), t_cos_pointwise(y, freq=0.5))
+    np.testing.assert_allclose(apply_transform(y, "step_pointwise"), t_step_pointwise(y, threshold=0.0))
+    np.testing.assert_allclose(apply_transform(y, "log_abs_pointwise"), t_log_abs(y, eps=1.0))
     np.testing.assert_allclose(apply_transform(y, "sinc"), t_sinc(y, scale=0.5))
     np.testing.assert_allclose(apply_transform(y, "sin_squared"), t_sin_squared(y, freq=0.5))
     np.testing.assert_allclose(apply_transform(y, "cos_squared"), t_cos_squared(y, freq=0.5))
@@ -298,6 +322,18 @@ def test_engineering_family_no_longer_defined_in_monolith() -> None:
     assert "def t_safety_factor(" not in monolith
     assert "def t_cumulative_damage(" not in monolith
     assert "def t_stress_life(" not in monolith
+
+
+def test_elementary_pointwise_family_no_longer_defined_in_monolith() -> None:
+    package_root = Path(sabench.__file__).resolve().parent
+    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+
+    assert "def t_cube_pointwise(" not in monolith
+    assert "def t_erf_pointwise(" not in monolith
+    assert "def t_sin_pointwise(" not in monolith
+    assert "def t_cos_pointwise(" not in monolith
+    assert "def t_step_pointwise(" not in monolith
+    assert "def t_log_abs(" not in monolith
 
 
 def test_periodic_pointwise_family_no_longer_defined_in_monolith() -> None:
