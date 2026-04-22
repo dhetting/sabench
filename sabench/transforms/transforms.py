@@ -70,13 +70,22 @@ from sabench.transforms.financial import (
 from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
 from sabench.transforms.mathematical import (
+    t_atan2pi,
     t_chebyshev_t4,
+    t_exp_neg_sq,
+    t_exp_pos_sq,
     t_hermite_he2,
     t_hermite_he3,
+    t_inverse_abs,
+    t_inverse_sq,
     t_legendre_p3,
+    t_neg_square,
     t_poly4,
     t_poly5,
     t_poly6,
+    t_power_exp,
+    t_rational_quadratic,
+    t_smooth_bump,
 )
 from sabench.transforms.nonlinear import (
     t_algebraic_sigmoid,
@@ -510,14 +519,6 @@ def t_temporal_block_avg(Y, block=10):
 
 
 
-def t_neg_square(Y):
-    """Negative square: φ(y) = −y².
-    Strictly concave (φ''=−2<0), even, non-monotone.
-    Symmetric about 0; maps all values to (−∞, 0].
-    """
-    return -(Y**2)
-
-
 # ── Monotone S-shaped ────────────────────────────────────────────────────────
 
 
@@ -541,33 +542,6 @@ def t_triangle_wave(Y, period=4.0):
 
 
 # ── Higher-order derivative structure ────────────────────────────────────────
-
-
-def t_smooth_bump(Y, width=3.0):
-    """C∞ smooth bump (mollifier): φ(y) = exp(−width/(width²−y²)) if |y|<width, else 0.
-    Has compact support; zero outside ±width, C∞ everywhere including boundary.
-    Canonical example of C∞ function with compact support; all derivatives exist.
-    """
-    arg = width**2 - Y**2
-    out = np.where(arg > 0, np.exp(-width / np.maximum(arg, 1e-20)), 0.0)
-    return out
-
-
-def t_rational_quadratic(Y):
-    """Rational quadratic: φ(y) = 1/(1+y²).
-    Bounded in (0,1], convex near y=0, decreasing from centre.
-    Related to Cauchy distribution; heavy-tail suppression.
-    φ''(0) = −2 (concave); φ''(±1) = 0; non-monotone.
-    """
-    return 1.0 / (1.0 + Y**2)
-
-
-def t_inverse_abs(Y, eps=1.0):
-    """Inverse: φ(y) = 1/(|y| + eps).
-    Convex, strictly decreasing in |y|, bounded above by 1/eps.
-    Singular at y=0 for eps=0; eps provides regularisation.
-    """
-    return 1.0 / (np.abs(Y) + eps)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -644,12 +618,6 @@ def t_bernstein_b3(Y):
 # ============================================================================
 
 
-def t_atan2pi(Y, scale=1.0):
-    """phi(y) = (2/pi)*arctan(scale*y) -- maps R -> (-1,1), monotone, C-inf."""
-    return (2.0 / np.pi) * np.arctan(scale * Y)
-
-
-
 # ============================================================================
 # THRESHOLD / PIECEWISE FAMILY
 # ============================================================================
@@ -691,30 +659,10 @@ def t_log10_shift(Y, eps=1.0):
 # ============================================================================
 
 
-def t_exp_neg_sq(Y, scale=0.3):
-    """Gaussian kernel: phi(y) = exp(-scale^2*y^2) -- C-inf, non-monotone, even."""
-    return np.exp(-((scale * Y) ** 2))
-
-
-def t_exp_pos_sq(Y, scale=0.2):
-    """Anti-Gaussian: phi(y) = exp(+(scale*y)^2) -- convex, even, superexponential."""
-    return np.exp(np.minimum((scale * Y) ** 2, 700.0))
-
-
-def t_inverse_sq(Y, eps=1.0):
-    """phi(y) = 1/(y^2 + eps) -- convex, even, singularity regularised at 0."""
-    return 1.0 / (Y**2 + eps)
-
-
 def t_log_log(Y, eps=1.0):
     """Double logarithm: phi(y) = log(1 + log(y - ymin + eps)) -- extreme compression."""
     s = _bc(_ymin(Y), Y)
     return np.log1p(np.log(Y - s + eps))
-
-
-def t_power_exp(Y, scale=0.1):
-    """phi(y) = y^2 * exp(-|y|*scale) -- hump, convex near 0, decaying tails."""
-    return Y**2 * np.exp(-np.abs(Y) * scale)
 
 
 # ============================================================================

@@ -191,7 +191,7 @@
     "function_name": "t_atan2pi",
     "key": "atan2pi",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "(2/pi)*arctan (bounded monotone)",
     "reference": "Abramowitz & Stegun (1972)",
     "supported_output_kinds": [
@@ -979,7 +979,7 @@
     "function_name": "t_exp_neg_sq",
     "key": "exp_neg_sq",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "Gaussian kernel exp(-s^2*y^2) (C-inf)",
     "reference": "Rasmussen & Williams (2006)",
     "supported_output_kinds": [
@@ -1021,7 +1021,7 @@
     "function_name": "t_exp_pos_sq",
     "key": "exp_pos_sq",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "Anti-Gaussian exp(+s^2*y^2) (convex)",
     "reference": "Hardy et al. (1934)",
     "supported_output_kinds": [
@@ -1401,7 +1401,7 @@
     "function_name": "t_inverse_abs",
     "key": "inverse_pointwise",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "1/|y| (convex, singular at 0)",
     "reference": "Hardy et al. (1934)",
     "supported_output_kinds": [
@@ -1421,7 +1421,7 @@
     "function_name": "t_inverse_sq",
     "key": "inverse_sq",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "1/(y^2+eps) (convex, even, regularised)",
     "reference": "Hardy et al. (1934)",
     "supported_output_kinds": [
@@ -1875,7 +1875,7 @@
     "function_name": "t_neg_square",
     "key": "neg_square",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "\u2212y\u00b2 (concave, even)",
     "reference": "Hardy et al. (1934)",
     "supported_output_kinds": [
@@ -2073,7 +2073,7 @@
     "function_name": "t_power_exp",
     "key": "power_exp",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "y^2*exp(-|y|) (hump, C-inf)",
     "reference": "Stein (1999)",
     "supported_output_kinds": [
@@ -2231,7 +2231,7 @@
     "function_name": "t_rational_quadratic",
     "key": "rational_quadratic",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "Rational quadratic 1/(1+y\u00b2) (convex)",
     "reference": "Rasmussen & Williams (2006)",
     "supported_output_kinds": [
@@ -2667,7 +2667,7 @@
     "function_name": "t_smooth_bump",
     "key": "smooth_bump",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "Smooth bump (C\u221e, compact support)",
     "reference": "Wendland (2004)",
     "supported_output_kinds": [

@@ -40,3 +40,59 @@ def t_hermite_he3(Y, scale=0.3):
     """Probabilist Hermite He3: phi(u) = u^3 - 3u -- odd, two local extrema."""
     u = scale * Y
     return u**3 - 3.0 * u
+
+
+def t_neg_square(Y):
+    """Negative square: phi(y) = -y^2."""
+    return -(Y**2)
+
+
+
+def t_smooth_bump(Y, width=3.0):
+    """Smooth compact-support bump response."""
+    arg = width**2 - Y**2
+    out = np.where(arg > 0, np.exp(-width / np.maximum(arg, 1e-20)), 0.0)
+    return out
+
+
+
+def t_rational_quadratic(Y):
+    """Rational quadratic response phi(y) = 1 / (1 + y^2)."""
+    return 1.0 / (1.0 + Y**2)
+
+
+
+def t_inverse_abs(Y, eps=1.0):
+    """Inverse absolute response phi(y) = 1 / (|y| + eps)."""
+    return 1.0 / (np.abs(Y) + eps)
+
+
+
+def t_atan2pi(Y, scale=1.0):
+    """Bounded arctangent response phi(y) = (2/pi) * arctan(scale*y)."""
+    return (2.0 / np.pi) * np.arctan(scale * Y)
+
+
+
+def t_exp_neg_sq(Y, scale=0.3):
+    """Gaussian-kernel response phi(y) = exp(-(scale*y)^2)."""
+    return np.exp(-((scale * Y) ** 2))
+
+
+
+def t_exp_pos_sq(Y, scale=0.2):
+    """Anti-Gaussian response phi(y) = exp(+(scale*y)^2)."""
+    return np.exp(np.minimum((scale * Y) ** 2, 700.0))
+
+
+
+def t_inverse_sq(Y, eps=1.0):
+    """Inverse-square response phi(y) = 1 / (y^2 + eps)."""
+    return 1.0 / (Y**2 + eps)
+
+
+
+def t_power_exp(Y, scale=0.1):
+    """Power-exponential hump phi(y) = y^2 * exp(-|y| * scale)."""
+    return Y**2 * np.exp(-np.abs(Y) * scale)
+

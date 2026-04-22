@@ -59,13 +59,22 @@ from sabench.transforms.financial import (
 from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
 from sabench.transforms.mathematical import (
+    t_atan2pi,
     t_chebyshev_t4,
+    t_exp_neg_sq,
+    t_exp_pos_sq,
     t_hermite_he2,
     t_hermite_he3,
+    t_inverse_abs,
+    t_inverse_sq,
     t_legendre_p3,
+    t_neg_square,
     t_poly4,
     t_poly5,
     t_poly6,
+    t_power_exp,
+    t_rational_quadratic,
+    t_smooth_bump,
 )
 from sabench.transforms.nonlinear import (
     t_algebraic_sigmoid,
@@ -170,6 +179,15 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("chebyshev_t4").module == "sabench.transforms.mathematical"
     assert get_transform_spec("hermite_he2").module == "sabench.transforms.mathematical"
     assert get_transform_spec("hermite_he3").module == "sabench.transforms.mathematical"
+    assert get_transform_spec("neg_square").module == "sabench.transforms.mathematical"
+    assert get_transform_spec("smooth_bump").module == "sabench.transforms.mathematical"
+    assert get_transform_spec("rational_quadratic").module == "sabench.transforms.mathematical"
+    assert get_transform_spec("inverse_pointwise").module == "sabench.transforms.mathematical"
+    assert get_transform_spec("atan2pi").module == "sabench.transforms.mathematical"
+    assert get_transform_spec("exp_neg_sq").module == "sabench.transforms.mathematical"
+    assert get_transform_spec("exp_pos_sq").module == "sabench.transforms.mathematical"
+    assert get_transform_spec("inverse_sq").module == "sabench.transforms.mathematical"
+    assert get_transform_spec("power_exp").module == "sabench.transforms.mathematical"
     assert get_transform_spec("sinc").module == "sabench.transforms.pointwise"
     assert get_transform_spec("sin_squared").module == "sabench.transforms.pointwise"
     assert get_transform_spec("cos_squared").module == "sabench.transforms.pointwise"
@@ -288,6 +306,15 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["cos_pointwise"]["fn"] is t_cos_pointwise
     assert TRANSFORMS["step_pointwise"]["fn"] is t_step_pointwise
     assert TRANSFORMS["log_abs_pointwise"]["fn"] is t_log_abs
+    assert TRANSFORMS["neg_square"]["fn"] is t_neg_square
+    assert TRANSFORMS["smooth_bump"]["fn"] is t_smooth_bump
+    assert TRANSFORMS["rational_quadratic"]["fn"] is t_rational_quadratic
+    assert TRANSFORMS["inverse_pointwise"]["fn"] is t_inverse_abs
+    assert TRANSFORMS["atan2pi"]["fn"] is t_atan2pi
+    assert TRANSFORMS["exp_neg_sq"]["fn"] is t_exp_neg_sq
+    assert TRANSFORMS["exp_pos_sq"]["fn"] is t_exp_pos_sq
+    assert TRANSFORMS["inverse_sq"]["fn"] is t_inverse_sq
+    assert TRANSFORMS["power_exp"]["fn"] is t_power_exp
     assert TRANSFORMS["sinc"]["fn"] is t_sinc
     assert TRANSFORMS["sin_squared"]["fn"] is t_sin_squared
     assert TRANSFORMS["cos_squared"]["fn"] is t_cos_squared
@@ -410,6 +437,15 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "chebyshev_t4"), t_chebyshev_t4(y, scale=0.2))
     np.testing.assert_allclose(apply_transform(y, "hermite_he2"), t_hermite_he2(y, scale=0.3))
     np.testing.assert_allclose(apply_transform(y, "hermite_he3"), t_hermite_he3(y, scale=0.3))
+    np.testing.assert_allclose(apply_transform(y, "neg_square"), t_neg_square(y))
+    np.testing.assert_allclose(apply_transform(y, "smooth_bump"), t_smooth_bump(y, width=3.0))
+    np.testing.assert_allclose(apply_transform(y, "rational_quadratic"), t_rational_quadratic(y))
+    np.testing.assert_allclose(apply_transform(y, "inverse_pointwise"), t_inverse_abs(y, eps=1.0))
+    np.testing.assert_allclose(apply_transform(y, "atan2pi"), t_atan2pi(y, scale=1.0))
+    np.testing.assert_allclose(apply_transform(y, "exp_neg_sq"), t_exp_neg_sq(y, scale=0.3))
+    np.testing.assert_allclose(apply_transform(y, "exp_pos_sq"), t_exp_pos_sq(y, scale=0.2))
+    np.testing.assert_allclose(apply_transform(y, "inverse_sq"), t_inverse_sq(y, eps=1.0))
+    np.testing.assert_allclose(apply_transform(y, "power_exp"), t_power_exp(y, scale=0.1))
     np.testing.assert_allclose(apply_transform(y, "sinc"), t_sinc(y, scale=0.5))
     np.testing.assert_allclose(apply_transform(y, "sin_squared"), t_sin_squared(y, freq=0.5))
     np.testing.assert_allclose(apply_transform(y, "cos_squared"), t_cos_squared(y, freq=0.5))
@@ -659,6 +695,20 @@ def test_mathematical_polynomial_family_no_longer_defined_in_monolith() -> None:
     assert "def t_chebyshev_t4(" not in monolith
     assert "def t_hermite_he2(" not in monolith
     assert "def t_hermite_he3(" not in monolith
+
+def test_mathematical_response_family_no_longer_defined_in_monolith() -> None:
+    package_root = Path(sabench.__file__).resolve().parent
+    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+
+    assert "def t_neg_square(" not in monolith
+    assert "def t_smooth_bump(" not in monolith
+    assert "def t_rational_quadratic(" not in monolith
+    assert "def t_inverse_abs(" not in monolith
+    assert "def t_atan2pi(" not in monolith
+    assert "def t_exp_neg_sq(" not in monolith
+    assert "def t_exp_pos_sq(" not in monolith
+    assert "def t_inverse_sq(" not in monolith
+    assert "def t_power_exp(" not in monolith
 
 
 def test_variance_stabilising_family_no_longer_defined_in_monolith() -> None:
