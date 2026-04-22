@@ -343,7 +343,7 @@
     "function_name": "t_box_cox",
     "key": "box_cox_log",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Box-Cox (\u03bb\u21920, log)",
     "reference": "Box & Cox (1964)",
     "supported_output_kinds": [
@@ -363,7 +363,7 @@
     "function_name": "t_box_cox",
     "key": "box_cox_sqrt",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Box-Cox (\u03bb=0.5)",
     "reference": "Box & Cox (1964)",
     "supported_output_kinds": [
@@ -504,7 +504,7 @@
     "function_name": "t_clipped_excess",
     "key": "clipped_excess_q90",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Clipped excess POT (q=0.90)",
     "reference": "Coles (2001)",
     "supported_output_kinds": [
@@ -879,7 +879,7 @@
     "function_name": "t_exceed_q75",
     "key": "exceedance_q75",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Exceedance indicator (q=0.75)",
     "reference": "Saltelli et al. (2008)",
     "supported_output_kinds": [
@@ -899,7 +899,7 @@
     "function_name": "t_exceed_q90",
     "key": "exceedance_q90",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Exceedance indicator (q=0.90)",
     "reference": "Saltelli et al. (2008)",
     "supported_output_kinds": [
@@ -919,7 +919,7 @@
     "function_name": "t_exceed_q95",
     "key": "exceedance_q95",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Exceedance indicator (q=0.95)",
     "reference": "Coles (2001)",
     "supported_output_kinds": [
@@ -939,7 +939,7 @@
     "function_name": "t_exceed_q99",
     "key": "exceedance_q99",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Exceedance indicator (q=0.99)",
     "reference": "Coles (2001)",
     "supported_output_kinds": [
@@ -1534,7 +1534,7 @@
     "function_name": "t_log10_shift",
     "key": "log10_shift",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Log base-10 (order-of-magnitude)",
     "reference": "Richter (1935)",
     "supported_output_kinds": [
@@ -1575,7 +1575,7 @@
     "function_name": "t_log2_shift",
     "key": "log2_shift",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Log base-2 (bit/octave scaling)",
     "reference": "Shannon (1948)",
     "supported_output_kinds": [
@@ -1656,7 +1656,7 @@
     "function_name": "t_log_log",
     "key": "log_log",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Double log log(1+log(y)) (extreme compr)",
     "reference": "Box & Cox (1964)",
     "supported_output_kinds": [
@@ -1736,7 +1736,7 @@
     "function_name": "t_log_shift",
     "key": "log_shift",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Log-shift",
     "reference": "Vogel & Wilson (1996)",
     "supported_output_kinds": [
@@ -2093,7 +2093,7 @@
     "function_name": "t_power_law",
     "key": "power_law_beta05",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Power-law (\u03b2=0.5, square-root)",
     "reference": "Merz et al. (2010)",
     "supported_output_kinds": [
@@ -2113,7 +2113,7 @@
     "function_name": "t_power_law",
     "key": "power_law_beta2",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Power-law (\u03b2=2, depth-damage)",
     "reference": "Merz et al. (2010)",
     "supported_output_kinds": [

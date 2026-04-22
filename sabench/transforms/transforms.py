@@ -52,10 +52,21 @@ from sabench.transforms.engineering import (
 from sabench.transforms.environmental import (
     t_anomaly_pct,
     t_bias_correction,
+    t_box_cox,
+    t_clipped_excess,
+    t_exceed_q75,
+    t_exceed_q90,
+    t_exceed_q95,
+    t_exceed_q99,
     t_growing_degree_days,
+    t_log10_shift,
+    t_log2_shift,
     t_log_flow,
+    t_log_log,
+    t_log_shift,
     t_nash_sutcliffe,
     t_pot_log,
+    t_power_law,
     t_quantile_delta,
     t_standardised_precip_idx,
 )
@@ -171,48 +182,6 @@ from sabench.transforms.utilities import _bc, _safe_range, _ymin
 # ══════════════════════════════════════════════════════════════════════════════
 # Environmental / Hydrological
 # ══════════════════════════════════════════════════════════════════════════════
-
-
-def t_log_shift(Y, eps=1.0):
-    return np.log(Y - _bc(_ymin(Y), Y) + eps)
-
-
-def t_power_law(Y, beta=2.0):
-    s = _bc(_ymin(Y), Y)
-    r = _bc(_safe_range(Y), Y)
-    return ((Y - s) / r) ** beta
-
-
-def t_box_cox(Y, lam=0.5):
-    s = _bc(_ymin(Y), Y)
-    Ypos = Y - s + 1.0
-    return np.log(Ypos) if abs(lam) < 1e-8 else (Ypos**lam - 1.0) / lam
-
-
-def t_clipped_excess(Y, quantile=0.90):
-    u = _bc(np.quantile(Y.reshape(len(Y), -1), quantile, axis=1), Y)
-    return np.maximum(Y - u, 0.0)
-
-
-def _exceed(Y, q):
-    t = _bc(np.quantile(Y.reshape(len(Y), -1), q, axis=1), Y)
-    return (Y > t).astype(float)
-
-
-def t_exceed_q75(Y):
-    return _exceed(Y, 0.75)
-
-
-def t_exceed_q90(Y):
-    return _exceed(Y, 0.90)
-
-
-def t_exceed_q95(Y):
-    return _exceed(Y, 0.95)
-
-
-def t_exceed_q99(Y):
-    return _exceed(Y, 0.99)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -642,27 +611,10 @@ def t_donut(Y, center=0.0, radius=1.5, width=0.5):
 # ============================================================================
 
 
-def t_log2_shift(Y, eps=1.0):
-    """Log base-2 shift: phi(y) = log2(y - ymin + eps) -- decibel-like scaling."""
-    s = _bc(_ymin(Y), Y)
-    return np.log2(Y - s + eps)
-
-
-def t_log10_shift(Y, eps=1.0):
-    """Log base-10 shift: phi(y) = log10(y - ymin + eps) -- order-of-magnitude scale."""
-    s = _bc(_ymin(Y), Y)
-    return np.log10(Y - s + eps)
-
 
 # ============================================================================
 # CURVATURE EXTREMES / SPECIAL SHAPES
 # ============================================================================
-
-
-def t_log_log(Y, eps=1.0):
-    """Double logarithm: phi(y) = log(1 + log(y - ymin + eps)) -- extreme compression."""
-    s = _bc(_ymin(Y), Y)
-    return np.log1p(np.log(Y - s + eps))
 
 
 # ============================================================================

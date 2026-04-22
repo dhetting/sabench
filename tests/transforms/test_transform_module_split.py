@@ -41,10 +41,21 @@ from sabench.transforms.engineering import (
 from sabench.transforms.environmental import (
     t_anomaly_pct,
     t_bias_correction,
+    t_box_cox,
+    t_clipped_excess,
+    t_exceed_q75,
+    t_exceed_q90,
+    t_exceed_q95,
+    t_exceed_q99,
     t_growing_degree_days,
+    t_log10_shift,
+    t_log2_shift,
     t_log_flow,
+    t_log_log,
+    t_log_shift,
     t_nash_sutcliffe,
     t_pot_log,
+    t_power_law,
     t_quantile_delta,
     t_standardised_precip_idx,
 )
@@ -280,6 +291,19 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("hill_response").module == "sabench.transforms.pharmacological"
     assert get_transform_spec("log_auc").module == "sabench.transforms.pharmacological"
     assert get_transform_spec("emax_model").module == "sabench.transforms.pharmacological"
+    assert get_transform_spec("log_shift").module == "sabench.transforms.environmental"
+    assert get_transform_spec("power_law_beta2").module == "sabench.transforms.environmental"
+    assert get_transform_spec("power_law_beta05").module == "sabench.transforms.environmental"
+    assert get_transform_spec("box_cox_sqrt").module == "sabench.transforms.environmental"
+    assert get_transform_spec("box_cox_log").module == "sabench.transforms.environmental"
+    assert get_transform_spec("clipped_excess_q90").module == "sabench.transforms.environmental"
+    assert get_transform_spec("exceedance_q75").module == "sabench.transforms.environmental"
+    assert get_transform_spec("exceedance_q90").module == "sabench.transforms.environmental"
+    assert get_transform_spec("exceedance_q95").module == "sabench.transforms.environmental"
+    assert get_transform_spec("exceedance_q99").module == "sabench.transforms.environmental"
+    assert get_transform_spec("log2_shift").module == "sabench.transforms.environmental"
+    assert get_transform_spec("log10_shift").module == "sabench.transforms.environmental"
+    assert get_transform_spec("log_log").module == "sabench.transforms.environmental"
     assert get_transform_spec("anomaly_pct").module == "sabench.transforms.environmental"
     assert get_transform_spec("bias_correction").module == "sabench.transforms.environmental"
     assert get_transform_spec("quantile_delta").module == "sabench.transforms.environmental"
@@ -402,6 +426,19 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["hill_response"]["fn"] is t_hill_response
     assert TRANSFORMS["log_auc"]["fn"] is t_log_auc
     assert TRANSFORMS["emax_model"]["fn"] is t_emax_model
+    assert TRANSFORMS["log_shift"]["fn"] is t_log_shift
+    assert TRANSFORMS["power_law_beta2"]["fn"] is t_power_law
+    assert TRANSFORMS["power_law_beta05"]["fn"] is t_power_law
+    assert TRANSFORMS["box_cox_sqrt"]["fn"] is t_box_cox
+    assert TRANSFORMS["box_cox_log"]["fn"] is t_box_cox
+    assert TRANSFORMS["clipped_excess_q90"]["fn"] is t_clipped_excess
+    assert TRANSFORMS["exceedance_q75"]["fn"] is t_exceed_q75
+    assert TRANSFORMS["exceedance_q90"]["fn"] is t_exceed_q90
+    assert TRANSFORMS["exceedance_q95"]["fn"] is t_exceed_q95
+    assert TRANSFORMS["exceedance_q99"]["fn"] is t_exceed_q99
+    assert TRANSFORMS["log2_shift"]["fn"] is t_log2_shift
+    assert TRANSFORMS["log10_shift"]["fn"] is t_log10_shift
+    assert TRANSFORMS["log_log"]["fn"] is t_log_log
     assert TRANSFORMS["anomaly_pct"]["fn"] is t_anomaly_pct
     assert TRANSFORMS["bias_correction"]["fn"] is t_bias_correction
     assert TRANSFORMS["quantile_delta"]["fn"] is t_quantile_delta
@@ -662,6 +699,24 @@ def test_pharmacological_family_no_longer_defined_in_monolith() -> None:
     assert "def t_hill_response(" not in monolith
     assert "def t_log_auc(" not in monolith
     assert "def t_emax_model(" not in monolith
+
+def test_environmental_log_power_family_no_longer_defined_in_monolith() -> None:
+    package_root = Path(sabench.__file__).resolve().parent
+    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+
+    assert "def t_log_shift(" not in monolith
+    assert "def t_power_law(" not in monolith
+    assert "def t_box_cox(" not in monolith
+    assert "def t_clipped_excess(" not in monolith
+    assert "def _exceed(" not in monolith
+    assert "def t_exceed_q75(" not in monolith
+    assert "def t_exceed_q90(" not in monolith
+    assert "def t_exceed_q95(" not in monolith
+    assert "def t_exceed_q99(" not in monolith
+    assert "def t_log2_shift(" not in monolith
+    assert "def t_log10_shift(" not in monolith
+    assert "def t_log_log(" not in monolith
+
 
 def test_climate_bias_anomaly_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
