@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 
 import sabench
-
 from sabench.metadata.exports import (
     BENCHMARKS_REGISTRY_EXPORT_FILENAME,
     TRANSFORMS_REGISTRY_EXPORT_FILENAME,
@@ -115,6 +114,10 @@ def test_transform_registry_export_uses_canonical_fields() -> None:
     assert exported["drawdown"]["module"] == "sabench.transforms.financial"
     assert exported["fold_change"]["module"] == "sabench.transforms.financial"
     assert exported["excess_return"]["module"] == "sabench.transforms.financial"
+    assert exported["hellinger"]["module"] == "sabench.transforms.ecological"
+    assert exported["chord_normalise"]["module"] == "sabench.transforms.ecological"
+    assert exported["relative_abundance"]["module"] == "sabench.transforms.ecological"
+    assert exported["log_ratio"]["module"] == "sabench.transforms.ecological"
     assert exported["weibull_reliability"]["module"] == "sabench.transforms.engineering"
     assert exported["sigmoid_dose"]["module"] == "sabench.transforms.pharmacological"
     assert exported["hill_response"]["module"] == "sabench.transforms.pharmacological"

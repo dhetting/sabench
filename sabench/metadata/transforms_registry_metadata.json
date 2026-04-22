@@ -464,7 +464,7 @@
     "function_name": "t_chord_dist",
     "key": "chord_normalise",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.ecological",
     "name": "Chord normalisation (L2 sphere proj)",
     "reference": "Orloci (1967)",
     "supported_output_kinds": [
@@ -1279,7 +1279,7 @@
     "function_name": "t_hellinger",
     "key": "hellinger",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.ecological",
     "name": "Hellinger transform (chi^2 equaliser)",
     "reference": "Legendre & Gallagher (2001)",
     "supported_output_kinds": [
@@ -1717,7 +1717,7 @@
     "function_name": "t_log_ratio",
     "key": "log_ratio",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.ecological",
     "name": "Log-ratio (ILR-like, mean-centred)",
     "reference": "Aitchison (1986)",
     "supported_output_kinds": [
@@ -2269,7 +2269,7 @@
     "function_name": "t_relative_abundance",
     "key": "relative_abundance",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.ecological",
     "name": "Relative abundance (simplex projection)",
     "reference": "Legendre & Legendre (1998)",
     "supported_output_kinds": [

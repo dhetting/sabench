@@ -34,6 +34,12 @@ from sabench.transforms.aggregation import (
     t_temporal_rms,
     t_wasserstein_proxy,
 )
+from sabench.transforms.ecological import (
+    t_chord_dist,
+    t_hellinger,
+    t_log_ratio,
+    t_relative_abundance,
+)
 from sabench.transforms.engineering import (
     t_cumulative_damage,
     t_fatigue_miner,
@@ -50,6 +56,7 @@ from sabench.transforms.environmental import (
     t_pot_log,
     t_standardised_precip_idx,
 )
+from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.financial import (
     t_cvar,
     t_drawdown,
@@ -58,7 +65,6 @@ from sabench.transforms.financial import (
     t_sharpe_proxy,
     t_var_proxy,
 )
-from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import (
     t_algebraic_sigmoid,
@@ -212,8 +218,6 @@ def t_normalised_stress(Y, yield_q=0.80):
     s = _bc(_ymin(Y), Y)
     yld = _bc(np.quantile(Y.reshape(len(Y), -1), yield_q, axis=1), Y)
     return np.clip((Y - s) / (yld - s + 1e-12), 0.0, 1.0)
-
-
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -401,7 +405,6 @@ def t_isoline_length(Y, quantile=0.75):
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-
 def t_temporal_log_cumsum(Y, eps=1.0):
     """Log of the cumulative sum: Z(t) = log(sum_{s<=t} Y(s) + eps).
 
@@ -484,9 +487,6 @@ def t_temporal_block_avg(Y, block=10):
 # ── Convex pointwise ──────────────────────────────────────────────────────────
 
 
-
-
-
 def t_neg_square(Y):
     """Negative square: φ(y) = −y².
     Strictly concave (φ''=−2<0), even, non-monotone.
@@ -498,14 +498,7 @@ def t_neg_square(Y):
 # ── Monotone S-shaped ────────────────────────────────────────────────────────
 
 
-
-
-
-
 # ── Oscillatory / non-monotone ────────────────────────────────────────────────
-
-
-
 
 
 def t_triangle_wave(Y, period=4.0):
@@ -555,8 +548,6 @@ def t_inverse_abs(Y, eps=1.0):
 # ══════════════════════════════════════════════════════════════════════════════
 # Engineering additions
 # ══════════════════════════════════════════════════════════════════════════════
-
-
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -665,11 +656,9 @@ def t_atan2pi(Y, scale=1.0):
     return (2.0 / np.pi) * np.arctan(scale * Y)
 
 
-
 # ============================================================================
 # THRESHOLD / PIECEWISE FAMILY
 # ============================================================================
-
 
 
 def t_bimodal_flip(Y):
@@ -776,35 +765,6 @@ def t_power_exp(Y, scale=0.1):
 # ============================================================================
 
 
-def t_hellinger(Y):
-    """Hellinger transform: phi(u) = sqrt(u/sum(u)) -- chi^2 distance equaliser."""
-    flat = np.maximum(Y.reshape(len(Y), -1), 0.0)
-    row_sum = flat.sum(axis=1, keepdims=True) + 1e-12
-    return np.sqrt(flat / row_sum).reshape(Y.shape)
-
-
-def t_chord_dist(Y):
-    """Chord normalisation: phi(u) = u/||u|| -- L2 unit sphere projection."""
-    flat = Y.reshape(len(Y), -1)
-    norm = np.linalg.norm(flat, axis=1, keepdims=True) + 1e-12
-    return (flat / norm).reshape(Y.shape)
-
-
-def t_relative_abundance(Y):
-    """Relative abundance: phi(u) = u/sum(u) -- simplex projection, sums to 1."""
-    flat = np.maximum(Y.reshape(len(Y), -1), 0.0)
-    row_sum = flat.sum(axis=1, keepdims=True) + 1e-12
-    return (flat / row_sum).reshape(Y.shape)
-
-
-def t_log_ratio(Y, eps=1.0):
-    """Log-ratio (isometric log-ratio like): phi(y) = log(y - ymin + eps) - mean_log."""
-    s = _bc(_ymin(Y), Y)
-    log_y = np.log(Y - s + eps)
-    mu = _bc(log_y.reshape(len(Y), -1).mean(axis=1), Y)
-    return log_y - mu
-
-
 # ============================================================================
 # CLIMATE / ENVIRONMENTAL SCIENCE TRANSFORMS
 # ============================================================================
@@ -841,8 +801,6 @@ def t_quantile_delta(Y, q=0.90):
 # ============================================================================
 # STRUCTURAL / MECHANICAL ENGINEERING TRANSFORMS
 # ============================================================================
-
-
 
 
 # ============================================================================
