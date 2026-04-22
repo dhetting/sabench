@@ -64,5 +64,11 @@ def test_transform_registry_export_uses_canonical_fields() -> None:
     assert exported["wasserstein_proxy"]["module"] == "sabench.transforms.aggregation"
     assert exported["energy_distance"]["module"] == "sabench.transforms.aggregation"
     assert exported["renyi_entropy_a2"]["module"] == "sabench.transforms.aggregation"
+    assert exported["temporal_rms"]["module"] == "sabench.transforms.aggregation"
+    assert exported["temporal_range"]["module"] == "sabench.transforms.aggregation"
+    assert exported["temporal_autocorr"]["module"] == "sabench.transforms.aggregation"
+    assert exported["temporal_quantile_q10"]["module"] == "sabench.transforms.aggregation"
+    assert exported["temporal_quantile_q50"]["module"] == "sabench.transforms.aggregation"
+    assert exported["temporal_quantile_q90"]["module"] == "sabench.transforms.aggregation"
     assert exported["temporal_cumsum"]["mechanism"] == "samplewise"
     assert exported["gradient_magnitude"]["supported_output_kinds"] == ["spatial"]

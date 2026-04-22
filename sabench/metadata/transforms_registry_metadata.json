@@ -3031,7 +3031,7 @@
     "function_name": "t_temporal_autocorr",
     "key": "temporal_autocorr",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Lag-1 temporal autocorrelation",
     "reference": "Box et al. (2015)",
     "supported_output_kinds": [
@@ -3172,7 +3172,7 @@
     "function_name": "t_temporal_quantile",
     "key": "temporal_quantile_q10",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Temporal lower decile (q=0.10)",
     "reference": "Saltelli et al. (2008)",
     "supported_output_kinds": [
@@ -3189,7 +3189,7 @@
     "function_name": "t_temporal_quantile",
     "key": "temporal_quantile_q50",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Temporal median (q=0.50)",
     "reference": "Saltelli et al. (2008)",
     "supported_output_kinds": [
@@ -3206,7 +3206,7 @@
     "function_name": "t_temporal_quantile",
     "key": "temporal_quantile_q90",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Temporal upper decile (q=0.90)",
     "reference": "Saltelli et al. (2008)",
     "supported_output_kinds": [
@@ -3223,7 +3223,7 @@
     "function_name": "t_temporal_range",
     "key": "temporal_range",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Temporal range max\u2212min",
     "reference": "Sudret (2008)",
     "supported_output_kinds": [
@@ -3240,7 +3240,7 @@
     "function_name": "t_temporal_rms",
     "key": "temporal_rms",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Temporal RMS (root mean square)",
     "reference": "Sudret (2008)",
     "supported_output_kinds": [

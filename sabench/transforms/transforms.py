@@ -27,7 +27,11 @@ from sabench.transforms.aggregation import (
     t_sample_kurtosis,
     t_sample_skewness,
     t_sample_variance,
+    t_temporal_autocorr,
     t_temporal_peak,
+    t_temporal_quantile,
+    t_temporal_range,
+    t_temporal_rms,
     t_wasserstein_proxy,
 )
 from sabench.transforms.field_ops import t_gradient_magnitude
@@ -714,46 +718,6 @@ def t_rankine_failure(Y):
 # ══════════════════════════════════════════════════════════════════════════════
 # Temporal additions
 # ══════════════════════════════════════════════════════════════════════════════
-
-
-def t_temporal_rms(Y):
-    """Root mean square: Z = sqrt(mean(Y^2)) broadcast to Y's shape.
-    Scalar summary of temporal energy; common in structural dynamics.
-    """
-    flat = Y.reshape(len(Y), -1)
-    rms = np.sqrt((flat**2).mean(axis=1))
-    return (rms[:, None] * np.ones_like(flat)).reshape(Y.shape)
-
-
-def t_temporal_range(Y):
-    """Temporal range: Z = max(Y) − min(Y) broadcast.
-    Measures amplitude spread; sensitive to extremes, ignores mean.
-    """
-    flat = Y.reshape(len(Y), -1)
-    rng = flat.max(axis=1) - flat.min(axis=1)
-    return (rng[:, None] * np.ones_like(flat)).reshape(Y.shape)
-
-
-def t_temporal_autocorr(Y):
-    """Lag-1 autocorrelation: ρ₁ = Cov(Y_t, Y_{t+1}) / Var(Y).
-    Scalar temporal dependency metric, broadcast. In (−1,1).
-    Low for white noise, high for smooth time series.
-    """
-    flat = Y.reshape(len(Y), -1)
-    n = flat.shape[1]
-    if n < 3:
-        return np.zeros_like(Y)
-    mu = flat.mean(axis=1, keepdims=True)
-    sig2 = flat.var(axis=1).clip(min=1e-12)
-    ac = ((flat[:, :-1] - mu) * (flat[:, 1:] - mu)).mean(axis=1) / sig2
-    return (ac[:, None] * np.ones_like(flat)).reshape(Y.shape)
-
-
-def t_temporal_quantile(Y, q=0.50):
-    """Temporal q-quantile: scalar summary broadcast to Y's shape."""
-    flat = Y.reshape(len(Y), -1)
-    qv = np.quantile(flat, q, axis=1)
-    return (qv[:, None] * np.ones_like(flat)).reshape(Y.shape)
 
 
 # ══════════════════════════════════════════════════════════════════════════════

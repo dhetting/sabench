@@ -16,7 +16,11 @@ from sabench.transforms.aggregation import (
     t_sample_kurtosis,
     t_sample_skewness,
     t_sample_variance,
+    t_temporal_autocorr,
     t_temporal_peak,
+    t_temporal_quantile,
+    t_temporal_range,
+    t_temporal_rms,
     t_wasserstein_proxy,
 )
 from sabench.transforms.field_ops import t_gradient_magnitude
@@ -46,6 +50,12 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("softplus_b01").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("temporal_cumsum").module == "sabench.transforms.samplewise"
     assert get_transform_spec("temporal_peak").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("temporal_rms").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("temporal_range").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("temporal_autocorr").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("temporal_quantile_q10").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("temporal_quantile_q50").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("temporal_quantile_q90").module == "sabench.transforms.aggregation"
     assert get_transform_spec("sample_variance").module == "sabench.transforms.aggregation"
     assert get_transform_spec("negentropy_proxy").module == "sabench.transforms.aggregation"
     assert get_transform_spec("wasserstein_proxy").module == "sabench.transforms.aggregation"
@@ -71,6 +81,12 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["softplus_b01"]["fn"] is t_softplus_pointwise
     assert TRANSFORMS["temporal_cumsum"]["fn"] is t_temporal_cumsum
     assert TRANSFORMS["temporal_peak"]["fn"] is t_temporal_peak
+    assert TRANSFORMS["temporal_rms"]["fn"] is t_temporal_rms
+    assert TRANSFORMS["temporal_range"]["fn"] is t_temporal_range
+    assert TRANSFORMS["temporal_autocorr"]["fn"] is t_temporal_autocorr
+    assert TRANSFORMS["temporal_quantile_q10"]["fn"] is t_temporal_quantile
+    assert TRANSFORMS["temporal_quantile_q50"]["fn"] is t_temporal_quantile
+    assert TRANSFORMS["temporal_quantile_q90"]["fn"] is t_temporal_quantile
     assert TRANSFORMS["sample_variance"]["fn"] is t_sample_variance
     assert TRANSFORMS["negentropy_proxy"]["fn"] is t_negentropy_proxy
     assert TRANSFORMS["wasserstein_proxy"]["fn"] is t_wasserstein_proxy
@@ -98,6 +114,12 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "softplus_b01"), t_softplus_pointwise(y, beta=0.1))
     np.testing.assert_allclose(apply_transform(y, "temporal_cumsum"), t_temporal_cumsum(y))
     np.testing.assert_allclose(apply_transform(y, "temporal_peak"), t_temporal_peak(y))
+    np.testing.assert_allclose(apply_transform(y, "temporal_rms"), t_temporal_rms(y))
+    np.testing.assert_allclose(apply_transform(y, "temporal_range"), t_temporal_range(y))
+    np.testing.assert_allclose(apply_transform(y, "temporal_autocorr"), t_temporal_autocorr(y))
+    np.testing.assert_allclose(apply_transform(y, "temporal_quantile_q10"), t_temporal_quantile(y, q=0.10))
+    np.testing.assert_allclose(apply_transform(y, "temporal_quantile_q50"), t_temporal_quantile(y, q=0.50))
+    np.testing.assert_allclose(apply_transform(y, "temporal_quantile_q90"), t_temporal_quantile(y, q=0.90))
     np.testing.assert_allclose(apply_transform(y, "sample_variance"), t_sample_variance(y))
     np.testing.assert_allclose(apply_transform(y, "negentropy_proxy"), t_negentropy_proxy(y))
     np.testing.assert_allclose(apply_transform(y, "wasserstein_proxy"), t_wasserstein_proxy(y))

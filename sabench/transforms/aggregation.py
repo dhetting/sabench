@@ -21,6 +21,39 @@ def t_temporal_peak(Y: np.ndarray) -> np.ndarray:
     return (peak[:, None] * np.ones_like(flat)).reshape(Y.shape)
 
 
+
+def t_temporal_rms(Y: np.ndarray) -> np.ndarray:
+    """Root-mean-square temporal summary rebroadcast to the original shape."""
+    flat = Y.reshape(len(Y), -1)
+    rms = np.sqrt((flat**2).mean(axis=1))
+    return _bc(rms, Y) * np.ones_like(Y)
+
+
+def t_temporal_range(Y: np.ndarray) -> np.ndarray:
+    """Temporal range summary rebroadcast to the original shape."""
+    flat = Y.reshape(len(Y), -1)
+    spread = flat.max(axis=1) - flat.min(axis=1)
+    return _bc(spread, Y) * np.ones_like(Y)
+
+
+def t_temporal_autocorr(Y: np.ndarray) -> np.ndarray:
+    """Lag-1 temporal autocorrelation rebroadcast to the original shape."""
+    flat = Y.reshape(len(Y), -1)
+    n_steps = flat.shape[1]
+    if n_steps < 3:
+        return np.zeros_like(Y)
+    mean = flat.mean(axis=1, keepdims=True)
+    variance = flat.var(axis=1).clip(min=1e-12)
+    autocorr = ((flat[:, :-1] - mean) * (flat[:, 1:] - mean)).mean(axis=1) / variance
+    return _bc(autocorr, Y) * np.ones_like(Y)
+
+
+def t_temporal_quantile(Y: np.ndarray, q: float = 0.50) -> np.ndarray:
+    """Temporal quantile summary rebroadcast to the original shape."""
+    flat = Y.reshape(len(Y), -1)
+    quantile = np.quantile(flat, q, axis=1)
+    return _bc(quantile, Y) * np.ones_like(Y)
+
 def t_sample_variance(Y: np.ndarray) -> np.ndarray:
     """Sample variance of outputs across pixels or time."""
     flat = Y.reshape(len(Y), -1)
