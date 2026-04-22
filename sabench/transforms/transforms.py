@@ -46,12 +46,21 @@ from sabench.transforms.engineering import (
 from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import (
+    t_algebraic_sigmoid,
     t_arctan_pointwise,
+    t_bent_identity,
     t_cbrt_pointwise,
     t_cosh_pointwise,
+    t_gompertz,
+    t_hard_sigmoid,
+    t_hard_tanh,
     t_logistic_pointwise,
+    t_mish,
+    t_selu,
     t_sinh_pointwise,
     t_softplus_pointwise,
+    t_softsign,
+    t_swish,
 )
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
@@ -618,57 +627,6 @@ def t_bernstein_b3(Y):
 def t_atan2pi(Y, scale=1.0):
     """phi(y) = (2/pi)*arctan(scale*y) -- maps R -> (-1,1), monotone, C-inf."""
     return (2.0 / np.pi) * np.arctan(scale * Y)
-
-
-def t_gompertz(Y, b=1.0, c=0.5):
-    """Gompertz CDF: phi(y) = exp(-exp(-b*(y-c))) -- S-shaped, asymmetric."""
-    s = _bc(_ymin(Y), Y)
-    r = _bc(_safe_range(Y), Y)
-    u = (Y - s) / r - 0.5
-    return np.exp(-np.exp(-b * u))
-
-
-def t_algebraic_sigmoid(Y, scale=0.5):
-    """Algebraic sigmoid: phi(y) = y/sqrt(1+y^2) -- monotone, bounded (-1,1)."""
-    u = scale * Y
-    return u / np.sqrt(1.0 + u**2)
-
-
-def t_swish(Y, beta=1.0):
-    """Swish activation: phi(y) = y * sigmoid(beta*y) -- non-monotone for beta>0."""
-    return Y * (1.0 / (1.0 + np.exp(-beta * Y)))
-
-
-def t_mish(Y):
-    """Mish activation: phi(y) = y * tanh(softplus(y)) -- smooth non-monotone."""
-    sp = np.log1p(np.exp(np.clip(Y, -500, 500)))
-    return Y * np.tanh(sp)
-
-
-def t_selu(Y, alpha=1.6733, lam=1.0507):
-    """SELU activation: scaled ELU -- piecewise, C1, self-normalising."""
-    return lam * np.where(Y >= 0.0, Y, alpha * (np.exp(Y) - 1.0))
-
-
-def t_softsign(Y, scale=1.0):
-    """Softsign: phi(y) = y/(1+|y|) -- monotone, bounded (-1,1), C1."""
-    return scale * Y / (1.0 + np.abs(Y))
-
-
-def t_bent_identity(Y, scale=0.5):
-    """Bent identity: phi(y) = (sqrt(y^2+1)-1)/2 + y -- monotone, near-linear."""
-    u = scale * Y
-    return (np.sqrt(u**2 + 1.0) - 1.0) / 2.0 + u
-
-
-def t_hard_sigmoid(Y, scale=0.5):
-    """Hard sigmoid: phi(y) = clip(0.2*y+0.5, 0, 1) -- piecewise linear, C0."""
-    return np.clip(0.2 * scale * Y + 0.5, 0.0, 1.0)
-
-
-def t_hard_tanh(Y, scale=0.3):
-    """Hard tanh: phi(y) = clip(y, -1, 1) -- piecewise linear, bounded, C0."""
-    return np.clip(scale * Y, -1.0, 1.0)
 
 
 # ============================================================================
