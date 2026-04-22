@@ -47,6 +47,18 @@ from sabench.transforms.pointwise import (
     t_tanh_pointwise,
 )
 from sabench.transforms.samplewise import t_temporal_cumsum
+from sabench.transforms.statistical import (
+    t_clamp_sigma,
+    t_entropy_proxy,
+    t_inverse_normal,
+    t_min_max_normalise,
+    t_quantile_normalise,
+    t_rank_transform,
+    t_robust_scale,
+    t_softmax_shift,
+    t_standardised_anomaly,
+    t_winsorise,
+)
 from sabench.transforms.utilities import _bc, _safe_range, _ymin
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -401,25 +413,6 @@ def t_temporal_block_avg(Y, block=10):
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-def t_rank_transform(Y):
-    flat = Y.reshape(len(Y), -1)
-    ranks = np.argsort(np.argsort(flat, axis=0), axis=0).astype(float) / (len(Y) - 1.0)
-    return ranks.reshape(Y.shape)
-
-
-def t_standardised_anomaly(Y):
-    flat = Y.reshape(len(Y), -1)
-    mu = flat.mean(axis=1, keepdims=True)
-    sig = flat.std(axis=1, keepdims=True).clip(min=1e-12)
-    return ((flat - mu) / sig).reshape(Y.shape)
-
-
-def t_entropy_proxy(Y):
-    flat = Y.reshape(len(Y), -1)
-    mu = flat.mean(axis=1, keepdims=True)
-    return -((flat - mu) ** 2).reshape(Y.shape)
-
-
 # ══════════════════════════════════════════════════════════════════════════════
 # Mathematical Transforms — pointwise, designed for systematic property sweeps
 # ══════════════════════════════════════════════════════════════════════════════
@@ -441,20 +434,6 @@ def t_cosh_pointwise(Y, scale=0.1):
     Grows exponentially; models symmetric amplification.
     """
     return np.cosh(np.clip(scale * Y, -100, 100))
-
-
-def t_softmax_shift(Y):
-    """Shifted softmax normalisation: Z_k = exp(Y_k) / sum_k exp(Y_k).
-    Nonlocal (uses sum across outputs), always produces outputs in (0,1).
-    Smoothly normalises any field; often used in classification outputs.
-    """
-    flat = Y.reshape(len(Y), -1)
-    shifted = flat - flat.max(axis=1, keepdims=True)
-    ex = np.exp(shifted)
-    return (ex / ex.sum(axis=1, keepdims=True)).reshape(Y.shape)
-
-
-# ── Concave pointwise ─────────────────────────────────────────────────────────
 
 
 def t_cbrt_pointwise(Y):
@@ -588,39 +567,6 @@ def t_log_abs(Y, eps=1.0):
 # ── Normalisation / standardisation ──────────────────────────────────────────
 
 
-def t_min_max_normalise(Y):
-    """Min-max normalisation: Z = (Y − min) / (max − min).
-    Affine per-sample (preserves Sobol indices within a single batch);
-    but across samples it is nonlocal.
-    """
-    s = _bc(_ymin(Y), Y)
-    r = _bc(_safe_range(Y), Y)
-    return (Y - s) / r
-
-
-def t_robust_scale(Y):
-    """Robust IQR scaling: Z = (Y − Q50) / (Q75 − Q25).
-    Nonlocal, outlier-resistant standardisation.
-    """
-    flat = Y.reshape(len(Y), -1)
-    q25 = np.quantile(flat, 0.25, axis=1)
-    q50 = np.quantile(flat, 0.50, axis=1)
-    q75 = np.quantile(flat, 0.75, axis=1)
-    iqr = (q75 - q25).clip(min=1e-12)
-    return ((flat - q50[:, None]) / iqr[:, None]).reshape(Y.shape)
-
-
-def t_clamp_sigma(Y, n_sigma=2.0):
-    """Clamp to ±n_sigma standard deviations: soft Winsorisation.
-    Nonlocal; clips extreme values without hard quantile boundaries.
-    """
-    flat = Y.reshape(len(Y), -1)
-    mu = flat.mean(axis=1, keepdims=True)
-    sig = flat.std(axis=1, keepdims=True).clip(min=1e-12)
-    lo, hi = mu - n_sigma * sig, mu + n_sigma * sig
-    return np.clip(flat, lo, hi).reshape(Y.shape)
-
-
 # ══════════════════════════════════════════════════════════════════════════════
 # Environmental additions
 # ══════════════════════════════════════════════════════════════════════════════
@@ -725,26 +671,6 @@ def t_rankine_failure(Y):
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-def t_quantile_normalise(Y):
-    """Empirical CDF quantile normalisation: Z = rank/(n+1).
-    Maps each value to its empirical quantile. Uniform marginals guaranteed.
-    Smoothed version of rank transform; equivalent to nonparametric CDF.
-    """
-    flat = Y.reshape(len(Y), -1)
-    n = flat.shape[0]
-    # Per-output quantile normalisation across samples
-    ranks = np.argsort(np.argsort(flat, axis=0), axis=0).astype(float) + 1.0
-    return (ranks / (n + 1.0)).reshape(Y.shape)
-
-
-def t_winsorise(Y, low=0.10, high=0.90):
-    """Winsorise: clip values below q_low and above q_high per sample."""
-    flat = Y.reshape(len(Y), -1)
-    lo = np.quantile(flat, low, axis=1, keepdims=True)
-    hi = np.quantile(flat, high, axis=1, keepdims=True)
-    return np.clip(flat, lo, hi).reshape(Y.shape)
-
-
 def t_yeo_johnson(Y, lam=0.5):
     """Yeo-Johnson transform — extends Box-Cox to all reals.
 
@@ -766,50 +692,6 @@ def t_yeo_johnson(Y, lam=0.5):
     else:
         out[neg] = -((-Y[neg] + 1.0) ** lam2 - 1.0) / lam2
     return out
-
-
-def t_inverse_normal(Y):
-    """Inverse normal (probit): Z = Φ⁻¹(F(y)) where F is empirical CDF.
-    Maps uniform marginals to standard normal. Equivalent to normal scores.
-    Blom (1958) correction: rank (r − 3/8) / (n + 1/4).
-    """
-    flat = Y.reshape(len(Y), -1)
-    n = flat.shape[0]
-    ranks = np.argsort(np.argsort(flat, axis=0), axis=0).astype(float) + 1.0
-    p = (ranks - 0.375) / (n + 0.25)
-    p = np.clip(p, 1e-6, 1.0 - 1e-6)
-    # Rational approximation to Φ⁻¹
-    # Beasley-Springer-Moro algorithm
-    a = [2.50662823884, -18.61500062529, 41.39119773534, -25.44106049637]
-    b = [-8.47351093090, 23.08336743743, -21.06224101826, 3.13082909833]
-    c = [
-        0.3374754822726147,
-        0.9761690190917186,
-        0.1607979714918209,
-        0.0276438810333863,
-        0.0038405729373609,
-        0.0003951896511349,
-        3.21767881768e-5,
-        2.888167364e-7,
-        3.960315187e-7,
-    ]
-    q = p - 0.5
-    out = np.empty_like(p)
-    m = np.abs(q) <= 0.42
-    r = q[m] ** 2
-    num = ((a[3] * r + a[2]) * r + a[1]) * r + a[0]
-    den = (((b[3] * r + b[2]) * r + b[1]) * r + b[0]) * r + 1.0
-    out[m] = q[m] * num / den
-    lp = p[~m]
-    lp = np.where(q[~m] > 0, 1.0 - lp, lp)
-    r2 = np.sqrt(-np.log(lp))
-    ppf = c[0] + r2 * (
-        c[1]
-        + r2
-        * (c[2] + r2 * (c[3] + r2 * (c[4] + r2 * (c[5] + r2 * (c[6] + r2 * (c[7] + r2 * c[8]))))))
-    )
-    out[~m] = np.where(q[~m] > 0, ppf, -ppf)
-    return out.reshape(Y.shape)
 
 
 # ══════════════════════════════════════════════════════════════════════════════

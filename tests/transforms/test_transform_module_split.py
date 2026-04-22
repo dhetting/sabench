@@ -36,6 +36,18 @@ from sabench.transforms.pointwise import (
     t_tanh_pointwise,
 )
 from sabench.transforms.samplewise import t_temporal_cumsum
+from sabench.transforms.statistical import (
+    t_clamp_sigma,
+    t_entropy_proxy,
+    t_inverse_normal,
+    t_min_max_normalise,
+    t_quantile_normalise,
+    t_rank_transform,
+    t_robust_scale,
+    t_softmax_shift,
+    t_standardised_anomaly,
+    t_winsorise,
+)
 
 
 def test_representative_transform_specs_point_to_split_modules() -> None:
@@ -66,6 +78,16 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("percentile_q10").module == "sabench.transforms.aggregation"
     assert get_transform_spec("percentile_q90").module == "sabench.transforms.aggregation"
     assert get_transform_spec("iqr").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("rank_transform").module == "sabench.transforms.statistical"
+    assert get_transform_spec("standardised_anomaly").module == "sabench.transforms.statistical"
+    assert get_transform_spec("entropy_proxy").module == "sabench.transforms.statistical"
+    assert get_transform_spec("softmax_shift").module == "sabench.transforms.statistical"
+    assert get_transform_spec("min_max_normalise").module == "sabench.transforms.statistical"
+    assert get_transform_spec("robust_scale").module == "sabench.transforms.statistical"
+    assert get_transform_spec("clamp_sigma").module == "sabench.transforms.statistical"
+    assert get_transform_spec("quantile_transform").module == "sabench.transforms.statistical"
+    assert get_transform_spec("winsorise_q10_q90").module == "sabench.transforms.statistical"
+    assert get_transform_spec("inverse_normal").module == "sabench.transforms.statistical"
     assert get_transform_spec("gradient_magnitude").module == "sabench.transforms.field_ops"
 
 
@@ -97,6 +119,16 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["percentile_q10"]["fn"] is t_percentile_q10
     assert TRANSFORMS["percentile_q90"]["fn"] is t_percentile_q90
     assert TRANSFORMS["iqr"]["fn"] is t_interquartile_range
+    assert TRANSFORMS["rank_transform"]["fn"] is t_rank_transform
+    assert TRANSFORMS["standardised_anomaly"]["fn"] is t_standardised_anomaly
+    assert TRANSFORMS["entropy_proxy"]["fn"] is t_entropy_proxy
+    assert TRANSFORMS["softmax_shift"]["fn"] is t_softmax_shift
+    assert TRANSFORMS["min_max_normalise"]["fn"] is t_min_max_normalise
+    assert TRANSFORMS["robust_scale"]["fn"] is t_robust_scale
+    assert TRANSFORMS["clamp_sigma"]["fn"] is t_clamp_sigma
+    assert TRANSFORMS["quantile_transform"]["fn"] is t_quantile_normalise
+    assert TRANSFORMS["winsorise_q10_q90"]["fn"] is t_winsorise
+    assert TRANSFORMS["inverse_normal"]["fn"] is t_inverse_normal
     assert TRANSFORMS["gradient_magnitude"]["fn"] is t_gradient_magnitude
 
 
@@ -130,6 +162,20 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "percentile_q10"), t_percentile_q10(y))
     np.testing.assert_allclose(apply_transform(y, "percentile_q90"), t_percentile_q90(y))
     np.testing.assert_allclose(apply_transform(y, "iqr"), t_interquartile_range(y))
+    np.testing.assert_allclose(apply_transform(y, "rank_transform"), t_rank_transform(y))
+    np.testing.assert_allclose(
+        apply_transform(y, "standardised_anomaly"), t_standardised_anomaly(y)
+    )
+    np.testing.assert_allclose(apply_transform(y, "entropy_proxy"), t_entropy_proxy(y))
+    np.testing.assert_allclose(apply_transform(y, "softmax_shift"), t_softmax_shift(y))
+    np.testing.assert_allclose(apply_transform(y, "min_max_normalise"), t_min_max_normalise(y))
+    np.testing.assert_allclose(apply_transform(y, "robust_scale"), t_robust_scale(y))
+    np.testing.assert_allclose(apply_transform(y, "clamp_sigma"), t_clamp_sigma(y, n_sigma=2.0))
+    np.testing.assert_allclose(apply_transform(y, "quantile_transform"), t_quantile_normalise(y))
+    np.testing.assert_allclose(
+        apply_transform(y, "winsorise_q10_q90"), t_winsorise(y, low=0.10, high=0.90)
+    )
+    np.testing.assert_allclose(apply_transform(y, "inverse_normal"), t_inverse_normal(y))
 
     spatial_y = np.linspace(-2.0, 2.0, 36, dtype=float).reshape(3, 3, 4)
     np.testing.assert_allclose(apply_transform(spatial_y, "gradient_magnitude"), t_gradient_magnitude(spatial_y))
@@ -143,3 +189,4 @@ def test_focused_transform_modules_exist() -> None:
     assert (package_root / "transforms" / "samplewise.py").exists()
     assert (package_root / "transforms" / "aggregation.py").exists()
     assert (package_root / "transforms" / "field_ops.py").exists()
+    assert (package_root / "transforms" / "statistical.py").exists()

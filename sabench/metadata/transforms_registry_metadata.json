@@ -484,7 +484,7 @@
     "function_name": "t_clamp_sigma",
     "key": "clamp_sigma",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Clamp to \u00b12\u03c3 (soft winsorisation)",
     "reference": "Tukey (1977)",
     "supported_output_kinds": [
@@ -821,7 +821,7 @@
     "function_name": "t_entropy_proxy",
     "key": "entropy_proxy",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Entropy proxy \u2212(Y\u2212mean)\u00b2",
     "reference": "Shannon (1948)",
     "supported_output_kinds": [
@@ -1381,7 +1381,7 @@
     "function_name": "t_inverse_normal",
     "key": "inverse_normal",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Inverse normal score (probit)",
     "reference": "Blom (1958)",
     "supported_output_kinds": [
@@ -1795,7 +1795,7 @@
     "function_name": "t_min_max_normalise",
     "key": "min_max_normalise",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Min-max normalisation [0,1]",
     "reference": "Saltelli et al. (2008)",
     "supported_output_kinds": [
@@ -2152,7 +2152,7 @@
     "function_name": "t_quantile_normalise",
     "key": "quantile_transform",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Quantile normalise (empirical CDF)",
     "reference": "Blom (1958)",
     "supported_output_kinds": [
@@ -2192,7 +2192,7 @@
     "function_name": "t_rank_transform",
     "key": "rank_transform",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Rank / PIT transform",
     "reference": "Saltelli et al. (2008)",
     "supported_output_kinds": [
@@ -2348,7 +2348,7 @@
     "function_name": "t_robust_scale",
     "key": "robust_scale",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Robust scaling (IQR-based)",
     "reference": "Huber (1981)",
     "supported_output_kinds": [
@@ -2708,7 +2708,7 @@
     "function_name": "t_softmax_shift",
     "key": "softmax_shift",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Shifted softmax normalisation",
     "reference": "Goodfellow et al. (2016)",
     "supported_output_kinds": [
@@ -2869,7 +2869,7 @@
     "function_name": "t_standardised_anomaly",
     "key": "standardised_anomaly",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Standardised anomaly (Z-score)",
     "reference": "Saltelli et al. (2008)",
     "supported_output_kinds": [
@@ -3357,7 +3357,7 @@
     "function_name": "t_winsorise",
     "key": "winsorise_q10_q90",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Winsorise to [q10, q90]",
     "reference": "Tukey (1977)",
     "supported_output_kinds": [

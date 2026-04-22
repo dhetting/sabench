@@ -21,7 +21,6 @@ def t_temporal_peak(Y: np.ndarray) -> np.ndarray:
     return (peak[:, None] * np.ones_like(flat)).reshape(Y.shape)
 
 
-
 def t_temporal_rms(Y: np.ndarray) -> np.ndarray:
     """Root-mean-square temporal summary rebroadcast to the original shape."""
     flat = Y.reshape(len(Y), -1)
@@ -53,6 +52,7 @@ def t_temporal_quantile(Y: np.ndarray, q: float = 0.50) -> np.ndarray:
     flat = Y.reshape(len(Y), -1)
     quantile = np.quantile(flat, q, axis=1)
     return _bc(quantile, Y) * np.ones_like(Y)
+
 
 def t_sample_variance(Y: np.ndarray) -> np.ndarray:
     """Sample variance of outputs across pixels or time."""
