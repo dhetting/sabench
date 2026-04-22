@@ -32,6 +32,13 @@ from sabench.transforms.engineering import (
     t_von_mises,
     t_weibull_reliability,
 )
+from sabench.transforms.environmental import (
+    t_growing_degree_days,
+    t_log_flow,
+    t_nash_sutcliffe,
+    t_pot_log,
+    t_standardised_precip_idx,
+)
 from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import (
@@ -192,6 +199,11 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("safety_factor").module == "sabench.transforms.engineering"
     assert get_transform_spec("cumulative_damage").module == "sabench.transforms.engineering"
     assert get_transform_spec("stress_life").module == "sabench.transforms.engineering"
+    assert get_transform_spec("growing_degree_days").module == "sabench.transforms.environmental"
+    assert get_transform_spec("std_precip_idx").module == "sabench.transforms.environmental"
+    assert get_transform_spec("nash_sutcliffe").module == "sabench.transforms.environmental"
+    assert get_transform_spec("pot_log").module == "sabench.transforms.environmental"
+    assert get_transform_spec("log_flow").module == "sabench.transforms.environmental"
     assert get_transform_spec("gradient_magnitude").module == "sabench.transforms.field_ops"
 
 
@@ -283,6 +295,11 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["safety_factor"]["fn"] is t_safety_factor
     assert TRANSFORMS["cumulative_damage"]["fn"] is t_cumulative_damage
     assert TRANSFORMS["stress_life"]["fn"] is t_stress_life
+    assert TRANSFORMS["growing_degree_days"]["fn"] is t_growing_degree_days
+    assert TRANSFORMS["std_precip_idx"]["fn"] is t_standardised_precip_idx
+    assert TRANSFORMS["nash_sutcliffe"]["fn"] is t_nash_sutcliffe
+    assert TRANSFORMS["pot_log"]["fn"] is t_pot_log
+    assert TRANSFORMS["log_flow"]["fn"] is t_log_flow
     assert TRANSFORMS["gradient_magnitude"]["fn"] is t_gradient_magnitude
 
 
@@ -417,6 +434,13 @@ def test_apply_transform_matches_split_module_functions() -> None:
         apply_transform(y, "cumulative_damage"), t_cumulative_damage(y, m=3.0)
     )
     np.testing.assert_allclose(apply_transform(y, "stress_life"), t_stress_life(y, C=1e6, m=3.0))
+    np.testing.assert_allclose(
+        apply_transform(y, "growing_degree_days"), t_growing_degree_days(y, base=10.0)
+    )
+    np.testing.assert_allclose(apply_transform(y, "std_precip_idx"), t_standardised_precip_idx(y))
+    np.testing.assert_allclose(apply_transform(y, "nash_sutcliffe"), t_nash_sutcliffe(y))
+    np.testing.assert_allclose(apply_transform(y, "pot_log"), t_pot_log(y, q=0.90, eps=1.0))
+    np.testing.assert_allclose(apply_transform(y, "log_flow"), t_log_flow(y, eps=0.01))
 
     spatial_y = np.linspace(-2.0, 2.0, 36, dtype=float).reshape(3, 3, 4)
     np.testing.assert_allclose(
@@ -434,6 +458,7 @@ def test_focused_transform_modules_exist() -> None:
     assert (package_root / "transforms" / "field_ops.py").exists()
     assert (package_root / "transforms" / "statistical.py").exists()
     assert (package_root / "transforms" / "engineering.py").exists()
+    assert (package_root / "transforms" / "environmental.py").exists()
 
 
 def test_engineering_family_no_longer_defined_in_monolith() -> None:
@@ -512,3 +537,14 @@ def test_threshold_piecewise_family_no_longer_defined_in_monolith() -> None:
     assert "def t_breakpoint(" not in monolith
     assert "def t_hockey_stick(" not in monolith
     assert "def t_deadzone(" not in monolith
+
+
+def test_environmental_hydrology_family_no_longer_defined_in_monolith() -> None:
+    package_root = Path(sabench.__file__).resolve().parent
+    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+
+    assert "def t_growing_degree_days(" not in monolith
+    assert "def t_standardised_precip_idx(" not in monolith
+    assert "def t_nash_sutcliffe(" not in monolith
+    assert "def t_pot_log(" not in monolith
+    assert "def t_log_flow(" not in monolith

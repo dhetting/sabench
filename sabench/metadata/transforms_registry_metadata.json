@@ -1178,7 +1178,7 @@
     "function_name": "t_growing_degree_days",
     "key": "growing_degree_days",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Growing degree days base=10",
     "reference": "McMaster & Wilhelm (1997)",
     "supported_output_kinds": [
@@ -1636,7 +1636,7 @@
     "function_name": "t_log_flow",
     "key": "log_flow",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Log streamflow (hydrological VST)",
     "reference": "Vogel & Wilson (1996)",
     "supported_output_kinds": [
@@ -1855,7 +1855,7 @@
     "function_name": "t_nash_sutcliffe",
     "key": "nash_sutcliffe",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Nash-Sutcliffe efficiency proxy",
     "reference": "Nash & Sutcliffe (1970)",
     "supported_output_kinds": [
@@ -2054,7 +2054,7 @@
     "function_name": "t_pot_log",
     "key": "pot_log",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Log peaks-over-threshold q=0.90",
     "reference": "Coles (2001)",
     "supported_output_kinds": [
@@ -2888,7 +2888,7 @@
     "function_name": "t_standardised_precip_idx",
     "key": "std_precip_idx",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Standardised precip index (Z-score)",
     "reference": "McKee et al. (1993)",
     "supported_output_kinds": [

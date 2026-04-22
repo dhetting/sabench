@@ -43,6 +43,13 @@ from sabench.transforms.engineering import (
     t_von_mises,
     t_weibull_reliability,
 )
+from sabench.transforms.environmental import (
+    t_growing_degree_days,
+    t_log_flow,
+    t_nash_sutcliffe,
+    t_pot_log,
+    t_standardised_precip_idx,
+)
 from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import (
@@ -851,45 +858,6 @@ def t_quantile_delta(Y, q=0.90):
     qvals = np.quantile(flat, q, axis=1)
     scale = 1.0 / (qvals + 1e-10)
     return Y * _bc(scale, Y)
-
-
-def t_growing_degree_days(Y, base=10.0):
-    """Growing degree days: phi = max(Y - base, 0) -- threshold accumulation."""
-    return np.maximum(Y - base, 0.0)
-
-
-def t_standardised_precip_idx(Y):
-    """Standardised precip index proxy: phi = (Y - mean)/std -- climate anomaly."""
-    flat = Y.reshape(len(Y), -1)
-    mu = _bc(flat.mean(axis=1), Y)
-    sg = _bc(flat.std(axis=1) + 1e-10, Y)
-    return (Y - mu) / sg
-
-
-# ============================================================================
-# HYDROLOGY / WATER RESOURCES TRANSFORMS
-# ============================================================================
-
-
-def t_nash_sutcliffe(Y):
-    """Nash-Sutcliffe efficiency proxy: phi = 1 - MSE/Var(Y_obs) -- goodness-of-fit."""
-    flat = Y.reshape(len(Y), -1)
-    mu = _bc(flat.mean(axis=1), Y)
-    var_obs = _bc(flat.var(axis=1) + 1e-12, Y)
-    mse = (Y - mu) ** 2
-    return 1.0 - mse / var_obs
-
-
-def t_pot_log(Y, q=0.90, eps=1.0):
-    """Log-transformed peaks-over-threshold: phi = log(max(Y-threshold, 0)+eps)."""
-    threshold = _bc(np.quantile(Y.reshape(len(Y), -1), q, axis=1), Y)
-    return np.log(np.maximum(Y - threshold, 0.0) + eps)
-
-
-def t_log_flow(Y, eps=0.01):
-    """Log streamflow: phi = log(Y - ymin + eps) -- standard hydrological transform."""
-    s = _bc(_ymin(Y), Y)
-    return np.log(Y - s + eps)
 
 
 # ============================================================================
