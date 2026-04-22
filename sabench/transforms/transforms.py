@@ -59,7 +59,6 @@ from sabench.transforms.environmental import (
     t_quantile_delta,
     t_standardised_precip_idx,
 )
-from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.financial import (
     t_cvar,
     t_drawdown,
@@ -68,7 +67,17 @@ from sabench.transforms.financial import (
     t_sharpe_proxy,
     t_var_proxy,
 )
+from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
+from sabench.transforms.mathematical import (
+    t_chebyshev_t4,
+    t_hermite_he2,
+    t_hermite_he3,
+    t_legendre_p3,
+    t_poly4,
+    t_poly5,
+    t_poly6,
+)
 from sabench.transforms.nonlinear import (
     t_algebraic_sigmoid,
     t_arctan_pointwise,
@@ -226,6 +235,8 @@ def t_normalised_stress(Y, yield_q=0.80):
     s = _bc(_ymin(Y), Y)
     yld = _bc(np.quantile(Y.reshape(len(Y), -1), yield_q, axis=1), Y)
     return np.clip((Y - s) / (yld - s + 1e-12), 0.0, 1.0)
+
+
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -413,6 +424,7 @@ def t_isoline_length(Y, quantile=0.75):
 # ══════════════════════════════════════════════════════════════════════════════
 
 
+
 def t_temporal_log_cumsum(Y, eps=1.0):
     """Log of the cumulative sum: Z(t) = log(sum_{s<=t} Y(s) + eps).
 
@@ -495,6 +507,9 @@ def t_temporal_block_avg(Y, block=10):
 # ── Convex pointwise ──────────────────────────────────────────────────────────
 
 
+
+
+
 def t_neg_square(Y):
     """Negative square: φ(y) = −y².
     Strictly concave (φ''=−2<0), even, non-monotone.
@@ -506,7 +521,14 @@ def t_neg_square(Y):
 # ── Monotone S-shaped ────────────────────────────────────────────────────────
 
 
+
+
+
+
 # ── Oscillatory / non-monotone ────────────────────────────────────────────────
+
+
+
 
 
 def t_triangle_wave(Y, period=4.0):
@@ -558,6 +580,8 @@ def t_inverse_abs(Y, eps=1.0):
 # ══════════════════════════════════════════════════════════════════════════════
 
 
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # Temporal additions
 # ══════════════════════════════════════════════════════════════════════════════
@@ -601,49 +625,10 @@ def t_yeo_johnson(Y, lam=0.5):
 # ============================================================================
 
 
-def t_poly4(Y, scale=0.05):
-    """phi(y) = (scale*y)^4 -- even, C-inf, convex, quartic."""
-    return (scale * Y) ** 4
-
-
-def t_poly5(Y, scale=0.05):
-    """phi(y) = (scale*y)^5 -- odd, C-inf, inflection at 0."""
-    return (scale * Y) ** 5
-
-
-def t_poly6(Y, scale=0.05):
-    """phi(y) = (scale*y)^6 -- even, C-inf, strictly convex."""
-    return (scale * Y) ** 6
-
-
 def t_signed_power(Y, p=1.5, scale=0.2):
     """phi(y) = sign(y)*|scale*y|^p -- odd, monotone, C1 for p>=1."""
     u = scale * Y
     return np.sign(u) * (np.abs(u) ** p)
-
-
-def t_legendre_p3(Y, scale=0.3):
-    """Legendre P3: phi(u) = (5u^3 - 3u)/2 -- odd, oscillatory orthogonal polynomial."""
-    u = np.clip(scale * Y, -1.0, 1.0)
-    return 0.5 * (5.0 * u**3 - 3.0 * u)
-
-
-def t_chebyshev_t4(Y, scale=0.2):
-    """Chebyshev T4: phi(u) = 8u^4 - 8u^2 + 1 -- even, C-inf, 3 extrema."""
-    u = np.clip(scale * Y, -1.0, 1.0)
-    return 8.0 * u**4 - 8.0 * u**2 + 1.0
-
-
-def t_hermite_he2(Y, scale=0.3):
-    """Probabilist Hermite He2: phi(u) = u^2 - 1 -- even, convex, parabola shifted."""
-    u = scale * Y
-    return u**2 - 1.0
-
-
-def t_hermite_he3(Y, scale=0.3):
-    """Probabilist Hermite He3: phi(u) = u^3 - 3u -- odd, two local extrema."""
-    u = scale * Y
-    return u**3 - 3.0 * u
 
 
 def t_bernstein_b3(Y):
@@ -664,9 +649,11 @@ def t_atan2pi(Y, scale=1.0):
     return (2.0 / np.pi) * np.arctan(scale * Y)
 
 
+
 # ============================================================================
 # THRESHOLD / PIECEWISE FAMILY
 # ============================================================================
+
 
 
 def t_bimodal_flip(Y):
@@ -735,9 +722,13 @@ def t_power_exp(Y, scale=0.1):
 # ============================================================================
 
 
+
+
 # ============================================================================
 # CLIMATE / ENVIRONMENTAL SCIENCE TRANSFORMS
 # ============================================================================
+
+
 
 
 # ============================================================================
@@ -748,6 +739,8 @@ def t_power_exp(Y, scale=0.1):
 # ============================================================================
 # STRUCTURAL / MECHANICAL ENGINEERING TRANSFORMS
 # ============================================================================
+
+
 
 
 # ============================================================================

@@ -444,7 +444,7 @@
     "function_name": "t_chebyshev_t4",
     "key": "chebyshev_t4",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "Chebyshev T4 polynomial",
     "reference": "Szego (1939)",
     "supported_output_kinds": [
@@ -1299,7 +1299,7 @@
     "function_name": "t_hermite_he2",
     "key": "hermite_he2",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "Hermite He2 polynomial",
     "reference": "Szego (1939)",
     "supported_output_kinds": [
@@ -1320,7 +1320,7 @@
     "function_name": "t_hermite_he3",
     "key": "hermite_he3",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "Hermite He3 polynomial",
     "reference": "Szego (1939)",
     "supported_output_kinds": [
@@ -1514,7 +1514,7 @@
     "function_name": "t_legendre_p3",
     "key": "legendre_p3",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "Legendre P3 polynomial",
     "reference": "Szego (1939)",
     "supported_output_kinds": [
@@ -1992,7 +1992,7 @@
     "function_name": "t_poly4",
     "key": "poly4",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "y^4 (quartic, even, convex)",
     "reference": "Hardy et al. (1934)",
     "supported_output_kinds": [
@@ -2013,7 +2013,7 @@
     "function_name": "t_poly5",
     "key": "poly5",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "y^5 (quintic, odd, C-inf)",
     "reference": "Hardy et al. (1934)",
     "supported_output_kinds": [
@@ -2033,7 +2033,7 @@
     "function_name": "t_poly6",
     "key": "poly6",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "y^6 (sextic, even, strictly convex)",
     "reference": "Hardy et al. (1934)",
     "supported_output_kinds": [
