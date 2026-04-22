@@ -1080,7 +1080,7 @@
     "function_name": "t_frechet_cdf",
     "key": "frechet_cdf",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Fr\u00e9chet CDF (EV type-II, shape=2)",
     "reference": "Fr\u00e9chet (1927)",
     "supported_output_kinds": [
@@ -1121,7 +1121,7 @@
     "function_name": "t_gev_cdf",
     "key": "gev_cdf",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "GEV CDF xi=0.3 (Frechet type)",
     "reference": "Jenkinson (1955)",
     "supported_output_kinds": [
@@ -1197,7 +1197,7 @@
     "function_name": "t_gumbel_cdf",
     "key": "gumbel_cdf",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Gumbel CDF (EV type-I)",
     "reference": "Gumbel (1958)",
     "supported_output_kinds": [
@@ -1476,7 +1476,7 @@
     "function_name": "t_johnson_su",
     "key": "johnson_su",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Johnson SU (4-parameter normalisation)",
     "reference": "Johnson (1949)",
     "supported_output_kinds": [
@@ -1677,7 +1677,7 @@
     "function_name": "t_log_logistic_cdf",
     "key": "log_logistic_cdf",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Log-logistic CDF beta=2 (S-shaped tail)",
     "reference": "Tadikamalla (1980)",
     "supported_output_kinds": [
@@ -1697,7 +1697,7 @@
     "function_name": "t_log_normal_cdf",
     "key": "log_normal_cdf",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Log-normal CDF (\u03c3=0.5)",
     "reference": "Limpert et al. (2001)",
     "supported_output_kinds": [
@@ -1934,7 +1934,7 @@
     "function_name": "t_pareto_tail",
     "key": "pareto_tail",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Pareto tail transform alpha=1.5",
     "reference": "Pickands (1975)",
     "supported_output_kinds": [
@@ -2329,7 +2329,7 @@
     "function_name": "t_return_period",
     "key": "return_period",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Return period T=1/(1-CDF)",
     "reference": "Coles (2001)",
     "supported_output_kinds": [

@@ -50,10 +50,18 @@ from sabench.transforms.samplewise import t_temporal_cumsum
 from sabench.transforms.statistical import (
     t_clamp_sigma,
     t_entropy_proxy,
+    t_frechet_cdf,
+    t_gev_cdf,
+    t_gumbel_cdf,
     t_inverse_normal,
+    t_johnson_su,
+    t_log_logistic_cdf,
+    t_log_normal_cdf,
     t_min_max_normalise,
+    t_pareto_tail,
     t_quantile_normalise,
     t_rank_transform,
+    t_return_period,
     t_robust_scale,
     t_softmax_shift,
     t_standardised_anomaly,
@@ -572,73 +580,9 @@ def t_log_abs(Y, eps=1.0):
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-def t_gumbel_cdf(Y):
-    """Gumbel (EV Type-I) CDF: F(y) = exp(−exp(−(y−μ)/β)) with per-sample μ,β.
-    Models the probability of non-exceedance in extreme value analysis (floods,
-    wind speeds). The double-exponential structure creates very strong nonlinearity
-    at both tails.
-    """
-    flat = Y.reshape(len(Y), -1)
-    mu = flat.mean(axis=1, keepdims=True)
-    sig = flat.std(axis=1, keepdims=True).clip(min=1e-12)
-    beta = sig * np.sqrt(6.0) / np.pi
-    loc = mu - 0.5772 * beta
-    z = (flat - loc) / beta
-    return np.exp(-np.exp(-z)).reshape(Y.shape)
-
-
-def t_frechet_cdf(Y, shape=2.0):
-    """Fréchet (EV Type-II) CDF: F(y) = exp(−(y/s)^{-shape}) for y>0.
-    Models heavy-tailed maxima (ocean waves, insurance losses).
-    """
-    s = _bc(_ymin(Y), Y)
-    r = _bc(_safe_range(Y), Y)
-    Ypos = (Y - s) / r + 1e-6
-    return np.exp(-(Ypos ** (-shape)))
-
-
-def t_log_normal_cdf(Y, sigma=0.5):
-    """Log-normal CDF: Φ((log(Ypos) − μ)/σ), with μ set so median=1.
-    Models multiplicative processes (precipitation, groundwater).
-    """
-    from math import erfc as _erfc
-
-    s = _bc(_ymin(Y), Y)
-    Ypos = Y - s + 1.0
-    log_y = np.log(Ypos)
-    mu_ln = log_y.reshape(len(Y), -1).mean(axis=1, keepdims=True)
-    z = (log_y.reshape(len(Y), -1) - mu_ln) / sigma
-    cdf = 0.5 * np.vectorize(lambda zi: 1.0 - _erfc(zi / np.sqrt(2)) / 2)(z).astype(float)
-    return cdf.reshape(Y.shape)
-
-
-def t_return_period(Y):
-    """Return period: T = 1/(1 − F(y)), where F is empirical per-sample CDF.
-    Transforms a field to the expected return period (in units of sample counts).
-    Diverges to infinity at the sample maximum → strong nonlinearity.
-    """
-    flat = Y.reshape(len(Y), -1)
-    n_out = flat.shape[1]
-    ranks = np.argsort(np.argsort(flat, axis=1), axis=1).astype(float) + 1.0
-    F = ranks / (n_out + 1.0)  # Weibull plotting position
-    T = 1.0 / (1.0 - F).clip(min=1.0 / (n_out + 2.0))
-    return T.reshape(Y.shape)
-
-
 # ══════════════════════════════════════════════════════════════════════════════
 # Engineering additions
 # ══════════════════════════════════════════════════════════════════════════════
-
-
-def t_johnson_su(Y):
-    """Johnson SU normalisation: Z = γ + δ·arcsinh((Y−ξ)/λ).
-    Fit parameters estimated from the first 4 sample moments.
-    Used in reliability and insurance to normalise heavily skewed data.
-    """
-    flat = Y.reshape(len(Y), -1)
-    mu = flat.mean(axis=1, keepdims=True)
-    sig = flat.std(axis=1, keepdims=True).clip(min=1e-12)
-    return np.arcsinh((flat - mu) / sig).reshape(Y.shape)
 
 
 def t_fatigue_miner(Y, m=3.0):
@@ -1001,32 +945,6 @@ def t_log_log(Y, eps=1.0):
 def t_power_exp(Y, scale=0.1):
     """phi(y) = y^2 * exp(-|y|*scale) -- hump, convex near 0, decaying tails."""
     return Y**2 * np.exp(-np.abs(Y) * scale)
-
-
-def t_gev_cdf(Y, xi=0.3):
-    """GEV CDF (xi>0 Frechet family): phi(y) = exp(-(1+xi*u)^(-1/xi)) on u in (-1/xi, inf)."""
-    s = _bc(_ymin(Y), Y)
-    r = _bc(_safe_range(Y), Y)
-    u = (Y - s) / r
-    t_val = np.maximum(1.0 + xi * u, 1e-10)
-    return np.exp(-(t_val ** (-1.0 / xi)))
-
-
-def t_pareto_tail(Y, alpha=1.5):
-    """Pareto tail transform: phi(u) = 1 - (1-u)^alpha on [0,1] -- heavy tail."""
-    s = _bc(_ymin(Y), Y)
-    r = _bc(_safe_range(Y), Y)
-    u = np.clip((Y - s) / r, 0.0, 1.0 - 1e-9)
-    return 1.0 - (1.0 - u) ** alpha
-
-
-def t_log_logistic_cdf(Y, beta=2.0):
-    """Log-logistic CDF: phi(u) = u^beta/(1+u^beta) -- S-shaped with heavy tail."""
-    s = _bc(_ymin(Y), Y)
-    r = _bc(_safe_range(Y), Y)
-    u = np.maximum((Y - s) / r, 0.0)
-    ub = np.minimum(u**beta, 1e15)
-    return ub / (1.0 + ub)
 
 
 # ============================================================================

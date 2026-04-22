@@ -80,5 +80,13 @@ def test_transform_registry_export_uses_canonical_fields() -> None:
     assert exported["quantile_transform"]["module"] == "sabench.transforms.statistical"
     assert exported["winsorise_q10_q90"]["module"] == "sabench.transforms.statistical"
     assert exported["inverse_normal"]["module"] == "sabench.transforms.statistical"
+    assert exported["gumbel_cdf"]["module"] == "sabench.transforms.statistical"
+    assert exported["frechet_cdf"]["module"] == "sabench.transforms.statistical"
+    assert exported["log_normal_cdf"]["module"] == "sabench.transforms.statistical"
+    assert exported["return_period"]["module"] == "sabench.transforms.statistical"
+    assert exported["johnson_su"]["module"] == "sabench.transforms.statistical"
+    assert exported["gev_cdf"]["module"] == "sabench.transforms.statistical"
+    assert exported["pareto_tail"]["module"] == "sabench.transforms.statistical"
+    assert exported["log_logistic_cdf"]["module"] == "sabench.transforms.statistical"
     assert exported["temporal_cumsum"]["mechanism"] == "samplewise"
     assert exported["gradient_magnitude"]["supported_output_kinds"] == ["spatial"]

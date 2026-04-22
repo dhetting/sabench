@@ -120,3 +120,79 @@ def t_inverse_normal(Y: np.ndarray) -> np.ndarray:
     )
     out[~central] = np.where(q[~central] > 0.0, ppf, -ppf)
     return out.reshape(Y.shape)
+
+
+def t_gumbel_cdf(Y: np.ndarray) -> np.ndarray:
+    """Gumbel (extreme-value type I) non-exceedance CDF fitted per sample."""
+    flat = Y.reshape(len(Y), -1)
+    mu = flat.mean(axis=1, keepdims=True)
+    sig = flat.std(axis=1, keepdims=True).clip(min=1e-12)
+    beta = sig * np.sqrt(6.0) / np.pi
+    loc = mu - 0.5772 * beta
+    z = (flat - loc) / beta
+    return np.exp(-np.exp(-z)).reshape(Y.shape)
+
+
+def t_frechet_cdf(Y: np.ndarray, shape: float = 2.0) -> np.ndarray:
+    """Fréchet heavy-tail CDF on per-sample min-max normalized support."""
+    shift = _bc(_ymin(Y), Y)
+    value_range = _bc(_safe_range(Y), Y)
+    y_pos = (Y - shift) / value_range + 1e-6
+    return np.exp(-(y_pos ** (-shape)))
+
+
+def t_log_normal_cdf(Y: np.ndarray, sigma: float = 0.5) -> np.ndarray:
+    """Log-normal CDF with per-sample log-location estimated from the data."""
+    from math import erfc
+
+    shift = _bc(_ymin(Y), Y)
+    y_pos = Y - shift + 1.0
+    log_y = np.log(y_pos)
+    mu_ln = log_y.reshape(len(Y), -1).mean(axis=1, keepdims=True)
+    z = (log_y.reshape(len(Y), -1) - mu_ln) / sigma
+    cdf = 0.5 * np.vectorize(lambda zi: 1.0 - erfc(zi / np.sqrt(2.0)) / 2.0)(z).astype(float)
+    return cdf.reshape(Y.shape)
+
+
+def t_return_period(Y: np.ndarray) -> np.ndarray:
+    """Empirical Weibull plotting-position return period within each sample."""
+    flat = Y.reshape(len(Y), -1)
+    n_out = flat.shape[1]
+    ranks = np.argsort(np.argsort(flat, axis=1), axis=1).astype(float) + 1.0
+    cdf = ranks / (n_out + 1.0)
+    period = 1.0 / (1.0 - cdf).clip(min=1.0 / (n_out + 2.0))
+    return period.reshape(Y.shape)
+
+
+def t_johnson_su(Y: np.ndarray) -> np.ndarray:
+    """Johnson SU-style arcsinh normalization using per-sample moments."""
+    flat = Y.reshape(len(Y), -1)
+    mu = flat.mean(axis=1, keepdims=True)
+    sig = flat.std(axis=1, keepdims=True).clip(min=1e-12)
+    return np.arcsinh((flat - mu) / sig).reshape(Y.shape)
+
+
+def t_gev_cdf(Y: np.ndarray, xi: float = 0.3) -> np.ndarray:
+    """Generalized extreme-value CDF on min-max normalized support."""
+    shift = _bc(_ymin(Y), Y)
+    value_range = _bc(_safe_range(Y), Y)
+    u = (Y - shift) / value_range
+    t_val = np.maximum(1.0 + xi * u, 1e-10)
+    return np.exp(-(t_val ** (-1.0 / xi)))
+
+
+def t_pareto_tail(Y: np.ndarray, alpha: float = 1.5) -> np.ndarray:
+    """Pareto-tail transform on normalized support."""
+    shift = _bc(_ymin(Y), Y)
+    value_range = _bc(_safe_range(Y), Y)
+    u = np.clip((Y - shift) / value_range, 0.0, 1.0 - 1e-9)
+    return 1.0 - (1.0 - u) ** alpha
+
+
+def t_log_logistic_cdf(Y: np.ndarray, beta: float = 2.0) -> np.ndarray:
+    """Log-logistic CDF on normalized support."""
+    shift = _bc(_ymin(Y), Y)
+    value_range = _bc(_safe_range(Y), Y)
+    u = np.maximum((Y - shift) / value_range, 0.0)
+    u_beta = np.minimum(u**beta, 1e15)
+    return u_beta / (1.0 + u_beta)

@@ -39,10 +39,18 @@ from sabench.transforms.samplewise import t_temporal_cumsum
 from sabench.transforms.statistical import (
     t_clamp_sigma,
     t_entropy_proxy,
+    t_frechet_cdf,
+    t_gev_cdf,
+    t_gumbel_cdf,
     t_inverse_normal,
+    t_johnson_su,
+    t_log_logistic_cdf,
+    t_log_normal_cdf,
     t_min_max_normalise,
+    t_pareto_tail,
     t_quantile_normalise,
     t_rank_transform,
+    t_return_period,
     t_robust_scale,
     t_softmax_shift,
     t_standardised_anomaly,
@@ -88,6 +96,14 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("quantile_transform").module == "sabench.transforms.statistical"
     assert get_transform_spec("winsorise_q10_q90").module == "sabench.transforms.statistical"
     assert get_transform_spec("inverse_normal").module == "sabench.transforms.statistical"
+    assert get_transform_spec("gumbel_cdf").module == "sabench.transforms.statistical"
+    assert get_transform_spec("frechet_cdf").module == "sabench.transforms.statistical"
+    assert get_transform_spec("log_normal_cdf").module == "sabench.transforms.statistical"
+    assert get_transform_spec("return_period").module == "sabench.transforms.statistical"
+    assert get_transform_spec("johnson_su").module == "sabench.transforms.statistical"
+    assert get_transform_spec("gev_cdf").module == "sabench.transforms.statistical"
+    assert get_transform_spec("pareto_tail").module == "sabench.transforms.statistical"
+    assert get_transform_spec("log_logistic_cdf").module == "sabench.transforms.statistical"
     assert get_transform_spec("gradient_magnitude").module == "sabench.transforms.field_ops"
 
 
@@ -129,6 +145,14 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["quantile_transform"]["fn"] is t_quantile_normalise
     assert TRANSFORMS["winsorise_q10_q90"]["fn"] is t_winsorise
     assert TRANSFORMS["inverse_normal"]["fn"] is t_inverse_normal
+    assert TRANSFORMS["gumbel_cdf"]["fn"] is t_gumbel_cdf
+    assert TRANSFORMS["frechet_cdf"]["fn"] is t_frechet_cdf
+    assert TRANSFORMS["log_normal_cdf"]["fn"] is t_log_normal_cdf
+    assert TRANSFORMS["return_period"]["fn"] is t_return_period
+    assert TRANSFORMS["johnson_su"]["fn"] is t_johnson_su
+    assert TRANSFORMS["gev_cdf"]["fn"] is t_gev_cdf
+    assert TRANSFORMS["pareto_tail"]["fn"] is t_pareto_tail
+    assert TRANSFORMS["log_logistic_cdf"]["fn"] is t_log_logistic_cdf
     assert TRANSFORMS["gradient_magnitude"]["fn"] is t_gradient_magnitude
 
 
@@ -176,6 +200,14 @@ def test_apply_transform_matches_split_module_functions() -> None:
         apply_transform(y, "winsorise_q10_q90"), t_winsorise(y, low=0.10, high=0.90)
     )
     np.testing.assert_allclose(apply_transform(y, "inverse_normal"), t_inverse_normal(y))
+    np.testing.assert_allclose(apply_transform(y, "gumbel_cdf"), t_gumbel_cdf(y))
+    np.testing.assert_allclose(apply_transform(y, "frechet_cdf"), t_frechet_cdf(y, shape=2.0))
+    np.testing.assert_allclose(apply_transform(y, "log_normal_cdf"), t_log_normal_cdf(y, sigma=0.5))
+    np.testing.assert_allclose(apply_transform(y, "return_period"), t_return_period(y))
+    np.testing.assert_allclose(apply_transform(y, "johnson_su"), t_johnson_su(y))
+    np.testing.assert_allclose(apply_transform(y, "gev_cdf"), t_gev_cdf(y, xi=0.3))
+    np.testing.assert_allclose(apply_transform(y, "pareto_tail"), t_pareto_tail(y, alpha=1.5))
+    np.testing.assert_allclose(apply_transform(y, "log_logistic_cdf"), t_log_logistic_cdf(y, beta=2.0))
 
     spatial_y = np.linspace(-2.0, 2.0, 36, dtype=float).reshape(3, 3, 4)
     np.testing.assert_allclose(apply_transform(spatial_y, "gradient_magnitude"), t_gradient_magnitude(spatial_y))
