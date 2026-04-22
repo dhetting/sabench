@@ -780,7 +780,7 @@
     "function_name": "t_emax_model",
     "key": "emax_model",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pharmacological",
     "name": "Emax pharmacodynamic model n=1",
     "reference": "Holford & Sheiner (1981)",
     "supported_output_kinds": [
@@ -1340,7 +1340,7 @@
     "function_name": "t_hill_response",
     "key": "hill_response",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pharmacological",
     "name": "Hill equation response n=2 (saturation)",
     "reference": "Hill (1910)",
     "supported_output_kinds": [
@@ -1616,7 +1616,7 @@
     "function_name": "t_log_auc",
     "key": "log_auc",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pharmacological",
     "name": "Log area-under-curve proxy",
     "reference": "Gabrielsson & Weiner (2000)",
     "supported_output_kinds": [
@@ -2506,7 +2506,7 @@
     "function_name": "t_sigmoid_dose",
     "key": "sigmoid_dose",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.pharmacological",
     "name": "Hill dose-response (n=4)",
     "reference": "Hill (1910)",
     "supported_output_kinds": [

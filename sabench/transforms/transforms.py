@@ -76,6 +76,12 @@ from sabench.transforms.nonlinear import (
     t_spike,
     t_swish,
 )
+from sabench.transforms.pharmacological import (
+    t_emax_model,
+    t_hill_response,
+    t_log_auc,
+    t_sigmoid_dose,
+)
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
     t_cos_pointwise,
@@ -180,13 +186,6 @@ def t_carnot_quadratic(Y, delta=1.0):
     return ((Y - s + delta) / (r + delta)) ** 2
 
 
-def t_sigmoid_dose(Y, EC50_q=0.5, n_hill=4.0):
-    s = _bc(_ymin(Y), Y)
-    r = _bc(_safe_range(Y), Y)
-    Yn = (Y - s) / r
-    return Yn**n_hill / (EC50_q**n_hill + Yn**n_hill + 1e-30)
-
-
 def t_arrhenius(Y, Ea_over_R=2.0):
     """Arrhenius-type exponential: exp(-Ea/R / Y_pos).
     Physical context: converts a temperature-like field to a reaction-rate field
@@ -205,6 +204,8 @@ def t_normalised_stress(Y, yield_q=0.80):
     s = _bc(_ymin(Y), Y)
     yld = _bc(np.quantile(Y.reshape(len(Y), -1), yield_q, axis=1), Y)
     return np.clip((Y - s) / (yld - s + 1e-12), 0.0, 1.0)
+
+
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -392,6 +393,7 @@ def t_isoline_length(Y, quantile=0.75):
 # ══════════════════════════════════════════════════════════════════════════════
 
 
+
 def t_temporal_log_cumsum(Y, eps=1.0):
     """Log of the cumulative sum: Z(t) = log(sum_{s<=t} Y(s) + eps).
 
@@ -474,6 +476,9 @@ def t_temporal_block_avg(Y, block=10):
 # ── Convex pointwise ──────────────────────────────────────────────────────────
 
 
+
+
+
 def t_neg_square(Y):
     """Negative square: φ(y) = −y².
     Strictly concave (φ''=−2<0), even, non-monotone.
@@ -485,7 +490,14 @@ def t_neg_square(Y):
 # ── Monotone S-shaped ────────────────────────────────────────────────────────
 
 
+
+
+
+
 # ── Oscillatory / non-monotone ────────────────────────────────────────────────
+
+
+
 
 
 def t_triangle_wave(Y, period=4.0):
@@ -535,6 +547,8 @@ def t_inverse_abs(Y, eps=1.0):
 # ══════════════════════════════════════════════════════════════════════════════
 # Engineering additions
 # ══════════════════════════════════════════════════════════════════════════════
+
+
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -643,9 +657,11 @@ def t_atan2pi(Y, scale=1.0):
     return (2.0 / np.pi) * np.arctan(scale * Y)
 
 
+
 # ============================================================================
 # THRESHOLD / PIECEWISE FAMILY
 # ============================================================================
+
 
 
 def t_bimodal_flip(Y):
@@ -865,34 +881,11 @@ def t_quantile_delta(Y, q=0.90):
 # ============================================================================
 
 
-def t_hill_response(Y, n=2.0, EC50_q=0.5):
-    """Hill equation response: phi = Y^n / (EC50^n + Y^n) -- receptor saturation."""
-    s = _bc(_ymin(Y), Y)
-    r = _bc(_safe_range(Y), Y)
-    Yn = np.maximum((Y - s) / r, 0.0)
-    EC50 = EC50_q
-    return Yn**n / (EC50**n + Yn**n + 1e-12)
-
-
-def t_log_auc(Y, eps=1.0):
-    """Log area-under-curve proxy: phi = log(mean(Y) + eps) -- pharmacokinetic."""
-    flat = Y.reshape(len(Y), -1)
-    auc = flat.mean(axis=1)
-    auc_shifted = np.maximum(auc, 0.0)
-    return _bc(np.log(auc_shifted + eps), Y) * np.ones_like(Y)
-
-
-def t_emax_model(Y, Emax=1.0, ED50_q=0.5, n=1.0):
-    """Emax model: phi = Emax * Y^n / (ED50^n + Y^n) -- maximum effect model."""
-    s = _bc(_ymin(Y), Y)
-    r = _bc(_safe_range(Y), Y)
-    Yn = np.maximum((Y - s) / r, 0.0)
-    return Emax * Yn**n / (ED50_q**n + Yn**n + 1e-12)
-
-
 # ============================================================================
 # STRUCTURAL / MECHANICAL ENGINEERING TRANSFORMS
 # ============================================================================
+
+
 
 
 # ============================================================================
