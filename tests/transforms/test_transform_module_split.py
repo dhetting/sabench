@@ -34,7 +34,14 @@ from sabench.transforms.engineering import (
 )
 from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
-from sabench.transforms.nonlinear import t_softplus_pointwise
+from sabench.transforms.nonlinear import (
+    t_arctan_pointwise,
+    t_cbrt_pointwise,
+    t_cosh_pointwise,
+    t_logistic_pointwise,
+    t_sinh_pointwise,
+    t_softplus_pointwise,
+)
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
     t_cos_pointwise,
@@ -105,6 +112,11 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("double_sin").module == "sabench.transforms.pointwise"
     assert get_transform_spec("sin_cos_product").module == "sabench.transforms.pointwise"
     assert get_transform_spec("softplus_b01").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("cosh_pointwise").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("cbrt_pointwise").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("logistic_pointwise").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("arctan_pointwise").module == "sabench.transforms.nonlinear"
+    assert get_transform_spec("sinh_pointwise").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("temporal_cumsum").module == "sabench.transforms.samplewise"
     assert get_transform_spec("temporal_peak").module == "sabench.transforms.aggregation"
     assert get_transform_spec("temporal_rms").module == "sabench.transforms.aggregation"
@@ -175,6 +187,11 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["double_sin"]["fn"] is t_double_sin
     assert TRANSFORMS["sin_cos_product"]["fn"] is t_sin_cos_product
     assert TRANSFORMS["softplus_b01"]["fn"] is t_softplus_pointwise
+    assert TRANSFORMS["cosh_pointwise"]["fn"] is t_cosh_pointwise
+    assert TRANSFORMS["cbrt_pointwise"]["fn"] is t_cbrt_pointwise
+    assert TRANSFORMS["logistic_pointwise"]["fn"] is t_logistic_pointwise
+    assert TRANSFORMS["arctan_pointwise"]["fn"] is t_arctan_pointwise
+    assert TRANSFORMS["sinh_pointwise"]["fn"] is t_sinh_pointwise
     assert TRANSFORMS["temporal_cumsum"]["fn"] is t_temporal_cumsum
     assert TRANSFORMS["temporal_peak"]["fn"] is t_temporal_peak
     assert TRANSFORMS["temporal_rms"]["fn"] is t_temporal_rms
@@ -236,30 +253,57 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "erf_pointwise"), t_erf_pointwise(y, scale=0.5))
     np.testing.assert_allclose(apply_transform(y, "sin_pointwise"), t_sin_pointwise(y, freq=0.5))
     np.testing.assert_allclose(apply_transform(y, "cos_pointwise"), t_cos_pointwise(y, freq=0.5))
-    np.testing.assert_allclose(apply_transform(y, "step_pointwise"), t_step_pointwise(y, threshold=0.0))
+    np.testing.assert_allclose(
+        apply_transform(y, "step_pointwise"), t_step_pointwise(y, threshold=0.0)
+    )
     np.testing.assert_allclose(apply_transform(y, "log_abs_pointwise"), t_log_abs(y, eps=1.0))
     np.testing.assert_allclose(apply_transform(y, "sinc"), t_sinc(y, scale=0.5))
     np.testing.assert_allclose(apply_transform(y, "sin_squared"), t_sin_squared(y, freq=0.5))
     np.testing.assert_allclose(apply_transform(y, "cos_squared"), t_cos_squared(y, freq=0.5))
-    np.testing.assert_allclose(apply_transform(y, "damped_sin"), t_damped_sin(y, freq=0.5, decay=0.1))
+    np.testing.assert_allclose(
+        apply_transform(y, "damped_sin"), t_damped_sin(y, freq=0.5, decay=0.1)
+    )
     np.testing.assert_allclose(apply_transform(y, "sawtooth"), t_sawtooth(y, period=4.0))
     np.testing.assert_allclose(apply_transform(y, "square_wave"), t_square_wave(y, period=4.0))
-    np.testing.assert_allclose(apply_transform(y, "double_sin"), t_double_sin(y, freq1=0.3, freq2=0.7))
-    np.testing.assert_allclose(apply_transform(y, "sin_cos_product"), t_sin_cos_product(y, freq=0.5))
-    np.testing.assert_allclose(apply_transform(y, "softplus_b01"), t_softplus_pointwise(y, beta=0.1))
+    np.testing.assert_allclose(
+        apply_transform(y, "double_sin"), t_double_sin(y, freq1=0.3, freq2=0.7)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "sin_cos_product"), t_sin_cos_product(y, freq=0.5)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "softplus_b01"), t_softplus_pointwise(y, beta=0.1)
+    )
+    np.testing.assert_allclose(apply_transform(y, "cosh_pointwise"), t_cosh_pointwise(y, scale=0.1))
+    np.testing.assert_allclose(apply_transform(y, "cbrt_pointwise"), t_cbrt_pointwise(y))
+    np.testing.assert_allclose(
+        apply_transform(y, "logistic_pointwise"), t_logistic_pointwise(y, k=1.0)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "arctan_pointwise"), t_arctan_pointwise(y, scale=1.0)
+    )
+    np.testing.assert_allclose(apply_transform(y, "sinh_pointwise"), t_sinh_pointwise(y, scale=0.1))
     np.testing.assert_allclose(apply_transform(y, "temporal_cumsum"), t_temporal_cumsum(y))
     np.testing.assert_allclose(apply_transform(y, "temporal_peak"), t_temporal_peak(y))
     np.testing.assert_allclose(apply_transform(y, "temporal_rms"), t_temporal_rms(y))
     np.testing.assert_allclose(apply_transform(y, "temporal_range"), t_temporal_range(y))
     np.testing.assert_allclose(apply_transform(y, "temporal_autocorr"), t_temporal_autocorr(y))
-    np.testing.assert_allclose(apply_transform(y, "temporal_quantile_q10"), t_temporal_quantile(y, q=0.10))
-    np.testing.assert_allclose(apply_transform(y, "temporal_quantile_q50"), t_temporal_quantile(y, q=0.50))
-    np.testing.assert_allclose(apply_transform(y, "temporal_quantile_q90"), t_temporal_quantile(y, q=0.90))
+    np.testing.assert_allclose(
+        apply_transform(y, "temporal_quantile_q10"), t_temporal_quantile(y, q=0.10)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "temporal_quantile_q50"), t_temporal_quantile(y, q=0.50)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "temporal_quantile_q90"), t_temporal_quantile(y, q=0.90)
+    )
     np.testing.assert_allclose(apply_transform(y, "sample_variance"), t_sample_variance(y))
     np.testing.assert_allclose(apply_transform(y, "negentropy_proxy"), t_negentropy_proxy(y))
     np.testing.assert_allclose(apply_transform(y, "wasserstein_proxy"), t_wasserstein_proxy(y))
     np.testing.assert_allclose(apply_transform(y, "energy_distance"), t_energy_distance_proxy(y))
-    np.testing.assert_allclose(apply_transform(y, "renyi_entropy_a2"), t_entropy_renyi(y, alpha=2.0, bins=20))
+    np.testing.assert_allclose(
+        apply_transform(y, "renyi_entropy_a2"), t_entropy_renyi(y, alpha=2.0, bins=20)
+    )
     np.testing.assert_allclose(apply_transform(y, "sample_skewness"), t_sample_skewness(y))
     np.testing.assert_allclose(apply_transform(y, "sample_kurtosis"), t_sample_kurtosis(y))
     np.testing.assert_allclose(apply_transform(y, "percentile_q10"), t_percentile_q10(y))
@@ -286,17 +330,27 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "johnson_su"), t_johnson_su(y))
     np.testing.assert_allclose(apply_transform(y, "gev_cdf"), t_gev_cdf(y, xi=0.3))
     np.testing.assert_allclose(apply_transform(y, "pareto_tail"), t_pareto_tail(y, alpha=1.5))
-    np.testing.assert_allclose(apply_transform(y, "log_logistic_cdf"), t_log_logistic_cdf(y, beta=2.0))
-    np.testing.assert_allclose(apply_transform(y, "weibull_reliability"), t_weibull_reliability(y, shape=2.0))
+    np.testing.assert_allclose(
+        apply_transform(y, "log_logistic_cdf"), t_log_logistic_cdf(y, beta=2.0)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "weibull_reliability"), t_weibull_reliability(y, shape=2.0)
+    )
     np.testing.assert_allclose(apply_transform(y, "fatigue_miner"), t_fatigue_miner(y, m=3.0))
     np.testing.assert_allclose(apply_transform(y, "rankine_failure"), t_rankine_failure(y))
     np.testing.assert_allclose(apply_transform(y, "von_mises_stress"), t_von_mises(y))
-    np.testing.assert_allclose(apply_transform(y, "safety_factor"), t_safety_factor(y, capacity=1.0))
-    np.testing.assert_allclose(apply_transform(y, "cumulative_damage"), t_cumulative_damage(y, m=3.0))
+    np.testing.assert_allclose(
+        apply_transform(y, "safety_factor"), t_safety_factor(y, capacity=1.0)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "cumulative_damage"), t_cumulative_damage(y, m=3.0)
+    )
     np.testing.assert_allclose(apply_transform(y, "stress_life"), t_stress_life(y, C=1e6, m=3.0))
 
     spatial_y = np.linspace(-2.0, 2.0, 36, dtype=float).reshape(3, 3, 4)
-    np.testing.assert_allclose(apply_transform(spatial_y, "gradient_magnitude"), t_gradient_magnitude(spatial_y))
+    np.testing.assert_allclose(
+        apply_transform(spatial_y, "gradient_magnitude"), t_gradient_magnitude(spatial_y)
+    )
 
 
 def test_focused_transform_modules_exist() -> None:
@@ -348,3 +402,14 @@ def test_periodic_pointwise_family_no_longer_defined_in_monolith() -> None:
     assert "def t_square_wave(" not in monolith
     assert "def t_double_sin(" not in monolith
     assert "def t_sin_cos_product(" not in monolith
+
+
+def test_nonlinear_pointwise_family_no_longer_defined_in_monolith() -> None:
+    package_root = Path(sabench.__file__).resolve().parent
+    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+
+    assert "def t_cosh_pointwise(" not in monolith
+    assert "def t_cbrt_pointwise(" not in monolith
+    assert "def t_logistic_pointwise(" not in monolith
+    assert "def t_arctan_pointwise(" not in monolith
+    assert "def t_sinh_pointwise(" not in monolith

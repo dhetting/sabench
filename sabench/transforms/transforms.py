@@ -45,7 +45,14 @@ from sabench.transforms.engineering import (
 )
 from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
-from sabench.transforms.nonlinear import t_softplus_pointwise
+from sabench.transforms.nonlinear import (
+    t_arctan_pointwise,
+    t_cbrt_pointwise,
+    t_cosh_pointwise,
+    t_logistic_pointwise,
+    t_sinh_pointwise,
+    t_softplus_pointwise,
+)
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
     t_cos_pointwise,
@@ -175,8 +182,6 @@ def t_normalised_stress(Y, yield_q=0.80):
     s = _bc(_ymin(Y), Y)
     yld = _bc(np.quantile(Y.reshape(len(Y), -1), yield_q, axis=1), Y)
     return np.clip((Y - s) / (yld - s + 1e-12), 0.0, 1.0)
-
-
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -364,7 +369,6 @@ def t_isoline_length(Y, quantile=0.75):
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-
 def t_temporal_log_cumsum(Y, eps=1.0):
     """Log of the cumulative sum: Z(t) = log(sum_{s<=t} Y(s) + eps).
 
@@ -447,23 +451,6 @@ def t_temporal_block_avg(Y, block=10):
 # ── Convex pointwise ──────────────────────────────────────────────────────────
 
 
-
-def t_cosh_pointwise(Y, scale=0.1):
-    """Hyperbolic cosine: φ(y) = cosh(scale·y).
-    Strictly convex, even (symmetric), C∞, non-monotone.
-    Grows exponentially; models symmetric amplification.
-    """
-    return np.cosh(np.clip(scale * Y, -100, 100))
-
-
-def t_cbrt_pointwise(Y):
-    """Cube root: φ(y) = y^(1/3) = cbrt(y).
-    Monotone, odd, concave for y>0, convex for y<0.
-    C∞ except at y=0 (derivative→∞). Strongly compresses tails.
-    """
-    return np.cbrt(Y)
-
-
 def t_neg_square(Y):
     """Negative square: φ(y) = −y².
     Strictly concave (φ''=−2<0), even, non-monotone.
@@ -475,36 +462,7 @@ def t_neg_square(Y):
 # ── Monotone S-shaped ────────────────────────────────────────────────────────
 
 
-def t_logistic_pointwise(Y, k=1.0):
-    """Logistic: φ(y) = 1/(1+exp(−k·y)).
-    Monotone increasing, bounded in (0,1), C∞.
-    Concave for y>0, convex for y<0; inflection at y=0.
-    Used in probability models and neural-network output layers.
-    """
-    return 1.0 / (1.0 + np.exp(-np.clip(k * Y, -100, 100)))
-
-
-def t_arctan_pointwise(Y, scale=1.0):
-    """Arctan: φ(y) = arctan(scale·y).
-    Monotone increasing, bounded in (−π/2, π/2), C∞.
-    Concave for y>0, convex for y<0; symmetric saturation.
-    """
-    return np.arctan(scale * Y)
-
-
-
-def t_sinh_pointwise(Y, scale=0.1):
-    """Sinh: φ(y) = sinh(scale·y).
-    Monotone, odd, convex for y>0, concave for y<0 (inflection at 0).
-    Grows exponentially; complementary to tanh.
-    """
-    return np.sinh(np.clip(scale * Y, -100, 100))
-
-
 # ── Oscillatory / non-monotone ────────────────────────────────────────────────
-
-
-
 
 
 def t_triangle_wave(Y, period=4.0):
@@ -554,8 +512,6 @@ def t_inverse_abs(Y, eps=1.0):
 # ══════════════════════════════════════════════════════════════════════════════
 # Engineering additions
 # ══════════════════════════════════════════════════════════════════════════════
-
-
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1039,8 +995,6 @@ def t_emax_model(Y, Emax=1.0, ED50_q=0.5, n=1.0):
 # ============================================================================
 # STRUCTURAL / MECHANICAL ENGINEERING TRANSFORMS
 # ============================================================================
-
-
 
 
 # ============================================================================
