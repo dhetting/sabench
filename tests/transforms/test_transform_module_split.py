@@ -48,6 +48,7 @@ from sabench.transforms.environmental import (
     t_quantile_delta,
     t_standardised_precip_idx,
 )
+from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.financial import (
     t_cvar,
     t_drawdown,
@@ -56,7 +57,6 @@ from sabench.transforms.financial import (
     t_sharpe_proxy,
     t_var_proxy,
 )
-from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import (
     t_algebraic_sigmoid,
@@ -113,9 +113,13 @@ from sabench.transforms.pointwise import (
 )
 from sabench.transforms.samplewise import t_temporal_cumsum
 from sabench.transforms.statistical import (
+    t_anscombe,
+    t_asinh_vs,
     t_clamp_sigma,
+    t_dual_power,
     t_entropy_proxy,
     t_frechet_cdf,
+    t_freeman_tukey,
     t_gev_cdf,
     t_gumbel_cdf,
     t_inverse_normal,
@@ -123,6 +127,7 @@ from sabench.transforms.statistical import (
     t_log_logistic_cdf,
     t_log_normal_cdf,
     t_min_max_normalise,
+    t_modulus,
     t_pareto_tail,
     t_quantile_normalise,
     t_rank_transform,
@@ -215,6 +220,11 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("gev_cdf").module == "sabench.transforms.statistical"
     assert get_transform_spec("pareto_tail").module == "sabench.transforms.statistical"
     assert get_transform_spec("log_logistic_cdf").module == "sabench.transforms.statistical"
+    assert get_transform_spec("anscombe").module == "sabench.transforms.statistical"
+    assert get_transform_spec("freeman_tukey").module == "sabench.transforms.statistical"
+    assert get_transform_spec("asinh_vst").module == "sabench.transforms.statistical"
+    assert get_transform_spec("modulus_lam05").module == "sabench.transforms.statistical"
+    assert get_transform_spec("dual_power_lam03").module == "sabench.transforms.statistical"
     assert get_transform_spec("var_q95").module == "sabench.transforms.financial"
     assert get_transform_spec("cvar_q95").module == "sabench.transforms.financial"
     assert get_transform_spec("sharpe_proxy").module == "sabench.transforms.financial"
@@ -375,24 +385,40 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "erf_pointwise"), t_erf_pointwise(y, scale=0.5))
     np.testing.assert_allclose(apply_transform(y, "sin_pointwise"), t_sin_pointwise(y, freq=0.5))
     np.testing.assert_allclose(apply_transform(y, "cos_pointwise"), t_cos_pointwise(y, freq=0.5))
-    np.testing.assert_allclose(apply_transform(y, "step_pointwise"), t_step_pointwise(y, threshold=0.0))
+    np.testing.assert_allclose(
+        apply_transform(y, "step_pointwise"), t_step_pointwise(y, threshold=0.0)
+    )
     np.testing.assert_allclose(apply_transform(y, "log_abs_pointwise"), t_log_abs(y, eps=1.0))
     np.testing.assert_allclose(apply_transform(y, "sinc"), t_sinc(y, scale=0.5))
     np.testing.assert_allclose(apply_transform(y, "sin_squared"), t_sin_squared(y, freq=0.5))
     np.testing.assert_allclose(apply_transform(y, "cos_squared"), t_cos_squared(y, freq=0.5))
-    np.testing.assert_allclose(apply_transform(y, "damped_sin"), t_damped_sin(y, freq=0.5, decay=0.1))
+    np.testing.assert_allclose(
+        apply_transform(y, "damped_sin"), t_damped_sin(y, freq=0.5, decay=0.1)
+    )
     np.testing.assert_allclose(apply_transform(y, "sawtooth"), t_sawtooth(y, period=4.0))
     np.testing.assert_allclose(apply_transform(y, "square_wave"), t_square_wave(y, period=4.0))
-    np.testing.assert_allclose(apply_transform(y, "double_sin"), t_double_sin(y, freq1=0.3, freq2=0.7))
-    np.testing.assert_allclose(apply_transform(y, "sin_cos_product"), t_sin_cos_product(y, freq=0.5))
-    np.testing.assert_allclose(apply_transform(y, "softplus_b01"), t_softplus_pointwise(y, beta=0.1))
+    np.testing.assert_allclose(
+        apply_transform(y, "double_sin"), t_double_sin(y, freq1=0.3, freq2=0.7)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "sin_cos_product"), t_sin_cos_product(y, freq=0.5)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "softplus_b01"), t_softplus_pointwise(y, beta=0.1)
+    )
     np.testing.assert_allclose(apply_transform(y, "cosh_pointwise"), t_cosh_pointwise(y, scale=0.1))
     np.testing.assert_allclose(apply_transform(y, "cbrt_pointwise"), t_cbrt_pointwise(y))
-    np.testing.assert_allclose(apply_transform(y, "logistic_pointwise"), t_logistic_pointwise(y, k=1.0))
-    np.testing.assert_allclose(apply_transform(y, "arctan_pointwise"), t_arctan_pointwise(y, scale=1.0))
+    np.testing.assert_allclose(
+        apply_transform(y, "logistic_pointwise"), t_logistic_pointwise(y, k=1.0)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "arctan_pointwise"), t_arctan_pointwise(y, scale=1.0)
+    )
     np.testing.assert_allclose(apply_transform(y, "sinh_pointwise"), t_sinh_pointwise(y, scale=0.1))
     np.testing.assert_allclose(apply_transform(y, "gompertz_cdf"), t_gompertz(y, b=1.0, c=0.5))
-    np.testing.assert_allclose(apply_transform(y, "algebraic_sigmoid"), t_algebraic_sigmoid(y, scale=0.5))
+    np.testing.assert_allclose(
+        apply_transform(y, "algebraic_sigmoid"), t_algebraic_sigmoid(y, scale=0.5)
+    )
     np.testing.assert_allclose(apply_transform(y, "swish"), t_swish(y, beta=1.0))
     np.testing.assert_allclose(apply_transform(y, "mish"), t_mish(y))
     np.testing.assert_allclose(apply_transform(y, "selu"), t_selu(y, alpha=1.6733, lam=1.0507))
@@ -403,7 +429,9 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "soft_threshold"), t_soft_threshold(y, lam=1.0))
     np.testing.assert_allclose(apply_transform(y, "hard_threshold"), t_hard_threshold(y, lam=1.0))
     np.testing.assert_allclose(apply_transform(y, "ramp"), t_ramp(y, lo=-1.0, hi=1.0))
-    np.testing.assert_allclose(apply_transform(y, "spike_gaussian"), t_spike(y, center=0.0, width=1.0))
+    np.testing.assert_allclose(
+        apply_transform(y, "spike_gaussian"), t_spike(y, center=0.0, width=1.0)
+    )
     np.testing.assert_allclose(
         apply_transform(y, "breakpoint"),
         t_breakpoint(y, bp=0.0, slope_lo=0.5, slope_hi=2.0),
@@ -415,14 +443,22 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "temporal_rms"), t_temporal_rms(y))
     np.testing.assert_allclose(apply_transform(y, "temporal_range"), t_temporal_range(y))
     np.testing.assert_allclose(apply_transform(y, "temporal_autocorr"), t_temporal_autocorr(y))
-    np.testing.assert_allclose(apply_transform(y, "temporal_quantile_q10"), t_temporal_quantile(y, q=0.10))
-    np.testing.assert_allclose(apply_transform(y, "temporal_quantile_q50"), t_temporal_quantile(y, q=0.50))
-    np.testing.assert_allclose(apply_transform(y, "temporal_quantile_q90"), t_temporal_quantile(y, q=0.90))
+    np.testing.assert_allclose(
+        apply_transform(y, "temporal_quantile_q10"), t_temporal_quantile(y, q=0.10)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "temporal_quantile_q50"), t_temporal_quantile(y, q=0.50)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "temporal_quantile_q90"), t_temporal_quantile(y, q=0.90)
+    )
     np.testing.assert_allclose(apply_transform(y, "sample_variance"), t_sample_variance(y))
     np.testing.assert_allclose(apply_transform(y, "negentropy_proxy"), t_negentropy_proxy(y))
     np.testing.assert_allclose(apply_transform(y, "wasserstein_proxy"), t_wasserstein_proxy(y))
     np.testing.assert_allclose(apply_transform(y, "energy_distance"), t_energy_distance_proxy(y))
-    np.testing.assert_allclose(apply_transform(y, "renyi_entropy_a2"), t_entropy_renyi(y, alpha=2.0, bins=20))
+    np.testing.assert_allclose(
+        apply_transform(y, "renyi_entropy_a2"), t_entropy_renyi(y, alpha=2.0, bins=20)
+    )
     np.testing.assert_allclose(apply_transform(y, "sample_skewness"), t_sample_skewness(y))
     np.testing.assert_allclose(apply_transform(y, "sample_kurtosis"), t_sample_kurtosis(y))
     np.testing.assert_allclose(apply_transform(y, "percentile_q10"), t_percentile_q10(y))
@@ -449,28 +485,49 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "johnson_su"), t_johnson_su(y))
     np.testing.assert_allclose(apply_transform(y, "gev_cdf"), t_gev_cdf(y, xi=0.3))
     np.testing.assert_allclose(apply_transform(y, "pareto_tail"), t_pareto_tail(y, alpha=1.5))
-    np.testing.assert_allclose(apply_transform(y, "log_logistic_cdf"), t_log_logistic_cdf(y, beta=2.0))
+    np.testing.assert_allclose(
+        apply_transform(y, "log_logistic_cdf"), t_log_logistic_cdf(y, beta=2.0)
+    )
+    np.testing.assert_allclose(apply_transform(y, "anscombe"), t_anscombe(y))
+    np.testing.assert_allclose(apply_transform(y, "freeman_tukey"), t_freeman_tukey(y))
+    np.testing.assert_allclose(apply_transform(y, "asinh_vst"), t_asinh_vs(y, scale=0.5))
+    np.testing.assert_allclose(apply_transform(y, "modulus_lam05"), t_modulus(y, lam=0.5))
+    np.testing.assert_allclose(apply_transform(y, "dual_power_lam03"), t_dual_power(y, lam=0.3))
     np.testing.assert_allclose(apply_transform(y, "var_q95"), t_var_proxy(y, q=0.95))
     np.testing.assert_allclose(apply_transform(y, "cvar_q95"), t_cvar(y, q=0.95))
     np.testing.assert_allclose(apply_transform(y, "sharpe_proxy"), t_sharpe_proxy(y, rf=0.0))
     np.testing.assert_allclose(apply_transform(y, "drawdown"), t_drawdown(y))
     np.testing.assert_allclose(apply_transform(y, "fold_change"), t_fold_change(y, eps=1.0))
     np.testing.assert_allclose(apply_transform(y, "excess_return"), t_excess_return(y))
-    np.testing.assert_allclose(apply_transform(y, "weibull_reliability"), t_weibull_reliability(y, shape=2.0))
+    np.testing.assert_allclose(
+        apply_transform(y, "weibull_reliability"), t_weibull_reliability(y, shape=2.0)
+    )
     np.testing.assert_allclose(apply_transform(y, "fatigue_miner"), t_fatigue_miner(y, m=3.0))
     np.testing.assert_allclose(apply_transform(y, "rankine_failure"), t_rankine_failure(y))
     np.testing.assert_allclose(apply_transform(y, "von_mises_stress"), t_von_mises(y))
-    np.testing.assert_allclose(apply_transform(y, "safety_factor"), t_safety_factor(y, capacity=1.0))
-    np.testing.assert_allclose(apply_transform(y, "cumulative_damage"), t_cumulative_damage(y, m=3.0))
+    np.testing.assert_allclose(
+        apply_transform(y, "safety_factor"), t_safety_factor(y, capacity=1.0)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "cumulative_damage"), t_cumulative_damage(y, m=3.0)
+    )
     np.testing.assert_allclose(apply_transform(y, "stress_life"), t_stress_life(y, C=1e6, m=3.0))
-    np.testing.assert_allclose(apply_transform(y, "sigmoid_dose"), t_sigmoid_dose(y, EC50_q=0.5, n_hill=4.0))
-    np.testing.assert_allclose(apply_transform(y, "hill_response"), t_hill_response(y, n=2.0, EC50_q=0.5))
+    np.testing.assert_allclose(
+        apply_transform(y, "sigmoid_dose"), t_sigmoid_dose(y, EC50_q=0.5, n_hill=4.0)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "hill_response"), t_hill_response(y, n=2.0, EC50_q=0.5)
+    )
     np.testing.assert_allclose(apply_transform(y, "log_auc"), t_log_auc(y, eps=1.0))
-    np.testing.assert_allclose(apply_transform(y, "emax_model"), t_emax_model(y, Emax=1.0, ED50_q=0.5, n=1.0))
+    np.testing.assert_allclose(
+        apply_transform(y, "emax_model"), t_emax_model(y, Emax=1.0, ED50_q=0.5, n=1.0)
+    )
     np.testing.assert_allclose(apply_transform(y, "anomaly_pct"), t_anomaly_pct(y, eps=1.0))
     np.testing.assert_allclose(apply_transform(y, "bias_correction"), t_bias_correction(y))
     np.testing.assert_allclose(apply_transform(y, "quantile_delta"), t_quantile_delta(y, q=0.90))
-    np.testing.assert_allclose(apply_transform(y, "growing_degree_days"), t_growing_degree_days(y, base=10.0))
+    np.testing.assert_allclose(
+        apply_transform(y, "growing_degree_days"), t_growing_degree_days(y, base=10.0)
+    )
     np.testing.assert_allclose(apply_transform(y, "std_precip_idx"), t_standardised_precip_idx(y))
     np.testing.assert_allclose(apply_transform(y, "nash_sutcliffe"), t_nash_sutcliffe(y))
     np.testing.assert_allclose(apply_transform(y, "pot_log"), t_pot_log(y, q=0.90, eps=1.0))
@@ -481,7 +538,9 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "log_ratio"), t_log_ratio(y, eps=1.0))
 
     spatial_y = np.linspace(-2.0, 2.0, 36, dtype=float).reshape(3, 3, 4)
-    np.testing.assert_allclose(apply_transform(spatial_y, "gradient_magnitude"), t_gradient_magnitude(spatial_y))
+    np.testing.assert_allclose(
+        apply_transform(spatial_y, "gradient_magnitude"), t_gradient_magnitude(spatial_y)
+    )
 
 
 def test_focused_transform_modules_exist() -> None:
@@ -578,7 +637,6 @@ def test_threshold_piecewise_family_no_longer_defined_in_monolith() -> None:
     assert "def t_deadzone(" not in monolith
 
 
-
 def test_pharmacological_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
     monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
@@ -587,6 +645,7 @@ def test_pharmacological_family_no_longer_defined_in_monolith() -> None:
     assert "def t_hill_response(" not in monolith
     assert "def t_log_auc(" not in monolith
     assert "def t_emax_model(" not in monolith
+
 
 def test_climate_bias_anomaly_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
@@ -606,6 +665,17 @@ def test_environmental_hydrology_family_no_longer_defined_in_monolith() -> None:
     assert "def t_nash_sutcliffe(" not in monolith
     assert "def t_pot_log(" not in monolith
     assert "def t_log_flow(" not in monolith
+
+
+def test_variance_stabilising_family_no_longer_defined_in_monolith() -> None:
+    package_root = Path(sabench.__file__).resolve().parent
+    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+
+    assert "def t_anscombe(" not in monolith
+    assert "def t_freeman_tukey(" not in monolith
+    assert "def t_asinh_vs(" not in monolith
+    assert "def t_modulus(" not in monolith
+    assert "def t_dual_power(" not in monolith
 
 
 def test_financial_family_no_longer_defined_in_monolith() -> None:

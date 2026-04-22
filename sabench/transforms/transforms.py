@@ -59,6 +59,7 @@ from sabench.transforms.environmental import (
     t_quantile_delta,
     t_standardised_precip_idx,
 )
+from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.financial import (
     t_cvar,
     t_drawdown,
@@ -67,7 +68,6 @@ from sabench.transforms.financial import (
     t_sharpe_proxy,
     t_var_proxy,
 )
-from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import (
     t_algebraic_sigmoid,
@@ -124,9 +124,13 @@ from sabench.transforms.pointwise import (
 )
 from sabench.transforms.samplewise import t_temporal_cumsum
 from sabench.transforms.statistical import (
+    t_anscombe,
+    t_asinh_vs,
     t_clamp_sigma,
+    t_dual_power,
     t_entropy_proxy,
     t_frechet_cdf,
+    t_freeman_tukey,
     t_gev_cdf,
     t_gumbel_cdf,
     t_inverse_normal,
@@ -134,6 +138,7 @@ from sabench.transforms.statistical import (
     t_log_logistic_cdf,
     t_log_normal_cdf,
     t_min_max_normalise,
+    t_modulus,
     t_pareto_tail,
     t_quantile_normalise,
     t_rank_transform,
@@ -221,8 +226,6 @@ def t_normalised_stress(Y, yield_q=0.80):
     s = _bc(_ymin(Y), Y)
     yld = _bc(np.quantile(Y.reshape(len(Y), -1), yield_q, axis=1), Y)
     return np.clip((Y - s) / (yld - s + 1e-12), 0.0, 1.0)
-
-
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -410,7 +413,6 @@ def t_isoline_length(Y, quantile=0.75):
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-
 def t_temporal_log_cumsum(Y, eps=1.0):
     """Log of the cumulative sum: Z(t) = log(sum_{s<=t} Y(s) + eps).
 
@@ -493,9 +495,6 @@ def t_temporal_block_avg(Y, block=10):
 # ── Convex pointwise ──────────────────────────────────────────────────────────
 
 
-
-
-
 def t_neg_square(Y):
     """Negative square: φ(y) = −y².
     Strictly concave (φ''=−2<0), even, non-monotone.
@@ -507,14 +506,7 @@ def t_neg_square(Y):
 # ── Monotone S-shaped ────────────────────────────────────────────────────────
 
 
-
-
-
-
 # ── Oscillatory / non-monotone ────────────────────────────────────────────────
-
-
-
 
 
 def t_triangle_wave(Y, period=4.0):
@@ -564,8 +556,6 @@ def t_inverse_abs(Y, eps=1.0):
 # ══════════════════════════════════════════════════════════════════════════════
 # Engineering additions
 # ══════════════════════════════════════════════════════════════════════════════
-
-
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -674,11 +664,9 @@ def t_atan2pi(Y, scale=1.0):
     return (2.0 / np.pi) * np.arctan(scale * Y)
 
 
-
 # ============================================================================
 # THRESHOLD / PIECEWISE FAMILY
 # ============================================================================
-
 
 
 def t_bimodal_flip(Y):
@@ -697,44 +685,6 @@ def t_donut(Y, center=0.0, radius=1.5, width=0.5):
 # ============================================================================
 # VARIANCE-STABILISING FAMILY
 # ============================================================================
-
-
-def t_anscombe(Y):
-    """Anscombe transform: phi(y) = 2*sqrt(y+3/8) -- variance-stabilises Poisson counts."""
-    s = _bc(_ymin(Y), Y)
-    Ypos = Y - s
-    return 2.0 * np.sqrt(np.maximum(Ypos + 0.375, 0.0))
-
-
-def t_freeman_tukey(Y):
-    """Freeman-Tukey: phi(y) = sqrt(y) + sqrt(y+1) -- variance-stabilises counts."""
-    s = _bc(_ymin(Y), Y)
-    Ypos = np.maximum(Y - s, 0.0)
-    return np.sqrt(Ypos) + np.sqrt(Ypos + 1.0)
-
-
-def t_asinh_vs(Y, scale=0.5):
-    """Inverse hyperbolic sine (arcsinh): phi(y) = asinh(scale*y) -- C-inf, VST."""
-    return np.arcsinh(scale * Y)
-
-
-def t_modulus(Y, lam=0.5):
-    """Modulus transform: phi(y) = sign(y)*(|y|+1)^lam - 1) -- C1, generalized VST."""
-    return np.sign(Y) * ((np.abs(Y) + 1.0) ** lam - 1.0)
-
-
-def t_dual_power(Y, lam=0.3):
-    """Dual power (Yeo-Johnson lam=0.3 special case): maps all reals, C1."""
-    lam = float(lam)
-    pos = Y >= 0
-    Z = np.empty_like(Y, dtype=float)
-    Z[pos] = ((Y[pos] + 1.0) ** lam - 1.0) / lam if abs(lam) > 1e-8 else np.log(Y[pos] + 1.0)
-    Z[~pos] = (
-        -((-Y[~pos] + 1.0) ** (2.0 - lam) - 1.0) / (2.0 - lam)
-        if abs(2.0 - lam) > 1e-8
-        else -np.log(-Y[~pos] + 1.0)
-    )
-    return Z
 
 
 def t_log2_shift(Y, eps=1.0):
@@ -785,13 +735,9 @@ def t_power_exp(Y, scale=0.1):
 # ============================================================================
 
 
-
-
 # ============================================================================
 # CLIMATE / ENVIRONMENTAL SCIENCE TRANSFORMS
 # ============================================================================
-
-
 
 
 # ============================================================================
@@ -802,8 +748,6 @@ def t_power_exp(Y, scale=0.1):
 # ============================================================================
 # STRUCTURAL / MECHANICAL ENGINEERING TRANSFORMS
 # ============================================================================
-
-
 
 
 # ============================================================================

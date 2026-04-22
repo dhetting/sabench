@@ -122,6 +122,46 @@ def t_inverse_normal(Y: np.ndarray) -> np.ndarray:
     return out.reshape(Y.shape)
 
 
+def t_anscombe(Y: np.ndarray) -> np.ndarray:
+    """Anscombe transform for approximately Poisson-distributed counts."""
+    shift = _bc(_ymin(Y), Y)
+    y_pos = Y - shift
+    return 2.0 * np.sqrt(np.maximum(y_pos + 0.375, 0.0))
+
+
+def t_freeman_tukey(Y: np.ndarray) -> np.ndarray:
+    """Freeman-Tukey count transform on per-sample shifted support."""
+    shift = _bc(_ymin(Y), Y)
+    y_pos = np.maximum(Y - shift, 0.0)
+    return np.sqrt(y_pos) + np.sqrt(y_pos + 1.0)
+
+
+def t_asinh_vs(Y: np.ndarray, scale: float = 0.5) -> np.ndarray:
+    """Arcsinh variance-stabilizing transform with configurable scale."""
+    return np.arcsinh(scale * Y)
+
+
+def t_modulus(Y: np.ndarray, lam: float = 0.5) -> np.ndarray:
+    """Signed modulus power transform over the full real line."""
+    return np.sign(Y) * ((np.abs(Y) + 1.0) ** lam - 1.0)
+
+
+def t_dual_power(Y: np.ndarray, lam: float = 0.3) -> np.ndarray:
+    """Dual-power real-line transform related to Yeo-Johnson mappings."""
+    lam = float(lam)
+    positive = Y >= 0
+    z = np.empty_like(Y, dtype=float)
+    z[positive] = (
+        ((Y[positive] + 1.0) ** lam - 1.0) / lam if abs(lam) > 1e-8 else np.log(Y[positive] + 1.0)
+    )
+    z[~positive] = (
+        -((-Y[~positive] + 1.0) ** (2.0 - lam) - 1.0) / (2.0 - lam)
+        if abs(2.0 - lam) > 1e-8
+        else -np.log(-Y[~positive] + 1.0)
+    )
+    return z
+
+
 def t_gumbel_cdf(Y: np.ndarray) -> np.ndarray:
     """Gumbel (extreme-value type I) non-exceedance CDF fitted per sample."""
     flat = Y.reshape(len(Y), -1)

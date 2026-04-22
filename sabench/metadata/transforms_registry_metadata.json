@@ -107,7 +107,7 @@
     "function_name": "t_anscombe",
     "key": "anscombe",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Anscombe VST (Poisson counts)",
     "reference": "Anscombe (1948)",
     "supported_output_kinds": [
@@ -170,7 +170,7 @@
     "function_name": "t_asinh_vs",
     "key": "asinh_vst",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Inverse hyperbolic sine (VST, C-inf)",
     "reference": "Johnson (1949)",
     "supported_output_kinds": [
@@ -761,7 +761,7 @@
     "function_name": "t_dual_power",
     "key": "dual_power_lam03",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Dual power lam=0.3 (C1, all-real)",
     "reference": "Yeo & Johnson (2000)",
     "supported_output_kinds": [
@@ -1100,7 +1100,7 @@
     "function_name": "t_freeman_tukey",
     "key": "freeman_tukey",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Freeman-Tukey VST (count data)",
     "reference": "Freeman & Tukey (1950)",
     "supported_output_kinds": [
@@ -1834,7 +1834,7 @@
     "function_name": "t_modulus",
     "key": "modulus_lam05",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Modulus transform lam=0.5 (C1 VST)",
     "reference": "John & Draper (1980)",
     "supported_output_kinds": [
