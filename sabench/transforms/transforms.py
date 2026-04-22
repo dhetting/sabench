@@ -34,6 +34,15 @@ from sabench.transforms.aggregation import (
     t_temporal_rms,
     t_wasserstein_proxy,
 )
+from sabench.transforms.engineering import (
+    t_cumulative_damage,
+    t_fatigue_miner,
+    t_rankine_failure,
+    t_safety_factor,
+    t_stress_life,
+    t_von_mises,
+    t_weibull_reliability,
+)
 from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import t_softplus_pointwise
@@ -154,10 +163,6 @@ def t_normalised_stress(Y, yield_q=0.80):
     return np.clip((Y - s) / (yld - s + 1e-12), 0.0, 1.0)
 
 
-def t_weibull_reliability(Y, shape=2.0):
-    s = _bc(_ymin(Y), Y)
-    r = _bc(_safe_range(Y), Y)
-    return 1.0 - np.exp(-(((Y - s) / r) ** shape))
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -585,24 +590,6 @@ def t_log_abs(Y, eps=1.0):
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-def t_fatigue_miner(Y, m=3.0):
-    """Palmgren-Miner damage accumulation: D = Σ (ΔS_i / N_f_i) ~ S^m / C.
-    Raises normalised amplitude to the Paris-law exponent m (steel: m≈3).
-    Models structural fatigue damage accumulation in fracture mechanics.
-    """
-    s = _bc(_ymin(Y), Y)
-    r = _bc(_safe_range(Y), Y)
-    Yn = (Y - s) / r + 1e-6
-    return Yn**m
-
-
-def t_rankine_failure(Y):
-    """Rankine failure: Z = max(Y_flat, 0) — principal stress criterion.
-    Models the maximum tensile stress component; zeros out compressive stresses.
-    Non-smooth (C⁰), non-negative, nonlocal (uses max across outputs).
-    """
-    flat = Y.reshape(len(Y), -1)
-    return np.maximum(flat, 0.0).reshape(Y.shape)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1134,24 +1121,6 @@ def t_emax_model(Y, Emax=1.0, ED50_q=0.5, n=1.0):
 # ============================================================================
 
 
-def t_von_mises(Y):
-    """Von Mises stress proxy: phi = sqrt(Y^2 + 0.25*Y^2) = |Y|*sqrt(1.25) -- scaled abs."""
-    return np.abs(Y) * np.sqrt(1.25)
-
-
-def t_safety_factor(Y, capacity=1.0):
-    """Safety factor: phi = capacity/(|Y| + eps) -- inverse magnitude."""
-    return capacity / (np.abs(Y) + 1e-6)
-
-
-def t_cumulative_damage(Y, m=3.0):
-    """Palmgren-Miner cumulative damage per cycle: phi = |Y|^m -- power law damage."""
-    return np.abs(Y) ** m
-
-
-def t_stress_life(Y, C=1e6, m=3.0):
-    """Stress-life (Basquin): phi = C / (|Y| + eps)^m -- S-N curve fatigue life."""
-    return C / (np.abs(Y) + 1e-3) ** m
 
 
 # ============================================================================

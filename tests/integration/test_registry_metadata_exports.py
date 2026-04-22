@@ -88,5 +88,12 @@ def test_transform_registry_export_uses_canonical_fields() -> None:
     assert exported["gev_cdf"]["module"] == "sabench.transforms.statistical"
     assert exported["pareto_tail"]["module"] == "sabench.transforms.statistical"
     assert exported["log_logistic_cdf"]["module"] == "sabench.transforms.statistical"
+    assert exported["weibull_reliability"]["module"] == "sabench.transforms.engineering"
+    assert exported["fatigue_miner"]["module"] == "sabench.transforms.engineering"
+    assert exported["rankine_failure"]["module"] == "sabench.transforms.engineering"
+    assert exported["von_mises_stress"]["module"] == "sabench.transforms.engineering"
+    assert exported["safety_factor"]["module"] == "sabench.transforms.engineering"
+    assert exported["cumulative_damage"]["module"] == "sabench.transforms.engineering"
+    assert exported["stress_life"]["module"] == "sabench.transforms.engineering"
     assert exported["temporal_cumsum"]["mechanism"] == "samplewise"
     assert exported["gradient_magnitude"]["supported_output_kinds"] == ["spatial"]

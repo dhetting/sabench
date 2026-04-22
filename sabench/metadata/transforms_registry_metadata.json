@@ -622,7 +622,7 @@
     "function_name": "t_cumulative_damage",
     "key": "cumulative_damage",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.engineering",
     "name": "Cumulative damage |y|^m m=3 (Miner)",
     "reference": "Miner (1945)",
     "supported_output_kinds": [
@@ -1041,7 +1041,7 @@
     "function_name": "t_fatigue_miner",
     "key": "fatigue_miner",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.engineering",
     "name": "Palmgren-Miner fatigue accumulation",
     "reference": "Miner (1945)",
     "supported_output_kinds": [
@@ -2212,7 +2212,7 @@
     "function_name": "t_rankine_failure",
     "key": "rankine_failure",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.engineering",
     "name": "Rankine failure criterion (max principal)",
     "reference": "Timoshenko (1951)",
     "supported_output_kinds": [
@@ -2367,7 +2367,7 @@
     "function_name": "t_safety_factor",
     "key": "safety_factor",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.engineering",
     "name": "Safety factor (inverse magnitude)",
     "reference": "Haldar & Mahadevan (2000)",
     "supported_output_kinds": [
@@ -2928,7 +2928,7 @@
     "function_name": "t_stress_life",
     "key": "stress_life",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.engineering",
     "name": "S-N Basquin curve (fatigue life)",
     "reference": "Basquin (1910)",
     "supported_output_kinds": [
@@ -3296,7 +3296,7 @@
     "function_name": "t_von_mises",
     "key": "von_mises_stress",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.engineering",
     "name": "Von Mises stress proxy (scaled |y|)",
     "reference": "von Mises (1913)",
     "supported_output_kinds": [
@@ -3336,7 +3336,7 @@
     "function_name": "t_weibull_reliability",
     "key": "weibull_reliability",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.engineering",
     "name": "Weibull failure probability",
     "reference": "Haldar & Mahadevan (2000)",
     "supported_output_kinds": [
