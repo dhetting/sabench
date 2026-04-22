@@ -87,7 +87,7 @@
     "function_name": "t_anomaly_pct",
     "key": "anomaly_pct",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Anomaly percent departure from mean",
     "reference": "Jones et al. (1999)",
     "supported_output_kinds": [
@@ -252,7 +252,7 @@
     "function_name": "t_bias_correction",
     "key": "bias_correction",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Bias correction (linear scaling to 1)",
     "reference": "Piani et al. (2010)",
     "supported_output_kinds": [
@@ -2133,7 +2133,7 @@
     "function_name": "t_quantile_delta",
     "key": "quantile_delta",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.environmental",
     "name": "Quantile delta mapping q=0.90",
     "reference": "Cannon et al. (2015)",
     "supported_output_kinds": [

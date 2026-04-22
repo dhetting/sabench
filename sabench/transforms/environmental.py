@@ -7,6 +7,29 @@ import numpy as np
 from sabench.transforms.utilities import _bc, _ymin
 
 
+def t_anomaly_pct(Y: np.ndarray, eps: float = 1.0) -> np.ndarray:
+    """Anomaly percent: phi = (Y - mean)/|mean| -- percentage departure from mean."""
+    flat = Y.reshape(len(Y), -1)
+    mu = _bc(flat.mean(axis=1), Y)
+    denom = np.abs(mu) + eps
+    return (Y - mu) / denom
+
+
+def t_bias_correction(Y: np.ndarray) -> np.ndarray:
+    """Bias correction (linear scaling): phi = Y * (target_mean/sample_mean)."""
+    flat = Y.reshape(len(Y), -1)
+    mu = flat.mean(axis=1) + 1e-12
+    return Y * _bc(1.0 / mu, Y)
+
+
+def t_quantile_delta(Y: np.ndarray, q: float = 0.90) -> np.ndarray:
+    """Quantile delta: phi = Y * (q_target/q_sample) -- quantile scaling correction."""
+    flat = Y.reshape(len(Y), -1)
+    qvals = np.quantile(flat, q, axis=1)
+    scale = 1.0 / (qvals + 1e-10)
+    return Y * _bc(scale, Y)
+
+
 def t_growing_degree_days(Y: np.ndarray, base: float = 10.0) -> np.ndarray:
     """Growing degree days: phi = max(Y - base, 0) -- threshold accumulation."""
     return np.maximum(Y - base, 0.0)
