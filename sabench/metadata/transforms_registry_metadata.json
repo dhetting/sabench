@@ -384,7 +384,7 @@
     "function_name": "t_breakpoint",
     "key": "breakpoint",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Piecewise linear breakpoint (C0)",
     "reference": "Hansen (2000)",
     "supported_output_kinds": [
@@ -682,7 +682,7 @@
     "function_name": "t_deadzone",
     "key": "deadzone",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Deadzone (zero band, C0)",
     "reference": "Donoho & Johnstone (1994)",
     "supported_output_kinds": [
@@ -1259,7 +1259,7 @@
     "function_name": "t_hard_threshold",
     "key": "hard_threshold",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Hard threshold (discontinuous)",
     "reference": "Donoho & Johnstone (1994)",
     "supported_output_kinds": [
@@ -1361,7 +1361,7 @@
     "function_name": "t_hockey_stick",
     "key": "hockey_stick",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Hockey stick ReLU-shift (convex, C0)",
     "reference": "Glorot et al. (2011)",
     "supported_output_kinds": [
@@ -2171,7 +2171,7 @@
     "function_name": "t_ramp",
     "key": "ramp",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Ramp/clip (piecewise linear, C0)",
     "reference": "Saltelli et al. (2008)",
     "supported_output_kinds": [
@@ -2688,7 +2688,7 @@
     "function_name": "t_soft_threshold",
     "key": "soft_threshold",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Soft threshold (lasso/shrinkage, C0)",
     "reference": "Donoho & Johnstone (1994)",
     "supported_output_kinds": [
@@ -2789,7 +2789,7 @@
     "function_name": "t_spike",
     "key": "spike_gaussian",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.nonlinear",
     "name": "Gaussian spike (C-inf, compact-ish)",
     "reference": "Wendland (2004)",
     "supported_output_kinds": [

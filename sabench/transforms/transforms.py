@@ -49,17 +49,24 @@ from sabench.transforms.nonlinear import (
     t_algebraic_sigmoid,
     t_arctan_pointwise,
     t_bent_identity,
+    t_breakpoint,
     t_cbrt_pointwise,
     t_cosh_pointwise,
+    t_deadzone,
     t_gompertz,
     t_hard_sigmoid,
     t_hard_tanh,
+    t_hard_threshold,
+    t_hockey_stick,
     t_logistic_pointwise,
     t_mish,
+    t_ramp,
     t_selu,
     t_sinh_pointwise,
+    t_soft_threshold,
     t_softplus_pointwise,
     t_softsign,
+    t_spike,
     t_swish,
 )
 from sabench.transforms.pointwise import (
@@ -632,41 +639,6 @@ def t_atan2pi(Y, scale=1.0):
 # ============================================================================
 # THRESHOLD / PIECEWISE FAMILY
 # ============================================================================
-
-
-def t_soft_threshold(Y, lam=1.0):
-    """Soft threshold (lasso shrinkage): phi(y) = sign(y)*max(|y|-lam, 0) -- C0."""
-    return np.sign(Y) * np.maximum(np.abs(Y) - lam, 0.0)
-
-
-def t_hard_threshold(Y, lam=1.0):
-    """Hard threshold: phi(y) = y*(|y|>=lam) -- discontinuous at +-lam."""
-    return Y * (np.abs(Y) >= lam).astype(float)
-
-
-def t_ramp(Y, lo=-1.0, hi=1.0):
-    """Ramp / leaky clip: phi(y) = clip(y, lo, hi) -- piecewise linear, C0."""
-    return np.clip(Y, lo, hi)
-
-
-def t_spike(Y, center=0.0, width=1.0):
-    """Spike indicator: phi(y) = exp(-(y-center)^2/(2*width^2)) -- C-inf bump."""
-    return np.exp(-0.5 * ((Y - center) / width) ** 2)
-
-
-def t_breakpoint(Y, bp=0.0, slope_lo=0.5, slope_hi=2.0):
-    """Piecewise linear breakpoint: slope_lo below bp, slope_hi above -- C0 kink."""
-    return np.where(Y < bp, slope_lo * (Y - bp), slope_hi * (Y - bp))
-
-
-def t_hockey_stick(Y, bp=0.0):
-    """Hockey stick: phi(y) = 0 for y<bp, y-bp for y>=bp -- convex, C0, ReLU-shift."""
-    return np.maximum(Y - bp, 0.0)
-
-
-def t_deadzone(Y, half_width=1.0):
-    """Deadzone: phi(y)=0 for |y|<half_width, y-sign(y)*hw otherwise -- C0."""
-    return np.sign(Y) * np.maximum(np.abs(Y) - half_width, 0.0)
 
 
 def t_bimodal_flip(Y):
