@@ -95,5 +95,13 @@ def test_transform_registry_export_uses_canonical_fields() -> None:
     assert exported["safety_factor"]["module"] == "sabench.transforms.engineering"
     assert exported["cumulative_damage"]["module"] == "sabench.transforms.engineering"
     assert exported["stress_life"]["module"] == "sabench.transforms.engineering"
+    assert exported["sinc"]["module"] == "sabench.transforms.pointwise"
+    assert exported["sin_squared"]["module"] == "sabench.transforms.pointwise"
+    assert exported["cos_squared"]["module"] == "sabench.transforms.pointwise"
+    assert exported["damped_sin"]["module"] == "sabench.transforms.pointwise"
+    assert exported["sawtooth"]["module"] == "sabench.transforms.pointwise"
+    assert exported["square_wave"]["module"] == "sabench.transforms.pointwise"
+    assert exported["double_sin"]["module"] == "sabench.transforms.pointwise"
+    assert exported["sin_cos_product"]["module"] == "sabench.transforms.pointwise"
     assert exported["temporal_cumsum"]["mechanism"] == "samplewise"
     assert exported["gradient_magnitude"]["supported_output_kinds"] == ["spatial"]

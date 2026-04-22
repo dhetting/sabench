@@ -37,11 +37,19 @@ from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import t_softplus_pointwise
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
+    t_cos_squared,
+    t_damped_sin,
+    t_double_sin,
     t_exp_pointwise,
     t_log1p_abs,
     t_relu_pointwise,
+    t_sawtooth,
+    t_sin_cos_product,
+    t_sin_squared,
+    t_sinc,
     t_sqrt_abs,
     t_square_pointwise,
+    t_square_wave,
     t_tanh_pointwise,
 )
 from sabench.transforms.samplewise import t_temporal_cumsum
@@ -76,6 +84,14 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("log1p_positive").module == "sabench.transforms.pointwise"
     assert get_transform_spec("sqrt_abs").module == "sabench.transforms.pointwise"
     assert get_transform_spec("abs_pointwise").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("sinc").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("sin_squared").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("cos_squared").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("damped_sin").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("sawtooth").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("square_wave").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("double_sin").module == "sabench.transforms.pointwise"
+    assert get_transform_spec("sin_cos_product").module == "sabench.transforms.pointwise"
     assert get_transform_spec("softplus_b01").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("temporal_cumsum").module == "sabench.transforms.samplewise"
     assert get_transform_spec("temporal_peak").module == "sabench.transforms.aggregation"
@@ -132,6 +148,14 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["log1p_positive"]["fn"] is t_log1p_abs
     assert TRANSFORMS["sqrt_abs"]["fn"] is t_sqrt_abs
     assert TRANSFORMS["abs_pointwise"]["fn"] is t_abs_pointwise
+    assert TRANSFORMS["sinc"]["fn"] is t_sinc
+    assert TRANSFORMS["sin_squared"]["fn"] is t_sin_squared
+    assert TRANSFORMS["cos_squared"]["fn"] is t_cos_squared
+    assert TRANSFORMS["damped_sin"]["fn"] is t_damped_sin
+    assert TRANSFORMS["sawtooth"]["fn"] is t_sawtooth
+    assert TRANSFORMS["square_wave"]["fn"] is t_square_wave
+    assert TRANSFORMS["double_sin"]["fn"] is t_double_sin
+    assert TRANSFORMS["sin_cos_product"]["fn"] is t_sin_cos_product
     assert TRANSFORMS["softplus_b01"]["fn"] is t_softplus_pointwise
     assert TRANSFORMS["temporal_cumsum"]["fn"] is t_temporal_cumsum
     assert TRANSFORMS["temporal_peak"]["fn"] is t_temporal_peak
@@ -190,6 +214,14 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "log1p_positive"), t_log1p_abs(y))
     np.testing.assert_allclose(apply_transform(y, "sqrt_abs"), t_sqrt_abs(y))
     np.testing.assert_allclose(apply_transform(y, "abs_pointwise"), t_abs_pointwise(y))
+    np.testing.assert_allclose(apply_transform(y, "sinc"), t_sinc(y, scale=0.5))
+    np.testing.assert_allclose(apply_transform(y, "sin_squared"), t_sin_squared(y, freq=0.5))
+    np.testing.assert_allclose(apply_transform(y, "cos_squared"), t_cos_squared(y, freq=0.5))
+    np.testing.assert_allclose(apply_transform(y, "damped_sin"), t_damped_sin(y, freq=0.5, decay=0.1))
+    np.testing.assert_allclose(apply_transform(y, "sawtooth"), t_sawtooth(y, period=4.0))
+    np.testing.assert_allclose(apply_transform(y, "square_wave"), t_square_wave(y, period=4.0))
+    np.testing.assert_allclose(apply_transform(y, "double_sin"), t_double_sin(y, freq1=0.3, freq2=0.7))
+    np.testing.assert_allclose(apply_transform(y, "sin_cos_product"), t_sin_cos_product(y, freq=0.5))
     np.testing.assert_allclose(apply_transform(y, "softplus_b01"), t_softplus_pointwise(y, beta=0.1))
     np.testing.assert_allclose(apply_transform(y, "temporal_cumsum"), t_temporal_cumsum(y))
     np.testing.assert_allclose(apply_transform(y, "temporal_peak"), t_temporal_peak(y))
@@ -266,3 +298,17 @@ def test_engineering_family_no_longer_defined_in_monolith() -> None:
     assert "def t_safety_factor(" not in monolith
     assert "def t_cumulative_damage(" not in monolith
     assert "def t_stress_life(" not in monolith
+
+
+def test_periodic_pointwise_family_no_longer_defined_in_monolith() -> None:
+    package_root = Path(sabench.__file__).resolve().parent
+    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+
+    assert "def t_sinc(" not in monolith
+    assert "def t_sin_squared(" not in monolith
+    assert "def t_cos_squared(" not in monolith
+    assert "def t_damped_sin(" not in monolith
+    assert "def t_sawtooth(" not in monolith
+    assert "def t_square_wave(" not in monolith
+    assert "def t_double_sin(" not in monolith
+    assert "def t_sin_cos_product(" not in monolith

@@ -48,11 +48,19 @@ from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import t_softplus_pointwise
 from sabench.transforms.pointwise import (
     t_abs_pointwise,
+    t_cos_squared,
+    t_damped_sin,
+    t_double_sin,
     t_exp_pointwise,
     t_log1p_abs,
     t_relu_pointwise,
+    t_sawtooth,
+    t_sin_cos_product,
+    t_sin_squared,
+    t_sinc,
     t_sqrt_abs,
     t_square_pointwise,
+    t_square_wave,
     t_tanh_pointwise,
 )
 from sabench.transforms.samplewise import t_temporal_cumsum
@@ -747,52 +755,6 @@ def t_hard_sigmoid(Y, scale=0.5):
 def t_hard_tanh(Y, scale=0.3):
     """Hard tanh: phi(y) = clip(y, -1, 1) -- piecewise linear, bounded, C0."""
     return np.clip(scale * Y, -1.0, 1.0)
-
-
-# ============================================================================
-# OSCILLATORY / PERIODIC FAMILY
-# ============================================================================
-
-
-def t_sinc(Y, scale=0.5):
-    """Normalised sinc: phi(y) = sin(pi*scale*y)/(pi*scale*y) -- C-inf, decaying osc."""
-    u = scale * Y
-    return np.sinc(u)  # numpy sinc is normalised: sin(pi*x)/(pi*x)
-
-
-def t_sin_squared(Y, freq=0.5):
-    """phi(y) = sin^2(freq*y) -- non-negative, bounded [0,1], even, periodic."""
-    return np.sin(freq * Y) ** 2
-
-
-def t_cos_squared(Y, freq=0.5):
-    """phi(y) = cos^2(freq*y) -- non-negative, bounded [0,1], even, periodic."""
-    return np.cos(freq * Y) ** 2
-
-
-def t_damped_sin(Y, freq=0.5, decay=0.1):
-    """phi(y) = exp(-decay*|y|)*sin(freq*y) -- decaying oscillation, odd, C-inf."""
-    return np.exp(-decay * np.abs(Y)) * np.sin(freq * Y)
-
-
-def t_sawtooth(Y, period=4.0):
-    """Sawtooth wave: phi(y) = 2*(y/period - floor(y/period+0.5)) -- C0 except jumps."""
-    return 2.0 * (Y / period - np.floor(Y / period + 0.5))
-
-
-def t_square_wave(Y, period=4.0):
-    """Square wave: phi(y) = sign(sin(2*pi*y/period)) -- discontinuous, periodic."""
-    return np.sign(np.sin(2.0 * np.pi * Y / period))
-
-
-def t_double_sin(Y, freq1=0.3, freq2=0.7):
-    """phi(y) = sin(freq1*y) + sin(freq2*y) -- two-frequency interference pattern."""
-    return np.sin(freq1 * Y) + np.sin(freq2 * Y)
-
-
-def t_sin_cos_product(Y, freq=0.5):
-    """phi(y) = sin(freq*y)*cos(freq*y) = 0.5*sin(2*freq*y) -- harmonic product."""
-    return np.sin(freq * Y) * np.cos(freq * Y)
 
 
 # ============================================================================
