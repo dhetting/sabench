@@ -642,7 +642,7 @@
     "function_name": "t_cvar",
     "key": "cvar_q95",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.financial",
     "name": "CVaR/ES q=0.95 (nonlocal tail mean)",
     "reference": "Artzner et al. (1999)",
     "supported_output_kinds": [
@@ -741,7 +741,7 @@
     "function_name": "t_drawdown",
     "key": "drawdown",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.financial",
     "name": "Max drawdown (temporal, nonlocal)",
     "reference": "Magdon-Ismail et al. (2004)",
     "supported_output_kinds": [
@@ -959,7 +959,7 @@
     "function_name": "t_excess_return",
     "key": "excess_return",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.financial",
     "name": "Excess return (mean-centred)",
     "reference": "Sharpe (1966)",
     "supported_output_kinds": [
@@ -1060,7 +1060,7 @@
     "function_name": "t_fold_change",
     "key": "fold_change",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.financial",
     "name": "Log2 fold-change from sample mean",
     "reference": "Pfaffl (2001)",
     "supported_output_kinds": [
@@ -2486,7 +2486,7 @@
     "function_name": "t_sharpe_proxy",
     "key": "sharpe_proxy",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.financial",
     "name": "Sharpe ratio proxy (mean/std)",
     "reference": "Sharpe (1966)",
     "supported_output_kinds": [
@@ -3276,7 +3276,7 @@
     "function_name": "t_var_proxy",
     "key": "var_q95",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.financial",
     "name": "VaR proxy q=0.95 (nonlocal quantile)",
     "reference": "Artzner et al. (1999)",
     "supported_output_kinds": [

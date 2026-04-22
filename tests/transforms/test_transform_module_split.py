@@ -39,6 +39,14 @@ from sabench.transforms.environmental import (
     t_pot_log,
     t_standardised_precip_idx,
 )
+from sabench.transforms.financial import (
+    t_cvar,
+    t_drawdown,
+    t_excess_return,
+    t_fold_change,
+    t_sharpe_proxy,
+    t_var_proxy,
+)
 from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
 from sabench.transforms.nonlinear import (
@@ -198,6 +206,12 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("gev_cdf").module == "sabench.transforms.statistical"
     assert get_transform_spec("pareto_tail").module == "sabench.transforms.statistical"
     assert get_transform_spec("log_logistic_cdf").module == "sabench.transforms.statistical"
+    assert get_transform_spec("var_q95").module == "sabench.transforms.financial"
+    assert get_transform_spec("cvar_q95").module == "sabench.transforms.financial"
+    assert get_transform_spec("sharpe_proxy").module == "sabench.transforms.financial"
+    assert get_transform_spec("drawdown").module == "sabench.transforms.financial"
+    assert get_transform_spec("fold_change").module == "sabench.transforms.financial"
+    assert get_transform_spec("excess_return").module == "sabench.transforms.financial"
     assert get_transform_spec("weibull_reliability").module == "sabench.transforms.engineering"
     assert get_transform_spec("fatigue_miner").module == "sabench.transforms.engineering"
     assert get_transform_spec("rankine_failure").module == "sabench.transforms.engineering"
@@ -298,6 +312,12 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["gev_cdf"]["fn"] is t_gev_cdf
     assert TRANSFORMS["pareto_tail"]["fn"] is t_pareto_tail
     assert TRANSFORMS["log_logistic_cdf"]["fn"] is t_log_logistic_cdf
+    assert TRANSFORMS["var_q95"]["fn"] is t_var_proxy
+    assert TRANSFORMS["cvar_q95"]["fn"] is t_cvar
+    assert TRANSFORMS["sharpe_proxy"]["fn"] is t_sharpe_proxy
+    assert TRANSFORMS["drawdown"]["fn"] is t_drawdown
+    assert TRANSFORMS["fold_change"]["fn"] is t_fold_change
+    assert TRANSFORMS["excess_return"]["fn"] is t_excess_return
     assert TRANSFORMS["weibull_reliability"]["fn"] is t_weibull_reliability
     assert TRANSFORMS["fatigue_miner"]["fn"] is t_fatigue_miner
     assert TRANSFORMS["rankine_failure"]["fn"] is t_rankine_failure
@@ -407,6 +427,12 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "gev_cdf"), t_gev_cdf(y, xi=0.3))
     np.testing.assert_allclose(apply_transform(y, "pareto_tail"), t_pareto_tail(y, alpha=1.5))
     np.testing.assert_allclose(apply_transform(y, "log_logistic_cdf"), t_log_logistic_cdf(y, beta=2.0))
+    np.testing.assert_allclose(apply_transform(y, "var_q95"), t_var_proxy(y, q=0.95))
+    np.testing.assert_allclose(apply_transform(y, "cvar_q95"), t_cvar(y, q=0.95))
+    np.testing.assert_allclose(apply_transform(y, "sharpe_proxy"), t_sharpe_proxy(y, rf=0.0))
+    np.testing.assert_allclose(apply_transform(y, "drawdown"), t_drawdown(y))
+    np.testing.assert_allclose(apply_transform(y, "fold_change"), t_fold_change(y, eps=1.0))
+    np.testing.assert_allclose(apply_transform(y, "excess_return"), t_excess_return(y))
     np.testing.assert_allclose(apply_transform(y, "weibull_reliability"), t_weibull_reliability(y, shape=2.0))
     np.testing.assert_allclose(apply_transform(y, "fatigue_miner"), t_fatigue_miner(y, m=3.0))
     np.testing.assert_allclose(apply_transform(y, "rankine_failure"), t_rankine_failure(y))
@@ -439,6 +465,7 @@ def test_focused_transform_modules_exist() -> None:
     assert (package_root / "transforms" / "statistical.py").exists()
     assert (package_root / "transforms" / "engineering.py").exists()
     assert (package_root / "transforms" / "environmental.py").exists()
+    assert (package_root / "transforms" / "financial.py").exists()
     assert (package_root / "transforms" / "pharmacological.py").exists()
 
 
@@ -539,3 +566,15 @@ def test_environmental_hydrology_family_no_longer_defined_in_monolith() -> None:
     assert "def t_nash_sutcliffe(" not in monolith
     assert "def t_pot_log(" not in monolith
     assert "def t_log_flow(" not in monolith
+
+
+def test_financial_family_no_longer_defined_in_monolith() -> None:
+    package_root = Path(sabench.__file__).resolve().parent
+    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+
+    assert "def t_var_proxy(" not in monolith
+    assert "def t_cvar(" not in monolith
+    assert "def t_sharpe_proxy(" not in monolith
+    assert "def t_drawdown(" not in monolith
+    assert "def t_fold_change(" not in monolith
+    assert "def t_excess_return(" not in monolith
