@@ -3048,7 +3048,7 @@
     "function_name": "t_temporal_bandpass",
     "key": "temporal_bandpass",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.samplewise",
     "name": "Bandpass filter (linear)",
     "reference": "Rabiner & Gold (1975)",
     "supported_output_kinds": [
@@ -3066,7 +3066,7 @@
     "function_name": "t_temporal_block_avg",
     "key": "temporal_block_avg",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Temporal block avg (temporal COS)",
     "reference": "Gotway & Young (2002)",
     "supported_output_kinds": [
@@ -3101,7 +3101,7 @@
     "function_name": "t_temporal_envelope",
     "key": "temporal_envelope",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.samplewise",
     "name": "Running maximum envelope",
     "reference": "Sudret (2008)",
     "supported_output_kinds": [
@@ -3119,7 +3119,7 @@
     "function_name": "t_temporal_exceedance_duration",
     "key": "temporal_exceedance_duration",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.samplewise",
     "name": "Exceedance duration (q=0.75)",
     "reference": "Coles (2001)",
     "supported_output_kinds": [
@@ -3136,7 +3136,7 @@
     "function_name": "t_temporal_log_cumsum",
     "key": "temporal_log_cumsum",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.samplewise",
     "name": "Log cumulative sum",
     "reference": "Saltelli et al. (2005)",
     "supported_output_kinds": [

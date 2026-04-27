@@ -188,6 +188,17 @@ def _block_avg(Y, block):
     return Yr.mean(axis=block_axes)
 
 
+def t_temporal_block_avg(Y, block=10):
+    """Temporal block average: coarsen n_t time steps to n_t//block steps.
+
+    Temporal analogue of spatial change-of-support.  Arises when a fine-scale
+    daily model output is compared against coarser monthly or annual observations.
+    Reduces temporal resolution and potentially changes which inputs drive the
+    averaged-output variance.  This is the temporal COS operator.
+    """
+    return _block_avg(Y, block)
+
+
 def t_block_2x2(Y):
     return _block_avg(Y, 2)
 

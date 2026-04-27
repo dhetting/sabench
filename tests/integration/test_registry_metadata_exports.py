@@ -186,6 +186,11 @@ def test_transform_registry_export_uses_canonical_fields() -> None:
     assert exported["double_sin"]["module"] == "sabench.transforms.pointwise"
     assert exported["sin_cos_product"]["module"] == "sabench.transforms.pointwise"
     assert exported["temporal_cumsum"]["mechanism"] == "samplewise"
+    assert exported["temporal_log_cumsum"]["module"] == "sabench.transforms.samplewise"
+    assert exported["temporal_exceedance_duration"]["module"] == "sabench.transforms.samplewise"
+    assert exported["temporal_envelope"]["module"] == "sabench.transforms.samplewise"
+    assert exported["temporal_bandpass"]["module"] == "sabench.transforms.samplewise"
+    assert exported["temporal_block_avg"]["module"] == "sabench.transforms.aggregation"
     assert exported["gradient_magnitude"]["supported_output_kinds"] == ["spatial"]
     assert exported["regional_mean"]["module"] == "sabench.transforms.aggregation"
     assert exported["block_2x2"]["module"] == "sabench.transforms.aggregation"

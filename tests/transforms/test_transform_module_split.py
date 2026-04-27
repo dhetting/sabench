@@ -22,6 +22,7 @@ from sabench.transforms.aggregation import (
     t_sample_skewness,
     t_sample_variance,
     t_temporal_autocorr,
+    t_temporal_block_avg,
     t_temporal_peak,
     t_temporal_quantile,
     t_temporal_range,
@@ -151,7 +152,13 @@ from sabench.transforms.pointwise import (
     t_step_pointwise,
     t_tanh_pointwise,
 )
-from sabench.transforms.samplewise import t_temporal_cumsum
+from sabench.transforms.samplewise import (
+    t_temporal_bandpass,
+    t_temporal_cumsum,
+    t_temporal_envelope,
+    t_temporal_exceedance_duration,
+    t_temporal_log_cumsum,
+)
 from sabench.transforms.statistical import (
     t_anscombe,
     t_asinh_vs,
@@ -241,6 +248,12 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("hockey_stick").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("deadzone").module == "sabench.transforms.nonlinear"
     assert get_transform_spec("temporal_cumsum").module == "sabench.transforms.samplewise"
+    assert get_transform_spec("temporal_log_cumsum").module == "sabench.transforms.samplewise"
+    assert (
+        get_transform_spec("temporal_exceedance_duration").module == "sabench.transforms.samplewise"
+    )
+    assert get_transform_spec("temporal_envelope").module == "sabench.transforms.samplewise"
+    assert get_transform_spec("temporal_bandpass").module == "sabench.transforms.samplewise"
     assert get_transform_spec("temporal_peak").module == "sabench.transforms.aggregation"
     assert get_transform_spec("temporal_rms").module == "sabench.transforms.aggregation"
     assert get_transform_spec("temporal_range").module == "sabench.transforms.aggregation"
@@ -248,6 +261,7 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("temporal_quantile_q10").module == "sabench.transforms.aggregation"
     assert get_transform_spec("temporal_quantile_q50").module == "sabench.transforms.aggregation"
     assert get_transform_spec("temporal_quantile_q90").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("temporal_block_avg").module == "sabench.transforms.aggregation"
     assert get_transform_spec("sample_variance").module == "sabench.transforms.aggregation"
     assert get_transform_spec("negentropy_proxy").module == "sabench.transforms.aggregation"
     assert get_transform_spec("wasserstein_proxy").module == "sabench.transforms.aggregation"
@@ -390,6 +404,10 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["hockey_stick"]["fn"] is t_hockey_stick
     assert TRANSFORMS["deadzone"]["fn"] is t_deadzone
     assert TRANSFORMS["temporal_cumsum"]["fn"] is t_temporal_cumsum
+    assert TRANSFORMS["temporal_log_cumsum"]["fn"] is t_temporal_log_cumsum
+    assert TRANSFORMS["temporal_exceedance_duration"]["fn"] is t_temporal_exceedance_duration
+    assert TRANSFORMS["temporal_envelope"]["fn"] is t_temporal_envelope
+    assert TRANSFORMS["temporal_bandpass"]["fn"] is t_temporal_bandpass
     assert TRANSFORMS["temporal_peak"]["fn"] is t_temporal_peak
     assert TRANSFORMS["temporal_rms"]["fn"] is t_temporal_rms
     assert TRANSFORMS["temporal_range"]["fn"] is t_temporal_range
@@ -397,6 +415,7 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["temporal_quantile_q10"]["fn"] is t_temporal_quantile
     assert TRANSFORMS["temporal_quantile_q50"]["fn"] is t_temporal_quantile
     assert TRANSFORMS["temporal_quantile_q90"]["fn"] is t_temporal_quantile
+    assert TRANSFORMS["temporal_block_avg"]["fn"] is t_temporal_block_avg
     assert TRANSFORMS["sample_variance"]["fn"] is t_sample_variance
     assert TRANSFORMS["negentropy_proxy"]["fn"] is t_negentropy_proxy
     assert TRANSFORMS["wasserstein_proxy"]["fn"] is t_wasserstein_proxy
@@ -555,6 +574,18 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "hockey_stick"), t_hockey_stick(y, bp=0.0))
     np.testing.assert_allclose(apply_transform(y, "deadzone"), t_deadzone(y, half_width=1.0))
     np.testing.assert_allclose(apply_transform(y, "temporal_cumsum"), t_temporal_cumsum(y))
+    np.testing.assert_allclose(
+        apply_transform(y, "temporal_log_cumsum"), t_temporal_log_cumsum(y, eps=1.0)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "temporal_exceedance_duration"),
+        t_temporal_exceedance_duration(y, quantile=0.75),
+    )
+    np.testing.assert_allclose(apply_transform(y, "temporal_envelope"), t_temporal_envelope(y))
+    np.testing.assert_allclose(
+        apply_transform(y, "temporal_bandpass"),
+        t_temporal_bandpass(y, low_frac=0.05, high_frac=0.30),
+    )
     np.testing.assert_allclose(apply_transform(y, "temporal_peak"), t_temporal_peak(y))
     np.testing.assert_allclose(apply_transform(y, "temporal_rms"), t_temporal_rms(y))
     np.testing.assert_allclose(apply_transform(y, "temporal_range"), t_temporal_range(y))
@@ -567,6 +598,9 @@ def test_apply_transform_matches_split_module_functions() -> None:
     )
     np.testing.assert_allclose(
         apply_transform(y, "temporal_quantile_q90"), t_temporal_quantile(y, q=0.90)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "temporal_block_avg"), t_temporal_block_avg(y, block=10)
     )
     np.testing.assert_allclose(apply_transform(y, "sample_variance"), t_sample_variance(y))
     np.testing.assert_allclose(apply_transform(y, "negentropy_proxy"), t_negentropy_proxy(y))
@@ -901,3 +935,14 @@ def test_spatial_aggregation_and_field_ops_no_longer_defined_in_monolith() -> No
     assert "def t_laplacian_roughness(" not in monolith
     assert "def t_contour_exceedance(" not in monolith
     assert "def t_isoline_length(" not in monolith
+
+
+def test_temporal_operator_family_no_longer_defined_in_monolith() -> None:
+    package_root = Path(sabench.__file__).resolve().parent
+    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+
+    assert "def t_temporal_log_cumsum(" not in monolith
+    assert "def t_temporal_exceedance_duration(" not in monolith
+    assert "def t_temporal_envelope(" not in monolith
+    assert "def t_temporal_bandpass(" not in monolith
+    assert "def t_temporal_block_avg(" not in monolith
