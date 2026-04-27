@@ -7,6 +7,27 @@ import numpy as np
 from sabench.transforms.utilities import _bc, _safe_range, _ymin
 
 
+def t_carnot_quadratic(Y: np.ndarray, delta: float = 1.0) -> np.ndarray:
+    """Quadratic transform after per-sample Carnot-style normalization."""
+    shift = _bc(_ymin(Y), Y)
+    value_range = _bc(_safe_range(Y), Y)
+    return ((Y - shift + delta) / (value_range + delta)) ** 2
+
+
+def t_arrhenius(Y: np.ndarray, Ea_over_R: float = 2.0) -> np.ndarray:
+    """Arrhenius-type exponential transform on positive shifted support."""
+    shift = _bc(_ymin(Y), Y)
+    y_pos = Y - shift + 1.0
+    return np.exp(-Ea_over_R / y_pos)
+
+
+def t_normalised_stress(Y: np.ndarray, yield_q: float = 0.80) -> np.ndarray:
+    """Goodman-style normalized stress clipped to the unit interval."""
+    shift = _bc(_ymin(Y), Y)
+    yield_level = _bc(np.quantile(Y.reshape(len(Y), -1), yield_q, axis=1), Y)
+    return np.clip((Y - shift) / (yield_level - shift + 1e-12), 0.0, 1.0)
+
+
 def t_weibull_reliability(Y: np.ndarray, shape: float = 2.0) -> np.ndarray:
     """Weibull-style failure probability on per-sample normalized support."""
     shift = _bc(_ymin(Y), Y)

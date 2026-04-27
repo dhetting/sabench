@@ -36,8 +36,11 @@ from sabench.transforms.ecological import (
     t_relative_abundance,
 )
 from sabench.transforms.engineering import (
+    t_arrhenius,
+    t_carnot_quadratic,
     t_cumulative_damage,
     t_fatigue_miner,
+    t_normalised_stress,
     t_rankine_failure,
     t_safety_factor,
     t_stress_life,
@@ -306,6 +309,9 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("relative_abundance").module == "sabench.transforms.ecological"
     assert get_transform_spec("log_ratio").module == "sabench.transforms.ecological"
     assert get_transform_spec("weibull_reliability").module == "sabench.transforms.engineering"
+    assert get_transform_spec("carnot_quadratic").module == "sabench.transforms.engineering"
+    assert get_transform_spec("arrhenius").module == "sabench.transforms.engineering"
+    assert get_transform_spec("normalised_stress").module == "sabench.transforms.engineering"
     assert get_transform_spec("fatigue_miner").module == "sabench.transforms.engineering"
     assert get_transform_spec("rankine_failure").module == "sabench.transforms.engineering"
     assert get_transform_spec("von_mises_stress").module == "sabench.transforms.engineering"
@@ -455,6 +461,9 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["relative_abundance"]["fn"] is t_relative_abundance
     assert TRANSFORMS["log_ratio"]["fn"] is t_log_ratio
     assert TRANSFORMS["weibull_reliability"]["fn"] is t_weibull_reliability
+    assert TRANSFORMS["carnot_quadratic"]["fn"] is t_carnot_quadratic
+    assert TRANSFORMS["arrhenius"]["fn"] is t_arrhenius
+    assert TRANSFORMS["normalised_stress"]["fn"] is t_normalised_stress
     assert TRANSFORMS["fatigue_miner"]["fn"] is t_fatigue_miner
     assert TRANSFORMS["rankine_failure"]["fn"] is t_rankine_failure
     assert TRANSFORMS["von_mises_stress"]["fn"] is t_von_mises
@@ -745,6 +754,15 @@ def test_engineering_family_no_longer_defined_in_monolith() -> None:
     assert "def t_safety_factor(" not in monolith
     assert "def t_cumulative_damage(" not in monolith
     assert "def t_stress_life(" not in monolith
+
+
+def test_physical_engineering_family_no_longer_defined_in_monolith() -> None:
+    package_root = Path(sabench.__file__).resolve().parent
+    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+
+    assert "def t_carnot_quadratic(" not in monolith
+    assert "def t_arrhenius(" not in monolith
+    assert "def t_normalised_stress(" not in monolith
 
 
 def test_elementary_pointwise_family_no_longer_defined_in_monolith() -> None:

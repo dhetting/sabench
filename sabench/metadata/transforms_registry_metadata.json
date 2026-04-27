@@ -149,7 +149,7 @@
     "function_name": "t_arrhenius",
     "key": "arrhenius",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.engineering",
     "name": "Arrhenius reaction rate",
     "reference": "Saltelli & Tarantola (2002)",
     "supported_output_kinds": [
@@ -403,7 +403,7 @@
     "function_name": "t_carnot_quadratic",
     "key": "carnot_quadratic",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.engineering",
     "name": "Carnot quadratic efficiency",
     "reference": "Williams et al. (2008)",
     "supported_output_kinds": [
@@ -1915,7 +1915,7 @@
     "function_name": "t_normalised_stress",
     "key": "normalised_stress",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.engineering",
     "name": "Goodman normalised stress",
     "reference": "Socie & Marquis (2000)",
     "supported_output_kinds": [

@@ -47,8 +47,11 @@ from sabench.transforms.ecological import (
     t_relative_abundance,
 )
 from sabench.transforms.engineering import (
+    t_arrhenius,
+    t_carnot_quadratic,
     t_cumulative_damage,
     t_fatigue_miner,
+    t_normalised_stress,
     t_rankine_failure,
     t_safety_factor,
     t_stress_life,
@@ -205,32 +208,6 @@ from sabench.transforms.utilities import _bc, _safe_range, _ymin
 # ══════════════════════════════════════════════════════════════════════════════
 # Engineering / Physical
 # ══════════════════════════════════════════════════════════════════════════════
-
-
-def t_carnot_quadratic(Y, delta=1.0):
-    s = _bc(_ymin(Y), Y)
-    r = _bc(_safe_range(Y), Y)
-    return ((Y - s + delta) / (r + delta)) ** 2
-
-
-def t_arrhenius(Y, Ea_over_R=2.0):
-    """Arrhenius-type exponential: exp(-Ea/R / Y_pos).
-    Physical context: converts a temperature-like field to a reaction-rate field
-    (e.g., atmospheric chemistry, thermal diffusivity in geothermal models).
-    The strong nonlinearity amplifies high-value regions of the field.
-    NOTE: This transform is used throughout for illustration precisely because
-    its nonlinearity is parametric, physically motivated, and produces large D
-    scores, making it an informative worst-case reference point.
-    """
-    s = _bc(_ymin(Y), Y)
-    Ypos = Y - s + 1.0
-    return np.exp(-Ea_over_R / Ypos)
-
-
-def t_normalised_stress(Y, yield_q=0.80):
-    s = _bc(_ymin(Y), Y)
-    yld = _bc(np.quantile(Y.reshape(len(Y), -1), yield_q, axis=1), Y)
-    return np.clip((Y - s) / (yld - s + 1e-12), 0.0, 1.0)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
