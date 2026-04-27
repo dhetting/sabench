@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 
 import sabench
-
 from sabench.metadata.exports import (
     BENCHMARKS_REGISTRY_EXPORT_FILENAME,
     TRANSFORMS_REGISTRY_EXPORT_FILENAME,

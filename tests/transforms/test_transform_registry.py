@@ -64,24 +64,45 @@ EXAMPLE_INPUTS: dict[str, np.ndarray] = {
     ),
     "spatial": np.stack(
         [
-            np.sin(np.pi * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[0])
-            * np.cos(np.pi * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[1]),
+            np.sin(
+                np.pi
+                * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[
+                    0
+                ]
+            )
+            * np.cos(
+                np.pi
+                * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[
+                    1
+                ]
+            ),
             np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[0] ** 2
             - np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[1]
             + 0.25
             * np.sin(
                 2.0
                 * np.pi
-                * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[0]
-                * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[1]
+                * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[
+                    0
+                ]
+                * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[
+                    1
+                ]
             ),
             np.exp(
                 -(
-                    np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[0] ** 2
-                    + np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[1] ** 2
+                    np.meshgrid(
+                        np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij"
+                    )[0]
+                    ** 2
+                    + np.meshgrid(
+                        np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij"
+                    )[1]
+                    ** 2
                 )
             )
-            - 0.5 * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[0],
+            - 0.5
+            * np.meshgrid(np.linspace(-1.0, 1.0, 6), np.linspace(-1.0, 1.0, 6), indexing="ij")[0],
         ],
         axis=0,
     ),

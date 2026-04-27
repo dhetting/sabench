@@ -59,8 +59,8 @@ from sabench.transforms.environmental import (
     t_exceed_q95,
     t_exceed_q99,
     t_growing_degree_days,
-    t_log10_shift,
     t_log2_shift,
+    t_log10_shift,
     t_log_flow,
     t_log_log,
     t_log_shift,
@@ -70,6 +70,7 @@ from sabench.transforms.environmental import (
     t_quantile_delta,
     t_standardised_precip_idx,
 )
+from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.financial import (
     t_cvar,
     t_drawdown,
@@ -78,7 +79,6 @@ from sabench.transforms.financial import (
     t_sharpe_proxy,
     t_var_proxy,
 )
-from sabench.transforms.field_ops import t_gradient_magnitude
 from sabench.transforms.linear import t_affine
 from sabench.transforms.mathematical import (
     t_atan2pi,
@@ -213,8 +213,6 @@ def t_normalised_stress(Y, yield_q=0.80):
     s = _bc(_ymin(Y), Y)
     yld = _bc(np.quantile(Y.reshape(len(Y), -1), yield_q, axis=1), Y)
     return np.clip((Y - s) / (yld - s + 1e-12), 0.0, 1.0)
-
-
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -402,7 +400,6 @@ def t_isoline_length(Y, quantile=0.75):
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-
 def t_temporal_log_cumsum(Y, eps=1.0):
     """Log of the cumulative sum: Z(t) = log(sum_{s<=t} Y(s) + eps).
 
@@ -485,20 +482,10 @@ def t_temporal_block_avg(Y, block=10):
 # ── Convex pointwise ──────────────────────────────────────────────────────────
 
 
-
-
-
 # ── Monotone S-shaped ────────────────────────────────────────────────────────
 
 
-
-
-
-
 # ── Oscillatory / non-monotone ────────────────────────────────────────────────
-
-
-
 
 
 def t_triangle_wave(Y, period=4.0):
@@ -521,8 +508,6 @@ def t_triangle_wave(Y, period=4.0):
 # ══════════════════════════════════════════════════════════════════════════════
 # Engineering additions
 # ══════════════════════════════════════════════════════════════════════════════
-
-
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -592,7 +577,6 @@ def t_bernstein_b3(Y):
 # ============================================================================
 
 
-
 def t_bimodal_flip(Y):
     """Bimodal sign flip: phi(u) = 4*u*(1-u)*(2*u-1) on [0,1] -- zero at 0,0.5,1."""
     s = _bc(_ymin(Y), Y)
@@ -611,7 +595,6 @@ def t_donut(Y, center=0.0, radius=1.5, width=0.5):
 # ============================================================================
 
 
-
 # ============================================================================
 # CURVATURE EXTREMES / SPECIAL SHAPES
 # ============================================================================
@@ -622,13 +605,9 @@ def t_donut(Y, center=0.0, radius=1.5, width=0.5):
 # ============================================================================
 
 
-
-
 # ============================================================================
 # CLIMATE / ENVIRONMENTAL SCIENCE TRANSFORMS
 # ============================================================================
-
-
 
 
 # ============================================================================
@@ -639,8 +618,6 @@ def t_donut(Y, center=0.0, radius=1.5, width=0.5):
 # ============================================================================
 # STRUCTURAL / MECHANICAL ENGINEERING TRANSFORMS
 # ============================================================================
-
-
 
 
 # ============================================================================
