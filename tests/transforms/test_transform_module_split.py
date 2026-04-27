@@ -7,12 +7,17 @@ import numpy as np
 import sabench
 from sabench.transforms import TRANSFORMS, apply_transform, get_transform_spec
 from sabench.transforms.aggregation import (
+    t_block_2x2,
+    t_block_4x4,
+    t_block_8x8,
     t_energy_distance_proxy,
     t_entropy_renyi,
+    t_exceedance_area,
     t_interquartile_range,
     t_negentropy_proxy,
     t_percentile_q10,
     t_percentile_q90,
+    t_regional_mean,
     t_sample_kurtosis,
     t_sample_skewness,
     t_sample_variance,
@@ -59,7 +64,13 @@ from sabench.transforms.environmental import (
     t_quantile_delta,
     t_standardised_precip_idx,
 )
-from sabench.transforms.field_ops import t_gradient_magnitude
+from sabench.transforms.field_ops import (
+    t_contour_exceedance,
+    t_gradient_magnitude,
+    t_isoline_length,
+    t_laplacian_roughness,
+    t_matern_smooth,
+)
 from sabench.transforms.financial import (
     t_cvar,
     t_drawdown,
@@ -313,6 +324,15 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("pot_log").module == "sabench.transforms.environmental"
     assert get_transform_spec("log_flow").module == "sabench.transforms.environmental"
     assert get_transform_spec("gradient_magnitude").module == "sabench.transforms.field_ops"
+    assert get_transform_spec("regional_mean").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("block_2x2").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("block_4x4").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("block_8x8").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("exceedance_area").module == "sabench.transforms.aggregation"
+    assert get_transform_spec("matern_smooth").module == "sabench.transforms.field_ops"
+    assert get_transform_spec("laplacian_roughness").module == "sabench.transforms.field_ops"
+    assert get_transform_spec("contour_exceedance").module == "sabench.transforms.field_ops"
+    assert get_transform_spec("isoline_length").module == "sabench.transforms.field_ops"
 
 
 def test_legacy_transform_registry_uses_split_module_functions() -> None:
@@ -637,6 +657,30 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(
         apply_transform(spatial_y, "gradient_magnitude"), t_gradient_magnitude(spatial_y)
     )
+    np.testing.assert_allclose(
+        apply_transform(spatial_y, "regional_mean"), t_regional_mean(spatial_y)
+    )
+    np.testing.assert_allclose(apply_transform(spatial_y, "block_2x2"), t_block_2x2(spatial_y))
+    np.testing.assert_allclose(apply_transform(spatial_y, "block_4x4"), t_block_4x4(spatial_y))
+    np.testing.assert_allclose(apply_transform(spatial_y, "block_8x8"), t_block_8x8(spatial_y))
+    np.testing.assert_allclose(
+        apply_transform(spatial_y, "exceedance_area"), t_exceedance_area(spatial_y, quantile=0.75)
+    )
+    np.testing.assert_allclose(
+        apply_transform(spatial_y, "matern_smooth"),
+        t_matern_smooth(spatial_y, length_scale=0.15, nu=1.5),
+    )
+    np.testing.assert_allclose(
+        apply_transform(spatial_y, "laplacian_roughness"), t_laplacian_roughness(spatial_y)
+    )
+    np.testing.assert_allclose(
+        apply_transform(spatial_y, "contour_exceedance"),
+        t_contour_exceedance(spatial_y, quantile=0.75),
+    )
+    np.testing.assert_allclose(
+        apply_transform(spatial_y, "isoline_length"),
+        t_isoline_length(spatial_y, quantile=0.75),
+    )
 
 
 def test_focused_transform_modules_exist() -> None:
@@ -841,3 +885,19 @@ def test_ecological_family_no_longer_defined_in_monolith() -> None:
     assert "def t_chord_dist(" not in monolith
     assert "def t_relative_abundance(" not in monolith
     assert "def t_log_ratio(" not in monolith
+
+
+def test_spatial_aggregation_and_field_ops_no_longer_defined_in_monolith() -> None:
+    package_root = Path(sabench.__file__).resolve().parent
+    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+
+    assert "def t_regional_mean(" not in monolith
+    assert "def _block_avg(" not in monolith
+    assert "def t_block_2x2(" not in monolith
+    assert "def t_block_4x4(" not in monolith
+    assert "def t_block_8x8(" not in monolith
+    assert "def t_exceedance_area(" not in monolith
+    assert "def t_matern_smooth(" not in monolith
+    assert "def t_laplacian_roughness(" not in monolith
+    assert "def t_contour_exceedance(" not in monolith
+    assert "def t_isoline_length(" not in monolith

@@ -144,3 +144,64 @@ def t_entropy_renyi(Y: np.ndarray, alpha: float = 2.0, bins: int = 20) -> np.nda
             else -np.sum(p * np.log(p + 1e-30))
         )
     return _bc(out, Y) * np.ones_like(Y)
+
+
+def t_regional_mean(Y):
+    mu = Y.reshape(len(Y), -1).mean(axis=1)
+    return np.ones_like(Y) * _bc(mu, Y)
+
+
+def _block_avg(Y, block):
+    """Return block-aggregated output on the COARSENED support (no upsample).
+
+    Handles 2D spatial grids (n, nz1, nz2) → (n, nb1, nb2)
+    and 3D spatial volumes (n, nz1, nz2, nz3) → (n, nb1, nb2, nb3).
+    This is the geostatistically correct change-of-support (COS): the
+    sensitivity analysis is performed on the aggregated output space.
+    If Y is 1-D or 2-D (scalar benchmark or temporal benchmark), falls back
+    to a coarsened temporal average.
+    """
+    if Y.ndim < 3:
+        # For scalar or 1D temporal: block-average along the output axis
+        n = Y.shape[0]
+        vals = Y.reshape(n, -1)
+        m = vals.shape[1]
+        nb = m // block
+        if nb < 1:
+            return vals.mean(axis=1, keepdims=True)
+        trimmed = vals[:, : nb * block]
+        return trimmed.reshape(n, nb, block).mean(axis=2)
+    n = Y.shape[0]
+    spatial_dims = Y.shape[1:]
+    slices = [slice(None)]
+    trimmed = []
+    for s in spatial_dims:
+        st = (s // block) * block
+        slices.append(slice(0, st))
+        trimmed.append(st)
+    Yt = Y[tuple(slices)]
+    new_shape = [n]
+    for st in trimmed:
+        new_shape += [st // block, block]
+    Yr = Yt.reshape(new_shape)
+    block_axes = tuple(range(2, 2 + 2 * len(trimmed), 2))
+    return Yr.mean(axis=block_axes)
+
+
+def t_block_2x2(Y):
+    return _block_avg(Y, 2)
+
+
+def t_block_4x4(Y):
+    return _block_avg(Y, 4)
+
+
+def t_block_8x8(Y):
+    return _block_avg(Y, 8)
+
+
+def t_exceedance_area(Y, quantile=0.75):
+    flat = Y.reshape(len(Y), -1)
+    t = np.quantile(flat, quantile, axis=1, keepdims=True)
+    frac = (flat > t).mean(axis=1)
+    return np.ones_like(Y) * _bc(frac, Y)

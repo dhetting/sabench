@@ -131,8 +131,11 @@ def _example_input(spec: TransformSpec) -> np.ndarray:
         ("temporal_peak", "sabench.transforms.aggregation", "aggregation"),
         ("gradient_magnitude", "sabench.transforms.field_ops", "field_op"),
         ("log_shift", "sabench.transforms.environmental", "samplewise"),
-        ("regional_mean", "sabench.transforms.transforms", "aggregation"),
-        ("matern_smooth", "sabench.transforms.transforms", "field_op"),
+        ("regional_mean", "sabench.transforms.aggregation", "aggregation"),
+        ("block_2x2", "sabench.transforms.aggregation", "aggregation"),
+        ("exceedance_area", "sabench.transforms.aggregation", "aggregation"),
+        ("matern_smooth", "sabench.transforms.field_ops", "field_op"),
+        ("laplacian_roughness", "sabench.transforms.field_ops", "field_op"),
     ],
 )
 def test_transform_registry_keeps_expected_canonical_metadata(

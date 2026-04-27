@@ -292,7 +292,7 @@
     "function_name": "t_block_2x2",
     "key": "block_2x2",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Block average 2\u00d72 (COS)",
     "reference": "Gotway & Young (2002)",
     "supported_output_kinds": [
@@ -309,7 +309,7 @@
     "function_name": "t_block_4x4",
     "key": "block_4x4",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Block average 4\u00d74 (COS)",
     "reference": "Gotway & Young (2002)",
     "supported_output_kinds": [
@@ -326,7 +326,7 @@
     "function_name": "t_block_8x8",
     "key": "block_8x8",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Block average 8\u00d78 (COS)",
     "reference": "Cressie (1993)",
     "supported_output_kinds": [
@@ -523,7 +523,7 @@
     "function_name": "t_contour_exceedance",
     "key": "contour_exceedance",
     "mechanism": "field_op",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.field_ops",
     "name": "Signed contour distance (q=0.75)",
     "reference": "Openshaw (1984)",
     "supported_output_kinds": [
@@ -861,7 +861,7 @@
     "function_name": "t_exceedance_area",
     "key": "exceedance_area",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Exceedance area fraction (q=0.75)",
     "reference": "Beven & Binley (1992)",
     "supported_output_kinds": [
@@ -1459,7 +1459,7 @@
     "function_name": "t_isoline_length",
     "key": "isoline_length",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.field_ops",
     "name": "Isoline perimeter (q=0.75)",
     "reference": "Openshaw (1984)",
     "supported_output_kinds": [
@@ -1496,7 +1496,7 @@
     "function_name": "t_laplacian_roughness",
     "key": "laplacian_roughness",
     "mechanism": "field_op",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.field_ops",
     "name": "Laplacian roughness |\u2207\u00b2Y|",
     "reference": "Cressie (1993)",
     "supported_output_kinds": [
@@ -1777,7 +1777,7 @@
     "function_name": "t_matern_smooth",
     "key": "matern_smooth",
     "mechanism": "field_op",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.field_ops",
     "name": "Matern-1.5 spatial smoothing",
     "reference": "Stein (1999)",
     "supported_output_kinds": [
@@ -2252,7 +2252,7 @@
     "function_name": "t_regional_mean",
     "key": "regional_mean",
     "mechanism": "aggregation",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.aggregation",
     "name": "Regional mean",
     "reference": "Gotway & Young (2002)",
     "supported_output_kinds": [

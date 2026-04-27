@@ -187,3 +187,12 @@ def test_transform_registry_export_uses_canonical_fields() -> None:
     assert exported["sin_cos_product"]["module"] == "sabench.transforms.pointwise"
     assert exported["temporal_cumsum"]["mechanism"] == "samplewise"
     assert exported["gradient_magnitude"]["supported_output_kinds"] == ["spatial"]
+    assert exported["regional_mean"]["module"] == "sabench.transforms.aggregation"
+    assert exported["block_2x2"]["module"] == "sabench.transforms.aggregation"
+    assert exported["block_4x4"]["module"] == "sabench.transforms.aggregation"
+    assert exported["block_8x8"]["module"] == "sabench.transforms.aggregation"
+    assert exported["exceedance_area"]["module"] == "sabench.transforms.aggregation"
+    assert exported["matern_smooth"]["module"] == "sabench.transforms.field_ops"
+    assert exported["laplacian_roughness"]["module"] == "sabench.transforms.field_ops"
+    assert exported["contour_exceedance"]["module"] == "sabench.transforms.field_ops"
+    assert exported["isoline_length"]["module"] == "sabench.transforms.field_ops"
