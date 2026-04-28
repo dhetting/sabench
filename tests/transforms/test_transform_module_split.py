@@ -195,6 +195,13 @@ from sabench.transforms.statistical import (
 )
 
 
+def _legacy_transform_monolith_source(package_root: Path) -> str:
+    legacy_path = package_root / "transforms" / "transforms.py"
+    if not legacy_path.exists():
+        return ""
+    return legacy_path.read_text(encoding="utf-8")
+
+
 def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("affine_a2_b1").module == "sabench.transforms.linear"
     assert get_transform_spec("tanh_a03").module == "sabench.transforms.pointwise"
@@ -761,7 +768,7 @@ def test_apply_transform_matches_split_module_functions() -> None:
 
 def test_final_mathematical_and_statistical_shapes_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_triangle_wave(" not in monolith
     assert "def t_yeo_johnson(" not in monolith
@@ -786,11 +793,13 @@ def test_focused_transform_modules_exist() -> None:
     assert (package_root / "transforms" / "financial.py").exists()
     assert (package_root / "transforms" / "pharmacological.py").exists()
     assert (package_root / "transforms" / "ecological.py").exists()
+    assert (package_root / "transforms" / "evaluation.py").exists()
+    assert not (package_root / "transforms" / "transforms.py").exists()
 
 
 def test_engineering_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_weibull_reliability(" not in monolith
     assert "def t_fatigue_miner(" not in monolith
@@ -803,7 +812,7 @@ def test_engineering_family_no_longer_defined_in_monolith() -> None:
 
 def test_physical_engineering_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_carnot_quadratic(" not in monolith
     assert "def t_arrhenius(" not in monolith
@@ -812,7 +821,7 @@ def test_physical_engineering_family_no_longer_defined_in_monolith() -> None:
 
 def test_elementary_pointwise_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_cube_pointwise(" not in monolith
     assert "def t_erf_pointwise(" not in monolith
@@ -824,7 +833,7 @@ def test_elementary_pointwise_family_no_longer_defined_in_monolith() -> None:
 
 def test_periodic_pointwise_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_sinc(" not in monolith
     assert "def t_sin_squared(" not in monolith
@@ -838,7 +847,7 @@ def test_periodic_pointwise_family_no_longer_defined_in_monolith() -> None:
 
 def test_nonlinear_pointwise_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_cosh_pointwise(" not in monolith
     assert "def t_cbrt_pointwise(" not in monolith
@@ -849,7 +858,7 @@ def test_nonlinear_pointwise_family_no_longer_defined_in_monolith() -> None:
 
 def test_nonlinear_activation_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_gompertz(" not in monolith
     assert "def t_algebraic_sigmoid(" not in monolith
@@ -864,7 +873,7 @@ def test_nonlinear_activation_family_no_longer_defined_in_monolith() -> None:
 
 def test_threshold_piecewise_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_soft_threshold(" not in monolith
     assert "def t_hard_threshold(" not in monolith
@@ -877,7 +886,7 @@ def test_threshold_piecewise_family_no_longer_defined_in_monolith() -> None:
 
 def test_pharmacological_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_sigmoid_dose(" not in monolith
     assert "def t_hill_response(" not in monolith
@@ -887,7 +896,7 @@ def test_pharmacological_family_no_longer_defined_in_monolith() -> None:
 
 def test_environmental_log_power_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_log_shift(" not in monolith
     assert "def t_power_law(" not in monolith
@@ -905,7 +914,7 @@ def test_environmental_log_power_family_no_longer_defined_in_monolith() -> None:
 
 def test_climate_bias_anomaly_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_anomaly_pct(" not in monolith
     assert "def t_bias_correction(" not in monolith
@@ -914,7 +923,7 @@ def test_climate_bias_anomaly_family_no_longer_defined_in_monolith() -> None:
 
 def test_environmental_hydrology_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_growing_degree_days(" not in monolith
     assert "def t_standardised_precip_idx(" not in monolith
@@ -925,7 +934,7 @@ def test_environmental_hydrology_family_no_longer_defined_in_monolith() -> None:
 
 def test_mathematical_polynomial_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_poly4(" not in monolith
     assert "def t_poly5(" not in monolith
@@ -938,7 +947,7 @@ def test_mathematical_polynomial_family_no_longer_defined_in_monolith() -> None:
 
 def test_mathematical_response_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_neg_square(" not in monolith
     assert "def t_smooth_bump(" not in monolith
@@ -953,7 +962,7 @@ def test_mathematical_response_family_no_longer_defined_in_monolith() -> None:
 
 def test_variance_stabilising_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_anscombe(" not in monolith
     assert "def t_freeman_tukey(" not in monolith
@@ -964,7 +973,7 @@ def test_variance_stabilising_family_no_longer_defined_in_monolith() -> None:
 
 def test_financial_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_var_proxy(" not in monolith
     assert "def t_cvar(" not in monolith
@@ -976,7 +985,7 @@ def test_financial_family_no_longer_defined_in_monolith() -> None:
 
 def test_ecological_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_hellinger(" not in monolith
     assert "def t_chord_dist(" not in monolith
@@ -986,7 +995,7 @@ def test_ecological_family_no_longer_defined_in_monolith() -> None:
 
 def test_spatial_aggregation_and_field_ops_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_regional_mean(" not in monolith
     assert "def _block_avg(" not in monolith
@@ -1002,7 +1011,7 @@ def test_spatial_aggregation_and_field_ops_no_longer_defined_in_monolith() -> No
 
 def test_temporal_operator_family_no_longer_defined_in_monolith() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+    monolith = _legacy_transform_monolith_source(package_root)
 
     assert "def t_temporal_log_cumsum(" not in monolith
     assert "def t_temporal_exceedance_duration(" not in monolith

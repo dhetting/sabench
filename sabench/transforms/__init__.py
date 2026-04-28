@@ -6,6 +6,7 @@ transformations for investigating Sobol index non-commutativity across
 environmental, engineering, spatial, temporal, and statistical domains.
 """
 
+from sabench.transforms.evaluation import apply_transform, score_transform
 from sabench.transforms.registry import (
     AFFINE_TRANSFORMS,
     CONCAVE_TRANSFORMS,
@@ -25,7 +26,6 @@ from sabench.transforms.registry import (
     get_transform_spec,
     list_transforms,
 )
-from sabench.transforms.transforms import apply_transform, score_transform
 from sabench.transforms.types import TransformSpec
 
 __all__ = [

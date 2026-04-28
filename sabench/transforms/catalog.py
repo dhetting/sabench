@@ -2,7 +2,7 @@
 
 This module owns the raw transform catalogue and property classifications used
 to build the typed registry. Runtime helpers live in ``sabench.transforms.registry``
-and ``sabench.transforms.transforms``.
+and ``sabench.transforms.evaluation``.
 """
 
 from __future__ import annotations

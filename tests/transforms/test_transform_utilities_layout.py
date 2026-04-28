@@ -31,10 +31,6 @@ def test_transform_utilities_helpers_match_expected_behavior() -> None:
     assert broadcast.shape == (2, 1, 1)
 
 
-def test_transform_monolith_no_longer_defines_shared_helpers() -> None:
+def test_legacy_transform_monolith_is_removed() -> None:
     package_root = Path(sabench.__file__).resolve().parent
-    transforms_source = (package_root / "transforms" / "transforms.py").read_text()
-
-    assert "def _safe_range(" not in transforms_source
-    assert "def _ymin(" not in transforms_source
-    assert "def _bc(" not in transforms_source
+    assert not (package_root / "transforms" / "transforms.py").exists()
