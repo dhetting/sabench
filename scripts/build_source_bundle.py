@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import os
 import stat
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
@@ -21,6 +20,7 @@ EXCLUDED_DIR_NAMES = {
 EXCLUDED_FILE_NAMES = {
     ".DS_Store",
     "coverage.xml",
+    "diff.txt",
 }
 
 EXCLUDED_SUFFIXES = {
@@ -48,7 +48,7 @@ def is_excluded(relative_path: Path) -> bool:
     name = relative_path.name
     if name in EXCLUDED_DIR_NAMES or name in EXCLUDED_FILE_NAMES:
         return True
-    if name.startswith(".coverage"):
+    if name.startswith(".coverage") or name.startswith("._"):
         return True
     if any(name.endswith(suffix) for suffix in EXCLUDED_SUFFIXES):
         return True

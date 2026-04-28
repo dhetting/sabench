@@ -37,9 +37,13 @@ def test_source_bundle_excludes_transient_repo_artifacts_and_preserves_executabl
     (repo_root / "__pycache__" / "junk.pyc").write_bytes(b"pyc")
     (repo_root / ".pytest_cache" / "state").write_text("cache\n", encoding="utf-8")
     (repo_root / ".coverage").write_text("coverage\n", encoding="utf-8")
+    (repo_root / ".coverage.unit").write_text("coverage\n", encoding="utf-8")
     (repo_root / "coverage.xml").write_text("<coverage/>\n", encoding="utf-8")
+    (repo_root / "diff.txt").write_text("temporary diff\n", encoding="utf-8")
+    (repo_root / "._README.md").write_text("appledouble\n", encoding="utf-8")
     (repo_root / "dist" / "artifact.whl").write_bytes(b"wheel")
     (repo_root / "result.zip").write_bytes(b"zip")
+    (repo_root / "source.tar.gz").write_bytes(b"archive")
 
     output_path = tmp_path / "bundle.zip"
     subprocess.run(
@@ -65,9 +69,13 @@ def test_source_bundle_excludes_transient_repo_artifacts_and_preserves_executabl
         assert "__pycache__/junk.pyc" not in names
         assert ".pytest_cache/state" not in names
         assert ".coverage" not in names
+        assert ".coverage.unit" not in names
         assert "coverage.xml" not in names
+        assert "diff.txt" not in names
+        assert "._README.md" not in names
         assert "dist/artifact.whl" not in names
         assert "result.zip" not in names
+        assert "source.tar.gz" not in names
 
         script_info = zf.getinfo("scripts/example.sh")
         mode = (script_info.external_attr >> 16) & 0o777
@@ -85,6 +93,8 @@ def test_source_bundle_can_build_changed_file_bundle(tmp_path: Path) -> None:
         "def test_keep():\n    assert True\n", encoding="utf-8"
     )
     (repo_root / "coverage.xml").write_text("<coverage/>\n", encoding="utf-8")
+    (repo_root / "diff.txt").write_text("temporary diff\n", encoding="utf-8")
+    (repo_root / "._keep.py").write_text("appledouble\n", encoding="utf-8")
 
     output_path = tmp_path / "changed.zip"
     subprocess.run(
@@ -101,6 +111,10 @@ def test_source_bundle_can_build_changed_file_bundle(tmp_path: Path) -> None:
             "tests/integration/test_keep.py",
             "--path",
             "coverage.xml",
+            "--path",
+            "diff.txt",
+            "--path",
+            "._keep.py",
         ],
         check=True,
     )

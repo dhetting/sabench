@@ -72,3 +72,26 @@ def test_ci_workflow_avoids_legacy_raw_toolchain_commands() -> None:
         "pixi run -e ci twine check --strict dist/*",
     ]:
         assert legacy_command not in workflow
+
+
+def test_gitignore_blocks_local_bundle_and_platform_artifacts() -> None:
+    gitignore = (_repo_root() / ".gitignore").read_text(encoding="utf-8")
+    for pattern in [
+        "__MACOSX/",
+        "._*",
+        "*.zip",
+        "*.tar.gz",
+        "coverage.xml",
+        "diff.txt",
+    ]:
+        assert pattern in gitignore
+
+
+def test_clean_stage_removes_local_bundle_and_platform_artifacts() -> None:
+    script = (_repo_root() / "test_repo.sh").read_text(encoding="utf-8")
+    clean_section = script.split("# STAGE 1 — INSTALL / SYNC ENVIRONMENT")[0]
+    for command in [
+        "rm -rf __MACOSX",
+        "rm -f ._.* diff.txt *.zip *.tar.gz",
+    ]:
+        assert command in clean_section

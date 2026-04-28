@@ -1,5 +1,7 @@
 # macOS
 .DS_Store
+__MACOSX/
+._*
 
 # Python bytecode / caches
 __pycache__/
@@ -13,6 +15,8 @@ site/
 .eggs/
 *.egg-info/
 pip-wheel-metadata/
+*.zip
+*.tar.gz
 
 # Test / coverage / type-check / lint caches
 .pytest_cache/
@@ -20,7 +24,11 @@ pip-wheel-metadata/
 .ruff_cache/
 .coverage
 .coverage.*
+coverage.xml
 htmlcov/
+
+# Local generated diffs / scratch artifacts
+diff.txt
 
 # Jupyter
 .ipynb_checkpoints/

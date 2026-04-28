@@ -112,6 +112,10 @@ if $DO_CLEAN; then
   rm -f .coverage coverage.xml .coverage.*
   rm -rf .mypy_cache .ruff_cache .pytest_cache htmlcov
 
+  info "Removing transient bundle/platform artefacts"
+  rm -rf __MACOSX
+  rm -f ._.* diff.txt *.zip *.tar.gz
+
   info "Removing generated notebook outputs"
   rm -f notebooks/demo_executed.ipynb notebooks/demo.html
   rm -f notebooks/*.png
