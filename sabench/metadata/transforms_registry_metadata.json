@@ -232,7 +232,7 @@
     "function_name": "t_bernstein_b3",
     "key": "bernstein_b3",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "Bernstein B3 basis polynomial",
     "reference": "Bernstein (1912)",
     "supported_output_kinds": [
@@ -272,7 +272,7 @@
     "function_name": "t_bimodal_flip",
     "key": "bimodal_flip",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "Bimodal flip (zero crossings at 0,0.5,1)",
     "reference": "Saltelli et al. (2010)",
     "supported_output_kinds": [
@@ -701,7 +701,7 @@
     "function_name": "t_donut",
     "key": "donut",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "Donut/ring indicator (C-inf)",
     "reference": "Wendland (2004)",
     "supported_output_kinds": [
@@ -2526,7 +2526,7 @@
     "function_name": "t_signed_power",
     "key": "signed_power_p05",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "Signed power p=0.5 (monotone, C1)",
     "reference": "Sklar (1959)",
     "supported_output_kinds": [
@@ -2546,7 +2546,7 @@
     "function_name": "t_signed_power",
     "key": "signed_power_p15",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "Signed power p=1.5 (monotone, C1)",
     "reference": "Sklar (1959)",
     "supported_output_kinds": [
@@ -3257,7 +3257,7 @@
     "function_name": "t_triangle_wave",
     "key": "triangle_wave",
     "mechanism": "pointwise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.mathematical",
     "name": "Triangle wave (periodic, non-smooth)",
     "reference": "Stein (1999)",
     "supported_output_kinds": [
@@ -3377,7 +3377,7 @@
     "function_name": "t_yeo_johnson",
     "key": "yeo_johnson",
     "mechanism": "samplewise",
-    "module": "sabench.transforms.transforms",
+    "module": "sabench.transforms.statistical",
     "name": "Yeo-Johnson transform (\u03bb=0.5)",
     "reference": "Yeo & Johnson (2000)",
     "supported_output_kinds": [

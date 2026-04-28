@@ -162,6 +162,23 @@ def t_dual_power(Y: np.ndarray, lam: float = 0.3) -> np.ndarray:
     return z
 
 
+def t_yeo_johnson(Y: np.ndarray, lam: float = 0.5) -> np.ndarray:
+    """Yeo-Johnson real-line power transform."""
+    out = np.empty_like(Y, dtype=float)
+    pos = Y >= 0
+    neg = ~pos
+    if abs(lam) < 1e-8:
+        out[pos] = np.log(Y[pos] + 1.0)
+    else:
+        out[pos] = ((Y[pos] + 1.0) ** lam - 1.0) / lam
+    lam2 = 2.0 - lam
+    if abs(lam2) < 1e-8:
+        out[neg] = -np.log(-Y[neg] + 1.0)
+    else:
+        out[neg] = -((-Y[neg] + 1.0) ** lam2 - 1.0) / lam2
+    return out
+
+
 def t_gumbel_cdf(Y: np.ndarray) -> np.ndarray:
     """Gumbel (extreme-value type I) non-exceedance CDF fitted per sample."""
     flat = Y.reshape(len(Y), -1)

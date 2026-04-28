@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 
+from sabench.transforms.utilities import _bc, _safe_range, _ymin
+
 
 def t_poly4(Y, scale=0.05):
     """phi(y) = (scale*y)^4 -- even, C-inf, convex, quartic."""
@@ -87,3 +89,36 @@ def t_inverse_sq(Y, eps=1.0):
 def t_power_exp(Y, scale=0.1):
     """Power-exponential hump phi(y) = y^2 * exp(-|y| * scale)."""
     return Y**2 * np.exp(-np.abs(Y) * scale)
+
+
+def t_triangle_wave(Y, period=4.0):
+    """Triangle wave: piecewise linear periodic function with period ``period``."""
+    t = (Y % period) / period
+    return 2.0 * np.abs(2.0 * t - 1.0) - 1.0
+
+
+def t_signed_power(Y, p=1.5, scale=0.2):
+    """Signed power response ``sign(u) * |u|**p`` for ``u = scale * Y``."""
+    u = scale * Y
+    return np.sign(u) * (np.abs(u) ** p)
+
+
+def t_bernstein_b3(Y):
+    """Bernstein B3 hump ``3u**2 * (1-u)`` on normalized support."""
+    s = _bc(_ymin(Y), Y)
+    r = _bc(_safe_range(Y), Y)
+    u = np.clip((Y - s) / r, 0.0, 1.0)
+    return 3.0 * u**2 * (1.0 - u)
+
+
+def t_bimodal_flip(Y):
+    """Bimodal sign-flip shape on normalized support."""
+    s = _bc(_ymin(Y), Y)
+    r = _bc(_safe_range(Y), Y)
+    u = np.clip((Y - s) / r, 0.0, 1.0)
+    return 4.0 * u * (1.0 - u) * (2.0 * u - 1.0)
+
+
+def t_donut(Y, center=0.0, radius=1.5, width=0.5):
+    """Donut/ring response centered on ``radius`` around ``center``."""
+    return np.exp(-(((np.abs(Y - center) - radius) / width) ** 2))

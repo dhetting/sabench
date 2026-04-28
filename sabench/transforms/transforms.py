@@ -97,7 +97,10 @@ from sabench.transforms.financial import (
 from sabench.transforms.linear import t_affine
 from sabench.transforms.mathematical import (
     t_atan2pi,
+    t_bernstein_b3,
+    t_bimodal_flip,
     t_chebyshev_t4,
+    t_donut,
     t_exp_neg_sq,
     t_exp_pos_sq,
     t_hermite_he2,
@@ -111,7 +114,9 @@ from sabench.transforms.mathematical import (
     t_poly6,
     t_power_exp,
     t_rational_quadratic,
+    t_signed_power,
     t_smooth_bump,
+    t_triangle_wave,
 )
 from sabench.transforms.nonlinear import (
     t_algebraic_sigmoid,
@@ -197,8 +202,8 @@ from sabench.transforms.statistical import (
     t_softmax_shift,
     t_standardised_anomaly,
     t_winsorise,
+    t_yeo_johnson,
 )
-from sabench.transforms.utilities import _bc, _safe_range, _ymin
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Environmental / Hydrological
@@ -238,15 +243,6 @@ from sabench.transforms.utilities import _bc, _safe_range, _ymin
 # ── Oscillatory / non-monotone ────────────────────────────────────────────────
 
 
-def t_triangle_wave(Y, period=4.0):
-    """Triangle wave: piecewise linear periodic function with period 'period'.
-    Bounded, periodic, continuous but non-differentiable at peaks.
-    Models periodic clipping in signal processing.
-    """
-    t = (Y % period) / period  # [0, 1)
-    return 2.0 * np.abs(2.0 * t - 1.0) - 1.0
-
-
 # ── Higher-order derivative structure ────────────────────────────────────────
 
 
@@ -270,29 +266,6 @@ def t_triangle_wave(Y, period=4.0):
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-def t_yeo_johnson(Y, lam=0.5):
-    """Yeo-Johnson transform — extends Box-Cox to all reals.
-
-    For y ≥ 0:  ((y+1)^λ − 1) / λ         if λ ≠ 0
-                log(y+1)                    if λ = 0
-    For y < 0:  −((−y+1)^{2−λ} − 1)/(2−λ)  if λ ≠ 2
-                −log(−y+1)                  if λ = 2
-    """
-    out = np.empty_like(Y, dtype=float)
-    pos = Y >= 0
-    neg = ~pos
-    if abs(lam) < 1e-8:
-        out[pos] = np.log(Y[pos] + 1.0)
-    else:
-        out[pos] = ((Y[pos] + 1.0) ** lam - 1.0) / lam
-    lam2 = 2.0 - lam
-    if abs(lam2) < 1e-8:
-        out[neg] = -np.log(-Y[neg] + 1.0)
-    else:
-        out[neg] = -((-Y[neg] + 1.0) ** lam2 - 1.0) / lam2
-    return out
-
-
 # ══════════════════════════════════════════════════════════════════════════════
 # Transform Registry
 # ══════════════════════════════════════════════════════════════════════════════
@@ -303,20 +276,6 @@ def t_yeo_johnson(Y, lam=0.5):
 # ============================================================================
 
 
-def t_signed_power(Y, p=1.5, scale=0.2):
-    """phi(y) = sign(y)*|scale*y|^p -- odd, monotone, C1 for p>=1."""
-    u = scale * Y
-    return np.sign(u) * (np.abs(u) ** p)
-
-
-def t_bernstein_b3(Y):
-    """Bernstein B3 basis: phi(u) = 3u^2*(1-u) on [0,1] -- hump shape, nonmonotone."""
-    s = _bc(_ymin(Y), Y)
-    r = _bc(_safe_range(Y), Y)
-    u = np.clip((Y - s) / r, 0.0, 1.0)
-    return 3.0 * u**2 * (1.0 - u)
-
-
 # ============================================================================
 # SIGMOID / ACTIVATION FAMILY  (neural, biochemical, bounded)
 # ============================================================================
@@ -325,19 +284,6 @@ def t_bernstein_b3(Y):
 # ============================================================================
 # THRESHOLD / PIECEWISE FAMILY
 # ============================================================================
-
-
-def t_bimodal_flip(Y):
-    """Bimodal sign flip: phi(u) = 4*u*(1-u)*(2*u-1) on [0,1] -- zero at 0,0.5,1."""
-    s = _bc(_ymin(Y), Y)
-    r = _bc(_safe_range(Y), Y)
-    u = np.clip((Y - s) / r, 0.0, 1.0)
-    return 4.0 * u * (1.0 - u) * (2.0 * u - 1.0)
-
-
-def t_donut(Y, center=0.0, radius=1.5, width=0.5):
-    """Donut/ring indicator: phi(y) = exp(-((|y|-radius)/width)^2) -- C-inf."""
-    return np.exp(-(((np.abs(Y - center) - radius) / width) ** 2))
 
 
 # ============================================================================

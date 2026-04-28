@@ -86,7 +86,10 @@ from sabench.transforms.financial import (
 from sabench.transforms.linear import t_affine
 from sabench.transforms.mathematical import (
     t_atan2pi,
+    t_bernstein_b3,
+    t_bimodal_flip,
     t_chebyshev_t4,
+    t_donut,
     t_exp_neg_sq,
     t_exp_pos_sq,
     t_hermite_he2,
@@ -100,7 +103,9 @@ from sabench.transforms.mathematical import (
     t_poly6,
     t_power_exp,
     t_rational_quadratic,
+    t_signed_power,
     t_smooth_bump,
+    t_triangle_wave,
 )
 from sabench.transforms.nonlinear import (
     t_algebraic_sigmoid,
@@ -186,6 +191,7 @@ from sabench.transforms.statistical import (
     t_softmax_shift,
     t_standardised_anomaly,
     t_winsorise,
+    t_yeo_johnson,
 )
 
 
@@ -220,6 +226,12 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("exp_pos_sq").module == "sabench.transforms.mathematical"
     assert get_transform_spec("inverse_sq").module == "sabench.transforms.mathematical"
     assert get_transform_spec("power_exp").module == "sabench.transforms.mathematical"
+    assert get_transform_spec("triangle_wave").module == "sabench.transforms.mathematical"
+    assert get_transform_spec("signed_power_p15").module == "sabench.transforms.mathematical"
+    assert get_transform_spec("signed_power_p05").module == "sabench.transforms.mathematical"
+    assert get_transform_spec("bernstein_b3").module == "sabench.transforms.mathematical"
+    assert get_transform_spec("bimodal_flip").module == "sabench.transforms.mathematical"
+    assert get_transform_spec("donut").module == "sabench.transforms.mathematical"
     assert get_transform_spec("sinc").module == "sabench.transforms.pointwise"
     assert get_transform_spec("sin_squared").module == "sabench.transforms.pointwise"
     assert get_transform_spec("cos_squared").module == "sabench.transforms.pointwise"
@@ -298,6 +310,7 @@ def test_representative_transform_specs_point_to_split_modules() -> None:
     assert get_transform_spec("asinh_vst").module == "sabench.transforms.statistical"
     assert get_transform_spec("modulus_lam05").module == "sabench.transforms.statistical"
     assert get_transform_spec("dual_power_lam03").module == "sabench.transforms.statistical"
+    assert get_transform_spec("yeo_johnson").module == "sabench.transforms.statistical"
     assert get_transform_spec("var_q95").module == "sabench.transforms.financial"
     assert get_transform_spec("cvar_q95").module == "sabench.transforms.financial"
     assert get_transform_spec("sharpe_proxy").module == "sabench.transforms.financial"
@@ -379,6 +392,12 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["exp_pos_sq"]["fn"] is t_exp_pos_sq
     assert TRANSFORMS["inverse_sq"]["fn"] is t_inverse_sq
     assert TRANSFORMS["power_exp"]["fn"] is t_power_exp
+    assert TRANSFORMS["triangle_wave"]["fn"] is t_triangle_wave
+    assert TRANSFORMS["signed_power_p15"]["fn"] is t_signed_power
+    assert TRANSFORMS["signed_power_p05"]["fn"] is t_signed_power
+    assert TRANSFORMS["bernstein_b3"]["fn"] is t_bernstein_b3
+    assert TRANSFORMS["bimodal_flip"]["fn"] is t_bimodal_flip
+    assert TRANSFORMS["donut"]["fn"] is t_donut
     assert TRANSFORMS["sinc"]["fn"] is t_sinc
     assert TRANSFORMS["sin_squared"]["fn"] is t_sin_squared
     assert TRANSFORMS["cos_squared"]["fn"] is t_cos_squared
@@ -450,6 +469,7 @@ def test_legacy_transform_registry_uses_split_module_functions() -> None:
     assert TRANSFORMS["gev_cdf"]["fn"] is t_gev_cdf
     assert TRANSFORMS["pareto_tail"]["fn"] is t_pareto_tail
     assert TRANSFORMS["log_logistic_cdf"]["fn"] is t_log_logistic_cdf
+    assert TRANSFORMS["yeo_johnson"]["fn"] is t_yeo_johnson
     assert TRANSFORMS["var_q95"]["fn"] is t_var_proxy
     assert TRANSFORMS["cvar_q95"]["fn"] is t_cvar
     assert TRANSFORMS["sharpe_proxy"]["fn"] is t_sharpe_proxy
@@ -533,6 +553,18 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(apply_transform(y, "exp_pos_sq"), t_exp_pos_sq(y, scale=0.2))
     np.testing.assert_allclose(apply_transform(y, "inverse_sq"), t_inverse_sq(y, eps=1.0))
     np.testing.assert_allclose(apply_transform(y, "power_exp"), t_power_exp(y, scale=0.1))
+    np.testing.assert_allclose(apply_transform(y, "triangle_wave"), t_triangle_wave(y, period=4.0))
+    np.testing.assert_allclose(
+        apply_transform(y, "signed_power_p15"), t_signed_power(y, p=1.5, scale=0.2)
+    )
+    np.testing.assert_allclose(
+        apply_transform(y, "signed_power_p05"), t_signed_power(y, p=0.5, scale=0.2)
+    )
+    np.testing.assert_allclose(apply_transform(y, "bernstein_b3"), t_bernstein_b3(y))
+    np.testing.assert_allclose(apply_transform(y, "bimodal_flip"), t_bimodal_flip(y))
+    np.testing.assert_allclose(
+        apply_transform(y, "donut"), t_donut(y, center=0.0, radius=1.5, width=0.5)
+    )
     np.testing.assert_allclose(apply_transform(y, "sinc"), t_sinc(y, scale=0.5))
     np.testing.assert_allclose(apply_transform(y, "sin_squared"), t_sin_squared(y, freq=0.5))
     np.testing.assert_allclose(apply_transform(y, "cos_squared"), t_cos_squared(y, freq=0.5))
@@ -636,6 +668,7 @@ def test_apply_transform_matches_split_module_functions() -> None:
     np.testing.assert_allclose(
         apply_transform(y, "winsorise_q10_q90"), t_winsorise(y, low=0.10, high=0.90)
     )
+    np.testing.assert_allclose(apply_transform(y, "yeo_johnson"), t_yeo_johnson(y, lam=0.5))
     np.testing.assert_allclose(apply_transform(y, "inverse_normal"), t_inverse_normal(y))
     np.testing.assert_allclose(apply_transform(y, "gumbel_cdf"), t_gumbel_cdf(y))
     np.testing.assert_allclose(apply_transform(y, "frechet_cdf"), t_frechet_cdf(y, shape=2.0))
@@ -724,6 +757,18 @@ def test_apply_transform_matches_split_module_functions() -> None:
         apply_transform(spatial_y, "isoline_length"),
         t_isoline_length(spatial_y, quantile=0.75),
     )
+
+
+def test_final_mathematical_and_statistical_shapes_no_longer_defined_in_monolith() -> None:
+    package_root = Path(sabench.__file__).resolve().parent
+    monolith = (package_root / "transforms" / "transforms.py").read_text(encoding="utf-8")
+
+    assert "def t_triangle_wave(" not in monolith
+    assert "def t_yeo_johnson(" not in monolith
+    assert "def t_signed_power(" not in monolith
+    assert "def t_bernstein_b3(" not in monolith
+    assert "def t_bimodal_flip(" not in monolith
+    assert "def t_donut(" not in monolith
 
 
 def test_focused_transform_modules_exist() -> None:
