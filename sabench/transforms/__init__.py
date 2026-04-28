@@ -18,17 +18,14 @@ from sabench.transforms.registry import (
     POINTWISE_TRANSFORMS,
     SMOOTH_TRANSFORMS,
     TRANSFORM_REGISTRY,
+    TRANSFORMS,
     TransformDefinition,
     get_transform,
     get_transform_definition,
     get_transform_spec,
     list_transforms,
 )
-from sabench.transforms.transforms import (
-    TRANSFORMS,
-    apply_transform,
-    score_transform,
-)
+from sabench.transforms.transforms import apply_transform, score_transform
 from sabench.transforms.types import TransformSpec
 
 __all__ = [

@@ -13,7 +13,7 @@ import unittest
 
 import numpy as np
 
-from sabench.transforms.transforms import (
+from sabench.transforms import (
     CONCAVE_TRANSFORMS,
     CONVEX_TRANSFORMS,
     MONOTONE_TRANSFORMS,
@@ -406,7 +406,7 @@ class TestConvexTransforms(unittest.TestCase):
         """1/(y^2+eps) has a maximum at y=0 so is NOT globally convex (concave near 0)."""
         import numpy as np
 
-        from sabench.transforms.transforms import t_inverse_sq
+        from sabench.transforms.mathematical import t_inverse_sq
 
         # Value at 0 should be largest for nearby points
         Y_zero = np.array([0.0])
@@ -458,7 +458,7 @@ class TestSpecialOutputProperties(unittest.TestCase):
         """sin^2 + cos^2 = 1 at matched frequency."""
         freq = 0.5
         Y = np.linspace(-5, 5, 100)
-        from sabench.transforms.transforms import t_cos_squared, t_sin_squared
+        from sabench.transforms.pointwise import t_cos_squared, t_sin_squared
 
         s2 = t_sin_squared(Y, freq=freq)
         c2 = t_cos_squared(Y, freq=freq)
@@ -467,7 +467,7 @@ class TestSpecialOutputProperties(unittest.TestCase):
     def test_soft_threshold_zero_in_band(self):
         """Soft threshold maps (-lam, lam) to 0."""
         Y = np.linspace(-0.5, 0.5, 50)
-        from sabench.transforms.transforms import t_soft_threshold
+        from sabench.transforms.nonlinear import t_soft_threshold
 
         result = t_soft_threshold(Y, lam=1.0)
         np.testing.assert_allclose(
@@ -477,7 +477,7 @@ class TestSpecialOutputProperties(unittest.TestCase):
     def test_hockey_stick_zero_below_bp(self):
         """Hockey stick returns 0 below breakpoint."""
         Y = np.linspace(-5, 0, 50)
-        from sabench.transforms.transforms import t_hockey_stick
+        from sabench.transforms.nonlinear import t_hockey_stick
 
         result = t_hockey_stick(Y, bp=0.0)
         np.testing.assert_allclose(
@@ -487,7 +487,7 @@ class TestSpecialOutputProperties(unittest.TestCase):
     def test_deadzone_zero_in_band(self):
         """Deadzone returns 0 in (-hw, hw)."""
         Y = np.linspace(-0.5, 0.5, 50)
-        from sabench.transforms.transforms import t_deadzone
+        from sabench.transforms.nonlinear import t_deadzone
 
         result = t_deadzone(Y, half_width=1.0)
         np.testing.assert_allclose(
@@ -496,7 +496,7 @@ class TestSpecialOutputProperties(unittest.TestCase):
 
     def test_hermite_he2_min_at_zero(self):
         """He2(u) = u^2 - 1 has minimum at u=0."""
-        from sabench.transforms.transforms import t_hermite_he2
+        from sabench.transforms.mathematical import t_hermite_he2
 
         Y_near_zero = np.array([0.0])
         Y_away = np.array([0.5, 1.0])
@@ -508,7 +508,7 @@ class TestSpecialOutputProperties(unittest.TestCase):
 
     def test_anscombe_variance_stabilises(self):
         """Anscombe approx. makes std ~ 1 for Poisson-like counts."""
-        from sabench.transforms.transforms import t_anscombe
+        from sabench.transforms.statistical import t_anscombe
 
         counts = np.maximum(np.round(RNG.exponential(scale=10, size=500)), 0)
         result = t_anscombe(counts)
@@ -518,7 +518,7 @@ class TestSpecialOutputProperties(unittest.TestCase):
 
     def test_excess_return_zero_mean(self):
         """Excess return has zero sample mean."""
-        from sabench.transforms.transforms import t_excess_return
+        from sabench.transforms.financial import t_excess_return
 
         result = t_excess_return(Y_SCALAR)
         np.testing.assert_allclose(
@@ -527,7 +527,7 @@ class TestSpecialOutputProperties(unittest.TestCase):
 
     def test_relative_abundance_sums_to_one(self):
         """Relative abundance sums to 1 per sample."""
-        from sabench.transforms.transforms import t_relative_abundance
+        from sabench.transforms.ecological import t_relative_abundance
 
         Y_pos = np.abs(Y_2D) + 0.1
         result = t_relative_abundance(Y_pos)
@@ -538,14 +538,14 @@ class TestSpecialOutputProperties(unittest.TestCase):
 
     def test_growing_degree_days_nonnegative(self):
         """GDD output is always >= 0."""
-        from sabench.transforms.transforms import t_growing_degree_days
+        from sabench.transforms.environmental import t_growing_degree_days
 
         result = t_growing_degree_days(Y_SCALAR, base=0.0)
         self.assertTrue(np.all(result >= -1e-12), "GDD should be non-negative")
 
     def test_drawdown_nonpositive(self):
         """Drawdown output is always <= 0."""
-        from sabench.transforms.transforms import t_drawdown
+        from sabench.transforms.financial import t_drawdown
 
         result = t_drawdown(Y_2D)
         self.assertTrue(np.all(result <= 1e-12), "Drawdown should be <= 0")

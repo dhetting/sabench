@@ -10,37 +10,37 @@ from typing import TypedDict, cast
 import numpy as np
 
 from sabench.transforms.base import BoundTransform, TransformFunction
-from sabench.transforms.transforms import (
-    AFFINE_TRANSFORMS as LEGACY_AFFINE_TRANSFORMS,
+from sabench.transforms.catalog import (
+    AFFINE_TRANSFORMS as CATALOG_AFFINE_TRANSFORMS,
 )
-from sabench.transforms.transforms import (
-    CONCAVE_TRANSFORMS as LEGACY_CONCAVE_TRANSFORMS,
+from sabench.transforms.catalog import (
+    CONCAVE_TRANSFORMS as CATALOG_CONCAVE_TRANSFORMS,
 )
-from sabench.transforms.transforms import (
-    CONVEX_TRANSFORMS as LEGACY_CONVEX_TRANSFORMS,
+from sabench.transforms.catalog import (
+    CONVEX_TRANSFORMS as CATALOG_CONVEX_TRANSFORMS,
 )
-from sabench.transforms.transforms import (
-    LINEAR_TRANSFORMS as LEGACY_LINEAR_TRANSFORMS,
+from sabench.transforms.catalog import (
+    LINEAR_TRANSFORMS as CATALOG_LINEAR_TRANSFORMS,
 )
-from sabench.transforms.transforms import (
-    MONOTONE_TRANSFORMS as LEGACY_MONOTONE_TRANSFORMS,
+from sabench.transforms.catalog import (
+    MONOTONE_TRANSFORMS as CATALOG_MONOTONE_TRANSFORMS,
 )
-from sabench.transforms.transforms import (
-    NONLOCAL_TRANSFORMS as LEGACY_NONLOCAL_TRANSFORMS,
+from sabench.transforms.catalog import (
+    NONLOCAL_TRANSFORMS as CATALOG_NONLOCAL_TRANSFORMS,
 )
-from sabench.transforms.transforms import (
-    NONMONOTONE_TRANSFORMS as LEGACY_NONMONOTONE_TRANSFORMS,
+from sabench.transforms.catalog import (
+    NONMONOTONE_TRANSFORMS as CATALOG_NONMONOTONE_TRANSFORMS,
 )
-from sabench.transforms.transforms import (
-    NONSMOOTH_TRANSFORMS as LEGACY_NONSMOOTH_TRANSFORMS,
+from sabench.transforms.catalog import (
+    NONSMOOTH_TRANSFORMS as CATALOG_NONSMOOTH_TRANSFORMS,
 )
-from sabench.transforms.transforms import (
-    POINTWISE_TRANSFORMS as LEGACY_POINTWISE_TRANSFORMS,
+from sabench.transforms.catalog import (
+    POINTWISE_TRANSFORMS as CATALOG_POINTWISE_TRANSFORMS,
 )
-from sabench.transforms.transforms import (
-    SMOOTH_TRANSFORMS as LEGACY_SMOOTH_TRANSFORMS,
+from sabench.transforms.catalog import (
+    SMOOTH_TRANSFORMS as CATALOG_SMOOTH_TRANSFORMS,
 )
-from sabench.transforms.transforms import (
+from sabench.transforms.catalog import (
     TRANSFORMS,
 )
 from sabench.transforms.types import (
@@ -59,8 +59,8 @@ class TransformDefinition:
     transform: BoundTransform
 
 
-class LegacyTransformMeta(TypedDict):
-    """Typed view of legacy transform metadata entries."""
+class TransformCatalogMeta(TypedDict):
+    """Typed view of transform catalog metadata entries."""
 
     name: str
     fn: TransformFunction
@@ -110,16 +110,16 @@ _DOMAIN_TAGS: dict[str, TransformTag] = {
 }
 
 _PROPERTY_TAG_SOURCES: tuple[tuple[TransformTag, set[str]], ...] = (
-    ("affine", LEGACY_AFFINE_TRANSFORMS),
-    ("linear", LEGACY_LINEAR_TRANSFORMS),
-    ("pointwise", LEGACY_POINTWISE_TRANSFORMS),
-    ("nonlocal", LEGACY_NONLOCAL_TRANSFORMS),
-    ("convex", LEGACY_CONVEX_TRANSFORMS),
-    ("concave", LEGACY_CONCAVE_TRANSFORMS),
-    ("monotone", LEGACY_MONOTONE_TRANSFORMS),
-    ("nonmonotone", LEGACY_NONMONOTONE_TRANSFORMS),
-    ("smooth", LEGACY_SMOOTH_TRANSFORMS),
-    ("nonsmooth", LEGACY_NONSMOOTH_TRANSFORMS),
+    ("affine", CATALOG_AFFINE_TRANSFORMS),
+    ("linear", CATALOG_LINEAR_TRANSFORMS),
+    ("pointwise", CATALOG_POINTWISE_TRANSFORMS),
+    ("nonlocal", CATALOG_NONLOCAL_TRANSFORMS),
+    ("convex", CATALOG_CONVEX_TRANSFORMS),
+    ("concave", CATALOG_CONCAVE_TRANSFORMS),
+    ("monotone", CATALOG_MONOTONE_TRANSFORMS),
+    ("nonmonotone", CATALOG_NONMONOTONE_TRANSFORMS),
+    ("smooth", CATALOG_SMOOTH_TRANSFORMS),
+    ("nonsmooth", CATALOG_NONSMOOTH_TRANSFORMS),
 )
 
 _FIELD_OP_KEYS: frozenset[str] = frozenset(
@@ -132,12 +132,12 @@ _FIELD_OP_KEYS: frozenset[str] = frozenset(
 )
 
 
-def _get_legacy_meta(key: str) -> LegacyTransformMeta:
-    """Return a typed view of a legacy transform metadata entry."""
-    return cast(LegacyTransformMeta, TRANSFORMS[key])
+def _get_catalog_meta(key: str) -> TransformCatalogMeta:
+    """Return a typed view of a transform catalog metadata entry."""
+    return cast(TransformCatalogMeta, TRANSFORMS[key])
 
 
-def _bind_transform(meta: LegacyTransformMeta) -> BoundTransform:
+def _bind_transform(meta: TransformCatalogMeta) -> BoundTransform:
     """Bind default parameters to a registered transform implementation."""
     fn = meta["fn"]
     params = meta["params"]
@@ -155,7 +155,7 @@ def _broadcasts_sample_constant(output: np.ndarray) -> bool:
 
 
 def _infer_supported_output_kinds(key: str, category: str) -> tuple[TransformOutputKind, ...]:
-    """Infer supported output kinds from canonical legacy categories."""
+    """Infer supported output kinds from canonical catalog categories."""
     if category == "spatial":
         return ("spatial",)
     if category == "temporal" or key.startswith("temporal_"):
@@ -169,8 +169,8 @@ def _infer_mechanism(
     transform: BoundTransform,
     supported_output_kinds: tuple[TransformOutputKind, ...],
 ) -> TransformMechanism:
-    """Infer the typed transform mechanism from legacy code behavior."""
-    if key in LEGACY_POINTWISE_TRANSFORMS:
+    """Infer the typed transform mechanism from registered transform behavior."""
+    if key in CATALOG_POINTWISE_TRANSFORMS:
         return "pointwise"
 
     if category == "spatial":
@@ -188,20 +188,20 @@ def _infer_mechanism(
 
 
 def _collect_tags(key: str, category: str) -> tuple[TransformTag, ...]:
-    """Derive canonical transform tags from the legacy registry metadata."""
+    """Derive canonical transform tags from the canonical catalog metadata."""
     tags: list[TransformTag] = []
     for tag_name, keys in _PROPERTY_TAG_SOURCES:
         if key in keys:
             tags.append(tag_name)
-    if key not in LEGACY_LINEAR_TRANSFORMS:
+    if key not in CATALOG_LINEAR_TRANSFORMS:
         tags.append("nonlinear")
     tags.append(_DOMAIN_TAGS[category])
     return tuple(tags)
 
 
 def _build_spec(key: str) -> TransformSpec:
-    """Build canonical typed metadata from the legacy transform registry."""
-    meta = _get_legacy_meta(key)
+    """Build canonical typed metadata from the transform catalog."""
+    meta = _get_catalog_meta(key)
     transform = _bind_transform(meta)
     category = meta["category"]
     fn = meta["fn"]
@@ -221,7 +221,7 @@ def _build_spec(key: str) -> TransformSpec:
 
 _REGISTRY: dict[str, TransformDefinition] = {
     key: TransformDefinition(
-        spec=_build_spec(key), transform=_bind_transform(_get_legacy_meta(key))
+        spec=_build_spec(key), transform=_bind_transform(_get_catalog_meta(key))
     )
     for key in TRANSFORMS
 }
