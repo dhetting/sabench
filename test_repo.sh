@@ -113,8 +113,12 @@ if $DO_CLEAN; then
   rm -rf .mypy_cache .ruff_cache .pytest_cache htmlcov
 
   info "Removing transient bundle/platform artefacts"
-  rm -rf __MACOSX
-  rm -f ._.* diff.txt *.zip *.tar.gz
+  find . -type d -name "__MACOSX" \
+    -not -path "./.git/*" -not -path "./.pixi/*" \
+    -prune -exec rm -rf {} +
+  find . -type f \( -name ".DS_Store" -o -name "._*" -o -name "diff.txt" -o -name "*.zip" -o -name "*.tar.gz" \) \
+    -not -path "./.git/*" -not -path "./.pixi/*" \
+    -delete
 
   info "Removing generated notebook outputs"
   rm -f notebooks/demo_executed.ipynb notebooks/demo.html

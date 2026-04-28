@@ -1,364 +1,275 @@
-# MEMORY — sabench refactor and finalization handoff
+# MEMORY — sabench refactor/hardening continuation
 
-Updated: 2026-04-28
+## Current status summary
 
-## Purpose of this file
+The `sabench` repo is in late-stage refactor hardening/finalization.
 
-Use this file as continuity context only. It is advisory, not authoritative. In every new chat, inspect the actual repo copy provided by the user and treat that live copy as the only source of truth.
+The core transform refactor appears mostly complete based on the latest uploaded repo audit, but the repo is **not yet release-ready**. Remaining work is primarily reproducibility, gate hygiene, source-bundle hygiene, metadata/registry validation, CI/local contract alignment, and final release-readiness review.
 
-## User goals
+Do **not** assume any generated bundle, previous patch, or assistant claim was actually applied locally. The user has had repeated artifact download failures. Treat the fresh repo copy uploaded in the next chat as the only authoritative source of truth.
 
-The user is finalizing the `sabench` repo for a clean, publication-quality architecture centered on two primary scientific concepts:
+## Core operating rule
 
-- `benchmarks`
-- `transforms`
+Do **not** trust prior bundles, summaries, generated files, claims about local state, or this memory file as authoritative.
 
-The user wants strict engineering discipline:
+Always begin from the actual live repo copy uploaded in the current chat.
 
-- audit the actual live repo first
-- test-first development
-- atomic slices only
-- no backward-compatibility shims
-- no hacks or workarounds
-- fix root causes rather than symptoms
-- tests outside the runtime package
-- canonical typed registries
-- metadata generated from, or validated against, canonical code definitions
-- source/changed-file bundles with repo-relative paths at zip root
-- never package `.git`, caches, coverage artifacts, old zips, macOS metadata, or transient files
+Audit first, then patch.
 
-## Non-negotiable workflow requirements
+## User workflow preferences
 
-At the start of any continuation chat:
+- Strict test-driven development.
+- Atomic slices only.
+- No backward-compatibility shims.
+- No hacks/workarounds.
+- Fix root causes.
+- Tests must live outside the runtime package.
+- Prefer exhaustive tests over minimal tests.
+- Run syntax/compile checks, targeted tests, full pytest, and repo gate as far as the environment allows.
+- Do not claim full validation unless it actually ran.
+- If artifact downloads fail, provide raw full-file contents or raw patch scripts instead of repeatedly generating broken bundles.
+- For normal handoffs, provide:
+  - downloadable bundle,
+  - unzip + `rsync` commands from `~/Downloads` into `~/src/sabench`,
+  - separate `git add` / `git rm` commands,
+  - test commands,
+  - clean commands,
+  - commit and push commands.
+- Future bundles must have repo-relative paths directly at the archive root.
 
-1. Inspect the actual repo copy provided in that chat.
-2. Determine the real Git/worktree state.
-3. Do not trust this memory file, prior bundles, or summaries as authoritative.
-4. Re-audit the current architecture before changing files.
-5. Produce or update a prioritized engineering manifest before implementing if the task is broad.
-6. Implement exactly one atomic slice unless the user explicitly changes scope.
-7. Write failing tests first for the chosen slice.
-8. Run compile/syntax checks, targeted tests, full pytest, and the full local gate as far as the environment allows.
-9. Provide a changed-files bundle plus exact local apply/test/commit commands.
+## Latest known repo/refactor state from uploaded `sabench-v1.zip`
 
-## Latest known repo source and caveat
+A fresh audit of the uploaded repo indicated:
 
-The latest live repo archive used in the most recent chat was:
+- `sabench/transforms/transforms.py` was absent.
+- Focused transform modules existed, including:
+  - `aggregation.py`
+  - `catalog.py`
+  - `engineering.py`
+  - `evaluation.py`
+  - `field_ops.py`
+  - `financial.py`
+  - `mathematical.py`
+  - `statistical.py`
+- `sabench.transforms.__init__` appeared to export `apply_transform` and `score_transform` from `sabench.transforms.evaluation`.
+- `sabench/transforms/catalog.py` appeared to own canonical raw transform catalog data via `TRANSFORMS`.
+- No inspected metadata/tests referenced `sabench.transforms.transforms`.
+- Prior handoff indicated the financial/risk transform family had been extracted into `sabench.transforms.financial`, but this must still be verified in the fresh repo.
 
-- `sabench-v0.5.zip`
+Important: these findings describe one uploaded repo snapshot only. Verify again from the fresh upload.
 
-That archive was treated as authoritative only for that chat. It contained stale/transient artifacts such as `.git`, `__MACOSX`, `.coverage`, `coverage.xml`, and `diff.txt`, which motivated later source-bundle hygiene hardening.
+## Known hygiene problem in latest uploaded archive
 
-Several cumulative changed-file bundles were produced after that archive. They should not be assumed to match the user's local repo unless the user confirms they were applied and validated locally.
+The latest uploaded `sabench-v1.zip` itself was contaminated and should not be treated as a clean source bundle. It contained transient/generated/local artifacts, including:
 
-## High-level architecture status after latest produced slices
+- `.git/`
+- `.coverage`
+- `coverage.xml`
+- `__MACOSX/`
+- `__pycache__/`
+- `.pyc` files
+- duplicate archive entries
+- evidence of non-clean git state such as `.git/REBASE_HEAD`
 
-### Benchmarks
+This strongly suggests source-bundle and local-clean hygiene remain high-priority.
 
-Earlier refactor status, still advisory until re-audited:
+## Attempted but not confirmed applied: source-bundle path-safety slice
 
-- `sabench/benchmarks/` is the canonical benchmark package.
-- Benchmark families were moved under:
-  - `sabench/benchmarks/scalar/`
-  - `sabench/benchmarks/spatial/`
-  - `sabench/benchmarks/functional/`
-- `sabench/_base.py` was removed.
-- `sabench/benchmarks/base.py` is canonical.
-- Typed benchmark registry exists in `sabench/benchmarks/registry.py`.
-- Typed benchmark metadata/spec exists in `sabench/benchmarks/types.py`.
-- Canonical benchmark metadata export exists at:
-  - `sabench/metadata/benchmarks_registry_metadata.json`
+A proposed hardening slice targeted:
 
-### Transforms before the latest chat
-
-At the start of the latest audited work, the transform side was partially modularized but still depended heavily on `sabench/transforms/transforms.py`.
-
-The audit found:
-
-- `tests/integration/test_ci_workflow_alignment.py` was already absent.
-- Canonical registry metadata snapshots matched generated exports before implementation.
-- `sabench/transforms/transforms.py` still defined 23 transform functions.
-- 24 transform registry entries still pointed to `sabench.transforms.transforms`.
-
-### Transform monolith endgame completed in generated slices
-
-The following cumulative slices were produced after `sabench-v0.5.zip`.
-
-#### Slice: spatial aggregation / field-op extraction
-
-Moved out of `sabench/transforms/transforms.py`:
-
-- Into `sabench/transforms/aggregation.py`:
-  - `t_regional_mean`
-  - `_block_avg`
-  - `t_block_2x2`
-  - `t_block_4x4`
-  - `t_block_8x8`
-  - `t_exceedance_area`
-- Into `sabench/transforms/field_ops.py`:
-  - `t_matern_smooth`
-  - `t_laplacian_roughness`
-  - `t_contour_exceedance`
-  - `t_isoline_length`
-
-Updated tests and metadata:
-
-- `tests/transforms/test_transform_module_split.py`
-- `tests/transforms/test_transform_registry.py`
-- `tests/integration/test_registry_metadata_exports.py`
-- `sabench/metadata/transforms_registry_metadata.json`
-
-#### Slice: temporal operator extraction
-
-Moved out of `sabench/transforms/transforms.py`:
-
-- Into `sabench/transforms/samplewise.py`:
-  - `t_temporal_log_cumsum`
-  - `t_temporal_exceedance_duration`
-  - `t_temporal_envelope`
-  - `t_temporal_bandpass`
-- Into `sabench/transforms/aggregation.py`:
-  - `t_temporal_block_avg`
-
-#### Slice: physical engineering transform extraction
-
-Moved out of `sabench/transforms/transforms.py` into `sabench/transforms/engineering.py`:
-
-- `t_carnot_quadratic`
-- `t_arrhenius`
-- `t_normalised_stress`
-
-#### Slice: final transform implementation extraction
-
-Moved the final transform implementation bodies out of `sabench/transforms/transforms.py`:
-
-- Into `sabench/transforms/mathematical.py`:
-  - `t_triangle_wave`
-  - `t_signed_power`
-  - `t_bernstein_b3`
-  - `t_bimodal_flip`
-  - `t_donut`
-- Into `sabench/transforms/statistical.py`:
-  - `t_yeo_johnson`
-
-After this produced slice, there were zero transform registry entries pointing to `sabench.transforms.transforms`.
-
-#### Slice: registry catalog ownership hardening
-
-Added:
-
-- `sabench/transforms/catalog.py`
-
-Moved canonical catalog ownership out of `sabench/transforms/transforms.py`:
-
-- `TRANSFORMS`
-- `LINEAR_TRANSFORMS`
-- `POINTWISE_TRANSFORMS`
-- `AFFINE_TRANSFORMS`
-- `NONLOCAL_TRANSFORMS`
-- `CONVEX_TRANSFORMS`
-- `CONCAVE_TRANSFORMS`
-- `MONOTONE_TRANSFORMS`
-- `NONMONOTONE_TRANSFORMS`
-- `SMOOTH_TRANSFORMS`
-- `NONSMOOTH_TRANSFORMS`
-
-Updated:
-
-- `sabench/transforms/registry.py` to import canonical catalog data from `sabench.transforms.catalog`, not `sabench.transforms.transforms`.
-- `sabench/transforms/__init__.py` to export `TRANSFORMS` from the registry path.
-- `tests/transforms/test_transform_registry_contract.py` to enforce this architecture.
-
-#### Slice: retire the legacy transform monolith module
-
-Added:
-
-- `sabench/transforms/evaluation.py`
-
-Moved public helper APIs out of `sabench/transforms/transforms.py`:
-
-- `apply_transform`
-- `score_transform`
-- `_vw_s1`, renamed internally to `_variance_weighted_s1`
-
-Deleted from the produced working tree:
-
-- `sabench/transforms/transforms.py`
-
-Updated:
-
-- `sabench/transforms/__init__.py`
-- `sabench/transforms/catalog.py`
-- `tests/transforms/test_transform_registry_contract.py`
-- `tests/transforms/test_transform_module_split.py`
-- `tests/transforms/test_transform_utilities_layout.py`
-
-The intended public API remains:
-
-```python
-from sabench.transforms import apply_transform, score_transform
-```
-
-but these should now come from `sabench.transforms.evaluation`, not from the retired monolith.
-
-### Source bundle / transient-artifact hygiene hardening
-
-The most recent produced slice hardened source bundle and cleanup behavior.
-
-Updated:
-
-- `.gitignore`
-- `test_repo.sh`
 - `scripts/build_source_bundle.py`
 - `tests/integration/test_source_bundle_hygiene.py`
-- `tests/integration/test_gate_contract_alignment.py`
 
-Hardening intent:
+Intent of the slice:
 
-- Source bundles exclude:
-  - `diff.txt`
-  - AppleDouble files like `._README.md`
+- Skip symlinks during recursive source bundle construction.
+- Reject absolute `--path` arguments.
+- Reject selected paths that resolve outside `--source-root`.
+- Reject explicitly selected symbolic links.
+- Preserve exclusions for transient artifacts:
+  - `.git`
+  - `.pixi`
+  - `__MACOSX`
+  - `__pycache__`
+  - `.pytest_cache`
+  - `.mypy_cache`
+  - `.ruff_cache`
+  - `dist`
+  - `build`
+  - `.DS_Store`
   - `.coverage*`
   - `coverage.xml`
-  - `*.zip`
-  - `*.tar.gz`
-  - `__MACOSX/`
-  - caches and build artifacts
-- `.gitignore` explicitly ignores:
-  - `__MACOSX/`
-  - `._*`
-  - `*.zip`
-  - `*.tar.gz`
-  - `coverage.xml`
   - `diff.txt`
-- `test_repo.sh --clean` removes:
-  - `__MACOSX`
-  - `._*`
-  - `diff.txt`
-  - `*.zip`
-  - `*.tar.gz`
+  - AppleDouble `._*`
+  - `.pyc`
+  - `.pyo`
+  - `.whl`
+  - `.zip`
+  - `.tar.gz`
 
-## Validation status from latest chat
+Tests proposed:
 
-Because the execution container lacked Pixi and its Python environment became unstable/hung on the scientific stack, the latest slices were not fully validated with Pixi or the full local gate in the container.
+- `test_source_bundle_excludes_transient_repo_artifacts_and_preserves_executable_bits`
+- `test_source_bundle_can_build_changed_file_bundle`
+- `test_source_bundle_skips_symbolic_links`
+- `test_changed_file_bundle_rejects_selected_paths_outside_source_root`
 
-Validation that was claimed across slices included some combination of:
+Important: The downloadable bundle failed repeatedly. The assistant then gave raw full-file contents for:
 
-- `python -m compileall -q sabench tests scripts`
-- `bash -n test_repo.sh`
-- targeted pytest for transform split/registry/metadata tests where the environment allowed
-- static architecture checks for imports, metadata module names, and absence of monolith references
-- bundle hygiene checks by inspection/zip listing
+- `scripts/build_source_bundle.py`
+- `tests/integration/test_source_bundle_hygiene.py`
 
-Not completed in the container for later slices:
+Do **not** assume those file contents were applied. In the next chat, inspect the live files first and compare.
 
-- full `pytest -q`
-- `ruff`
-- `mypy`
-- Pixi-backed `test_repo.sh`
-- full local gate
+## Attempted but not confirmed applied: recursive clean gate slice
 
-Therefore, the next chat should start by applying/inspecting the user's real repo and running the authoritative local Pixi gate before claiming completion.
+A second proposed hardening slice targeted:
 
-## Produced changed-file bundles in the latest chat
+- `test_repo.sh`
+- `tests/integration/test_gate_contract_alignment.py`
 
-These bundle names were produced sequentially:
+Intent of the slice:
 
-1. `sabench_transform_spatial_dedup_slice.zip`
-2. `sabench_transform_temporal_dedup_slice.zip`
-3. `sabench_transform_physical_engineering_dedup_slice.zip`
-4. `sabench_transform_final_monolith_dedup_slice.zip`
-5. `sabench_registry_catalog_contract_slice.zip`
-6. `sabench_retire_transform_monolith_slice.zip`
-7. `sabench_source_bundle_hygiene_hardening_slice.zip`
+- Replace root-only cleanup in `test_repo.sh`:
 
-Do not assume they were applied locally unless the user confirms. If a new repo archive is uploaded, ignore these as authoritative state and audit the new archive instead.
+```bash
+rm -rf __MACOSX
+rm -f ._.* diff.txt *.zip *.tar.gz
+```
 
-## Latest prioritized engineering manifest
+with recursive cleanup that removes nested transient bundle/platform artifacts while excluding `.git` and `.pixi`.
 
-### 1. Stale-state cleanup / repo stabilization
+Proposed replacement:
 
-Status: partially addressed by the produced source-bundle hygiene slice.
+```bash
+info "Removing transient bundle/platform artefacts"
+find . -type d -name "__MACOSX" \
+  -not -path "./.git/*" -not -path "./.pixi/*" \
+  -prune -exec rm -rf {} +
+find . -type f \( -name ".DS_Store" -o -name "._*" -o -name "diff.txt" -o -name "*.zip" -o -name "*.tar.gz" \) \
+  -not -path "./.git/*" -not -path "./.pixi/*" \
+  -delete
+```
 
-Remaining work:
+Proposed test change:
 
-- Re-audit the actual live repo to confirm `.gitignore`, `test_repo.sh --clean`, and `scripts/build_source_bundle.py` contain the hardening changes.
-- Run the relevant integration tests locally.
-- Confirm generated bundles are repo-relative and clean.
+- Replace `test_clean_stage_removes_local_bundle_and_platform_artifacts`
+- With `test_clean_stage_removes_local_bundle_and_platform_artifacts_recursively`
+- Require recursive `find` commands in the clean section.
+- Assert old root-only `rm` commands are absent.
 
-### 2. Transform monolith endgame
+Validation claimed by assistant in broken environment:
 
-Status: intended to be complete in produced slices.
+```bash
+bash -n test_repo.sh
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=. pytest -q tests/integration/test_gate_contract_alignment.py --tb=short
+timeout 30 python -m compileall -q sabench tests scripts
+```
 
-Remaining work:
+Important: The bundle handoff for this slice also failed. Do **not** assume this slice was applied locally.
 
-- Re-audit the live repo to confirm `sabench/transforms/transforms.py` is deleted.
-- Confirm no imports reference `sabench.transforms.transforms`.
-- Confirm no registry metadata entry points to `sabench.transforms.transforms`.
-- Confirm public APIs `apply_transform` and `score_transform` still work from `sabench.transforms`.
+## Suggested immediate next priority
 
-### 3. Registry / metadata contract hardening
+Start with a fresh audit of the actual repo uploaded in the new chat, then determine whether either attempted hygiene slice has actually been applied.
 
-Status: partially addressed by `sabench/transforms/catalog.py` and registry contract tests.
+Recommended next sequence:
 
-Remaining work:
+1. Inspect repo tree and actual files.
+2. Determine real git/worktree state.
+3. Read `docs/MEMORY.md` as advisory only.
+4. Verify transform refactor state:
+   - whether `sabench/transforms/transforms.py` exists,
+   - whether any imports reference `sabench.transforms.transforms`,
+   - whether metadata points to deleted monolith,
+   - whether `catalog.py` owns raw catalog data,
+   - whether `evaluation.py` owns `apply_transform` / `score_transform`,
+   - whether `sabench.transforms.__init__` exports the intended public API.
+5. Verify source-bundle hygiene state:
+   - inspect `scripts/build_source_bundle.py`,
+   - inspect `tests/integration/test_source_bundle_hygiene.py`,
+   - check symlink/path-escape behavior if not tested.
+6. Verify recursive clean gate state:
+   - inspect `test_repo.sh`,
+   - inspect `tests/integration/test_gate_contract_alignment.py`,
+   - check whether nested artifact cleanup is tested.
+7. Run validation as far as available:
+   - `python -m compileall -q sabench tests scripts`
+   - `bash -n test_repo.sh`
+   - relevant targeted tests
+   - full `PYTHONPATH=. pytest -q`
+   - `./test_repo.sh --check-only --no-notebook`
+8. Choose exactly one highest-value atomic slice based on live failures.
+9. Write failing tests first.
+10. Implement only that slice.
+11. Provide handoff using raw full-file contents if artifact download is unreliable.
 
-- Confirm canonical typed registries are the source of truth.
-- Confirm metadata snapshots are generated/validated from canonical code definitions.
-- Consider whether remaining legacy metadata files should be retired, explicitly documented as legacy, or validated against canonical exports.
+## Current likely remaining work
 
-### 4. Test and gate hardening
+The transform architecture likely no longer needs major extraction work unless the fresh audit finds drift. Remaining work is probably:
 
-Status: not complete.
+1. Clean-state/source-bundle hygiene.
+2. Recursive local-clean behavior.
+3. Gate/CI/local contract alignment.
+4. Registry/metadata contract hardening.
+5. README/docs/API release-readiness review.
+6. Final source bundle generation and release checklist.
 
-Remaining work:
+## Validation commands to prefer
 
-- Run full Pixi-backed local gate.
-- Fix any real failures from the user's local environment.
-- Revisit whether CI/local gate alignment tests should be expanded now that the source bundle hardening exists.
-- Confirm `test_repo.sh` executable bit is preserved in real Git.
+Use repo-defined commands if they differ, but start with:
 
-### 5. Final packaging / release readiness
+```bash
+cd ~/src/sabench
+python -m compileall -q sabench tests scripts
+bash -n test_repo.sh
+PYTHONPATH=. pytest -q tests/integration/test_source_bundle_hygiene.py --tb=short
+PYTHONPATH=. pytest -q tests/integration/test_gate_contract_alignment.py --tb=short
+PYTHONPATH=. pytest -q
+./test_repo.sh --check-only --no-notebook
+```
 
-Status: not complete.
+For cleanup:
 
-Remaining work:
+```bash
+cd ~/src/sabench
+./test_repo.sh --clean --no-notebook
+```
 
-- Package metadata audit.
-- Public API audit.
-- README/docs examples audit after monolith removal.
-- Source bundle/release artifact smoke test.
-- Final clean Git state and release checklist.
+## Handoff format
 
-## Recommended next-chat objective
+When a slice is complete, provide:
 
-The next chat should not start with another blind architecture slice. It should start with a fresh audit of the actual live repo after the user's local application/validation state is known.
+1. Changed files list.
+2. Validation actually run.
+3. Downloadable bundle if artifact system works.
+4. If artifact system is unreliable, provide raw full-file contents instead.
+5. Commands:
 
-Suggested next action order:
+```bash
+cd ~/Downloads
+rm -rf <bundle_name>
+mkdir -p <bundle_name>
+unzip -o <bundle_name>.zip -d <bundle_name>
+rsync -av ~/Downloads/<bundle_name>/ ~/src/sabench/
+```
 
-1. Inspect uploaded live repo.
-2. Determine Git/worktree state.
-3. Confirm which of the seven latest changed-file slices are present.
-4. Run compile/syntax checks.
-5. Run targeted tests around:
-   - transform registry contract
-   - transform module split
-   - transform utilities layout
-   - registry metadata exports
-   - source bundle hygiene
-   - gate contract alignment
-6. Run full pytest.
-7. Run full Pixi-backed local gate.
-8. Fix only real failures found in the live repo.
-9. Then proceed to final release-readiness audit.
+Then:
 
-## Strong reminders for future work
+```bash
+cd ~/src/sabench
+python -m compileall -q sabench tests scripts
+bash -n test_repo.sh
+PYTHONPATH=. pytest -q <targeted tests>
+PYTHONPATH=. pytest -q
+./test_repo.sh --check-only --no-notebook
+```
 
-- Do not assume generated bundles were applied.
-- Do not assume this memory file is current.
-- Do not patch from partial files or old bundles.
-- Do not resurrect `sabench/transforms/transforms.py` unless the live repo proves the deletion was not applied and a narrower transition is required.
-- Do not add compatibility shims.
-- Do not package old zips, `.git`, coverage artifacts, caches, `__MACOSX`, AppleDouble files, or `diff.txt`.
-- Use repo-relative bundle roots so `rsync` into `~/src/sabench` works cleanly.
-- Include exact unzip, rsync, git add/rm, test, clean, commit, and push commands with every code/file handoff.
+Then:
+
+```bash
+cd ~/src/sabench
+git add <changed files>
+git rm <removed files, if any>
+git commit -m "<message>"
+git push
+```

@@ -14,6 +14,11 @@ def _load_pixi_manifest() -> dict:
         return tomllib.load(fh)
 
 
+def _clean_section() -> str:
+    script = (_repo_root() / "test_repo.sh").read_text(encoding="utf-8")
+    return script.split("# STAGE 1 — INSTALL / SYNC ENVIRONMENT")[0]
+
+
 def test_pixi_ci_environment_defines_authoritative_gate_tasks() -> None:
     manifest = _load_pixi_manifest()
     tasks = manifest["tasks"]
@@ -77,6 +82,7 @@ def test_ci_workflow_avoids_legacy_raw_toolchain_commands() -> None:
 def test_gitignore_blocks_local_bundle_and_platform_artifacts() -> None:
     gitignore = (_repo_root() / ".gitignore").read_text(encoding="utf-8")
     for pattern in [
+        ".DS_Store",
         "__MACOSX/",
         "._*",
         "*.zip",
@@ -87,11 +93,26 @@ def test_gitignore_blocks_local_bundle_and_platform_artifacts() -> None:
         assert pattern in gitignore
 
 
-def test_clean_stage_removes_local_bundle_and_platform_artifacts() -> None:
-    script = (_repo_root() / "test_repo.sh").read_text(encoding="utf-8")
-    clean_section = script.split("# STAGE 1 — INSTALL / SYNC ENVIRONMENT")[0]
-    for command in [
+def test_clean_stage_removes_local_bundle_and_platform_artifacts_recursively() -> None:
+    clean_section = _clean_section()
+
+    assert 'find . -type d -name "__MACOSX"' in clean_section
+    assert '-not -path "./.git/*" -not -path "./.pixi/*"' in clean_section
+    assert "-prune -exec rm -rf {} +" in clean_section
+
+    assert "find . -type f \\(" in clean_section
+    for pattern in [
+        '-name ".DS_Store"',
+        '-name "._*"',
+        '-name "diff.txt"',
+        '-name "*.zip"',
+        '-name "*.tar.gz"',
+    ]:
+        assert pattern in clean_section
+    assert "-delete" in clean_section
+
+    for root_only_command in [
         "rm -rf __MACOSX",
         "rm -f ._.* diff.txt *.zip *.tar.gz",
     ]:
-        assert command in clean_section
+        assert root_only_command not in clean_section
