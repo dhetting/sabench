@@ -57,19 +57,51 @@ def is_excluded(relative_path: Path) -> bool:
     return False
 
 
+def _is_relative_to(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+    except ValueError:
+        return False
+    return True
+
+
+def _iter_regular_files(path: Path) -> list[Path]:
+    if path.is_symlink():
+        return []
+    if path.is_dir():
+        return [
+            child
+            for child in path.rglob("*")
+            if child.is_file() and not child.is_symlink()
+        ]
+    if path.is_file():
+        return [path]
+    return []
+
+
+def _resolve_selected_path(source_root: Path, relative_path: Path) -> Path:
+    if relative_path.is_absolute():
+        raise ValueError(f"Selected path must be repo-relative: {relative_path}")
+
+    candidate = source_root / relative_path
+    resolved_candidate = candidate.resolve(strict=False)
+    if not _is_relative_to(resolved_candidate, source_root):
+        raise ValueError(f"Selected path escapes source root: {relative_path}")
+    if not candidate.exists():
+        raise FileNotFoundError(f"Selected path does not exist: {relative_path}")
+    if candidate.is_symlink():
+        raise ValueError(f"Selected path is a symbolic link: {relative_path}")
+    return candidate
+
+
 def _iter_candidate_files(source_root: Path, selected_paths: list[Path] | None) -> list[Path]:
     if not selected_paths:
-        candidates = [path for path in source_root.rglob("*") if path.is_file()]
+        candidates = _iter_regular_files(source_root)
     else:
         candidates = []
         for relative_path in selected_paths:
-            candidate = source_root / relative_path
-            if not candidate.exists():
-                raise FileNotFoundError(f"Selected path does not exist: {relative_path}")
-            if candidate.is_dir():
-                candidates.extend(path for path in candidate.rglob("*") if path.is_file())
-            else:
-                candidates.append(candidate)
+            candidate = _resolve_selected_path(source_root, relative_path)
+            candidates.extend(_iter_regular_files(candidate))
 
     unique_candidates = sorted({path.resolve() for path in candidates})
     return [Path(path) for path in unique_candidates]

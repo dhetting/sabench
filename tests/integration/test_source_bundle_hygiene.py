@@ -6,6 +6,8 @@ import sys
 from pathlib import Path
 from zipfile import ZipFile
 
+import pytest
+
 SCRIPT = Path("scripts/build_source_bundle.py")
 
 
@@ -122,3 +124,67 @@ def test_source_bundle_can_build_changed_file_bundle(tmp_path: Path) -> None:
     with ZipFile(output_path) as zf:
         names = set(zf.namelist())
         assert names == {"scripts/keep.py", "tests/integration/test_keep.py"}
+
+
+def test_source_bundle_skips_symbolic_links(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    package_dir = repo_root / "sabench"
+    package_dir.mkdir()
+    (package_dir / "__init__.py").write_text("__all__ = []\n", encoding="utf-8")
+
+    external_file = tmp_path / "external_secret.py"
+    external_file.write_text("SECRET = True\n", encoding="utf-8")
+    symlink_path = package_dir / "external_secret.py"
+    try:
+        symlink_path.symlink_to(external_file)
+    except OSError as exc:
+        pytest.skip(f"symbolic links are unavailable: {exc}")
+
+    output_path = tmp_path / "bundle.zip"
+    subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--source-root",
+            str(repo_root),
+            "--output",
+            str(output_path),
+        ],
+        check=True,
+    )
+
+    with ZipFile(output_path) as zf:
+        names = set(zf.namelist())
+        assert "sabench/__init__.py" in names
+        assert "sabench/external_secret.py" not in names
+
+
+def test_changed_file_bundle_rejects_selected_paths_outside_source_root(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    outside_file = tmp_path / "outside.py"
+    outside_file.write_text("print('outside')\n", encoding="utf-8")
+
+    for path_arg in ["../outside.py", str(outside_file)]:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--source-root",
+                str(repo_root),
+                "--output",
+                str(tmp_path / "changed.zip"),
+                "--path",
+                path_arg,
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        assert result.returncode != 0
+        assert "Selected path" in result.stderr
+        assert "repo-relative" in result.stderr or "escapes source root" in result.stderr
