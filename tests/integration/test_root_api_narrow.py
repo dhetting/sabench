@@ -154,7 +154,7 @@ def test_demo_notebook_catalog_counts_match_registry() -> None:
 
     assert "len(TRANSFORMS)" in notebook_text
     assert "transforms registered" in notebook_text
-    assert f"Transform catalogue overview" in notebook_text
+    assert "Transform catalogue overview" in notebook_text
     assert f"Pointwise ({len(POINTWISE_TRANSFORMS)})" in notebook_text
     assert f"Monotone ({len(MONOTONE_TRANSFORMS)})" in notebook_text
     assert f"Concave ({len(CONCAVE_TRANSFORMS)})" in notebook_text
