@@ -24,14 +24,30 @@ def _clean_section() -> str:
 def test_pixi_ci_environment_defines_authoritative_gate_tasks() -> None:
     manifest = _load_pixi_manifest()
     tasks = manifest["tasks"]
-    for task_name in ["lint", "fmt-check", "typecheck", "test-cov", "build", "twine-check"]:
+    for task_name in [
+        "lint",
+        "fmt-check",
+        "typecheck",
+        "test-cov",
+        "build",
+        "twine-check",
+        "package-smoke",
+    ]:
         assert task_name in tasks
 
 
 def test_test_repo_delegates_check_and_build_stages_to_pixi_tasks() -> None:
     script = (_repo_root() / "test_repo.sh").read_text(encoding="utf-8")
     assert 'PIXI="pixi run -e ci"' in script
-    for task_name in ["lint", "fmt-check", "typecheck", "test-cov", "build", "twine-check"]:
+    for task_name in [
+        "lint",
+        "fmt-check",
+        "typecheck",
+        "test-cov",
+        "build",
+        "twine-check",
+        "package-smoke",
+    ]:
         assert f"$PIXI {task_name}" in script
 
     check_and_build_section = script.split("# STAGE 2 — PREPARE")[1]
@@ -41,6 +57,7 @@ def test_test_repo_delegates_check_and_build_stages_to_pixi_tasks() -> None:
     assert 'record "pytest + coverage" $PIXI test-cov' in check_and_build_section
     assert 'record "python -m build" $PIXI build' in check_and_build_section
     assert 'record "twine check" $PIXI twine-check' in check_and_build_section
+    assert 'record "package import smoke" $PIXI package-smoke' in check_and_build_section
 
     assert 'record "ruff lint" $PIXI ruff check sabench tests' not in check_and_build_section
     assert (
@@ -50,6 +67,28 @@ def test_test_repo_delegates_check_and_build_stages_to_pixi_tasks() -> None:
     assert 'record "mypy" $PIXI mypy sabench' not in check_and_build_section
     assert 'record "python -m build" $PIXI python -m build' not in check_and_build_section
     assert 'record "twine check" $PIXI twine check --strict dist/*' not in check_and_build_section
+
+
+def test_package_smoke_task_installs_built_wheel_outside_source_tree() -> None:
+    manifest = _load_pixi_manifest()
+    assert manifest["tasks"]["package-smoke"] == "python scripts/check_built_distribution.py"
+
+    script = (_repo_root() / "scripts" / "check_built_distribution.py").read_text(
+        encoding="utf-8"
+    )
+    for required_fragment in [
+        "sabench-*.whl",
+        "sabench-*.tar.gz",
+        "--force-reinstall",
+        "--no-deps",
+        "cwd=tmpdir",
+        "env=_smoke_environment()",
+        "source_package_root = repo_root / \"sabench\"",
+        "is_relative_to(source_package_root)",
+        "get_transform(\"affine_a2_b1\")",
+        "apply_transform(values, \"affine_a2_b1\")",
+    ]:
+        assert required_fragment in script
 
 
 def test_ci_workflow_uses_pixi_ci_environment_and_named_tasks() -> None:
@@ -64,6 +103,7 @@ def test_ci_workflow_uses_pixi_ci_environment_and_named_tasks() -> None:
         "pixi run -e ci test-cov",
         "pixi run -e ci build",
         "pixi run -e ci twine-check",
+        "pixi run -e ci package-smoke",
     ]:
         assert command in workflow
     assert 'pip install ".[dev]"' not in workflow
@@ -152,7 +192,7 @@ def test_clean_stage_removes_build_artifacts_recursively() -> None:
         in clean_section
     )
     assert '-not -path "./.git/*" -not -path "./.pixi/*"' in clean_section
-    assert "-prune -exec rm -rf {} +" in clean_section
+    assert '-prune -exec rm -rf {} +' in clean_section
 
     for root_only_command in [
         "rm -rf dist/ build/ sabench.egg-info/ src/*.egg-info",
@@ -166,7 +206,7 @@ def test_clean_stage_removes_local_bundle_and_platform_artifacts_recursively() -
 
     assert 'find . -type d -name "__MACOSX"' in clean_section
     assert '-not -path "./.git/*" -not -path "./.pixi/*"' in clean_section
-    assert "-prune -exec rm -rf {} +" in clean_section
+    assert '-prune -exec rm -rf {} +' in clean_section
 
     assert "find . -type f \\(" in clean_section
     for pattern in [

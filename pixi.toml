@@ -50,6 +50,7 @@ pre-commit-run     = "pre-commit run --all-files"
 # Build & publish
 build       = "python -m build"
 twine-check = "twine check --strict dist/*"
+package-smoke = "python scripts/check_built_distribution.py"
 publish-test = "twine upload --repository testpypi dist/*"
 publish     = "twine upload dist/*"
 

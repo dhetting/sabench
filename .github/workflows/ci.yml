@@ -63,6 +63,7 @@ jobs:
           locked: true
       - run: pixi run -e ci build
       - run: pixi run -e ci twine-check
+      - run: pixi run -e ci package-smoke
       - uses: actions/upload-artifact@v4
         with:
           name: dist

@@ -306,6 +306,9 @@ if $DO_BUILD; then
   info "twine check --strict dist/*"
   record "twine check" $PIXI twine-check
 
+  info "Smoke-testing built wheel outside the repository checkout"
+  record "package import smoke" $PIXI package-smoke
+
   if [[ -d dist ]]; then
     echo
     info "Built artefacts:"
