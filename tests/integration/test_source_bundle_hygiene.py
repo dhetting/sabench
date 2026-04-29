@@ -38,10 +38,7 @@ def _forbidden_source_bundle_paths(names: set[str]) -> list[str]:
         name = path_parts[-1]
         if archive_name.startswith("/") or ".." in path_parts:
             forbidden_paths.append(archive_name)
-        elif any(
-            part in forbidden_dir_names or part.endswith(".egg-info")
-            for part in path_parts
-        ):
+        elif any(part in forbidden_dir_names or part.endswith(".egg-info") for part in path_parts):
             forbidden_paths.append(archive_name)
         elif name in forbidden_exact_names or name.startswith("._"):
             forbidden_paths.append(archive_name)

@@ -52,8 +52,7 @@ def _assigned_tuple_keys(source: str, variable_name: str) -> set[str]:
         if not isinstance(node, ast.Assign):
             continue
         assigned_to_variable = any(
-            isinstance(target, ast.Name) and target.id == variable_name
-            for target in node.targets
+            isinstance(target, ast.Name) and target.id == variable_name for target in node.targets
         )
         if not assigned_to_variable:
             continue
@@ -94,9 +93,7 @@ def test_demo_notebook_uses_subpackage_imports() -> None:
 
 def test_readme_benchmark_counts_match_registry() -> None:
     readme = _readme_text()
-    family_counts = Counter(
-        definition.spec.family for definition in BENCHMARK_REGISTRY.values()
-    )
+    family_counts = Counter(definition.spec.family for definition in BENCHMARK_REGISTRY.values())
 
     assert f"**{family_counts['scalar']} scalar benchmarks**" in readme
     assert f"**{family_counts['functional']} functional / PDE benchmarks**" in readme
@@ -107,9 +104,7 @@ def test_readme_transform_counts_match_catalog_metadata() -> None:
     readme = _readme_text()
     metadata_path = _repo_root() / "sabench" / "metadata" / "transforms_metadata.json"
     transform_metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
-    category_counts = Counter(
-        metadata["category"] for metadata in transform_metadata.values()
-    )
+    category_counts = Counter(metadata["category"] for metadata in transform_metadata.values())
 
     assert f"**{len(TRANSFORMS)} output transformations**" in readme
     assert f"## Transform catalogue ({len(TRANSFORMS)} transforms)" in readme

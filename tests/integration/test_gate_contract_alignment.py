@@ -73,9 +73,7 @@ def test_package_smoke_task_installs_built_wheel_outside_source_tree() -> None:
     manifest = _load_pixi_manifest()
     assert manifest["tasks"]["package-smoke"] == "python scripts/check_built_distribution.py"
 
-    script = (_repo_root() / "scripts" / "check_built_distribution.py").read_text(
-        encoding="utf-8"
-    )
+    script = (_repo_root() / "scripts" / "check_built_distribution.py").read_text(encoding="utf-8")
     for required_fragment in [
         "sabench-*.whl",
         "sabench-*.tar.gz",
@@ -83,10 +81,10 @@ def test_package_smoke_task_installs_built_wheel_outside_source_tree() -> None:
         "--no-deps",
         "cwd=tmpdir",
         "env=_smoke_environment()",
-        "source_package_root = repo_root / \"sabench\"",
+        'source_package_root = repo_root / "sabench"',
         "is_relative_to(source_package_root)",
-        "get_transform(\"affine_a2_b1\")",
-        "apply_transform(values, \"affine_a2_b1\")",
+        'get_transform("affine_a2_b1")',
+        'apply_transform(values, "affine_a2_b1")',
     ]:
         assert required_fragment in script
 
@@ -192,7 +190,7 @@ def test_clean_stage_removes_build_artifacts_recursively() -> None:
         in clean_section
     )
     assert '-not -path "./.git/*" -not -path "./.pixi/*"' in clean_section
-    assert '-prune -exec rm -rf {} +' in clean_section
+    assert "-prune -exec rm -rf {} +" in clean_section
 
     for root_only_command in [
         "rm -rf dist/ build/ sabench.egg-info/ src/*.egg-info",
@@ -206,7 +204,7 @@ def test_clean_stage_removes_local_bundle_and_platform_artifacts_recursively() -
 
     assert 'find . -type d -name "__MACOSX"' in clean_section
     assert '-not -path "./.git/*" -not -path "./.pixi/*"' in clean_section
-    assert '-prune -exec rm -rf {} +' in clean_section
+    assert "-prune -exec rm -rf {} +" in clean_section
 
     assert "find . -type f \\(" in clean_section
     for pattern in [
