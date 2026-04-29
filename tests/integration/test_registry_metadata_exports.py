@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+import importlib
 import json
 from pathlib import Path
 
 import sabench
+from sabench.benchmarks import BENCHMARK_REGISTRY
 from sabench.metadata.exports import (
     BENCHMARKS_REGISTRY_EXPORT_FILENAME,
     TRANSFORMS_REGISTRY_EXPORT_FILENAME,
     export_registered_benchmark_metadata,
     export_registered_transform_metadata,
 )
+from sabench.transforms.catalog import TRANSFORMS
 
 
 def _load_json(path: Path) -> dict[str, object]:
@@ -211,3 +214,55 @@ def test_transform_registry_export_uses_canonical_fields() -> None:
     assert exported["laplacian_roughness"]["module"] == "sabench.transforms.field_ops"
     assert exported["contour_exceedance"]["module"] == "sabench.transforms.field_ops"
     assert exported["isoline_length"]["module"] == "sabench.transforms.field_ops"
+
+
+def _metadata_str(metadata: dict[str, object], field_name: str) -> str:
+    value = metadata[field_name]
+    assert isinstance(value, str)
+    return value
+
+
+def test_benchmark_registry_metadata_points_to_registered_classes() -> None:
+    exported = export_registered_benchmark_metadata()
+
+    assert set(exported) == set(BENCHMARK_REGISTRY)
+    for name, metadata in exported.items():
+        module_name = _metadata_str(metadata, "module")
+        class_name = _metadata_str(metadata, "class_name")
+
+        module = importlib.import_module(module_name)
+        exported_class = getattr(module, class_name)
+
+        display_name = _metadata_str(metadata, "name")
+
+        assert display_name
+        assert class_name == exported_class.__name__
+        assert _metadata_str(metadata, "module_name") == module_name.rsplit(".", maxsplit=1)[-1]
+        assert exported_class is BENCHMARK_REGISTRY[name].benchmark_cls
+
+
+def test_transform_registry_metadata_points_to_catalog_functions() -> None:
+    exported = export_registered_transform_metadata()
+
+    assert set(exported) == set(TRANSFORMS)
+    for key, metadata in exported.items():
+        module_name = _metadata_str(metadata, "module")
+        function_name = _metadata_str(metadata, "function_name")
+
+        assert _metadata_str(metadata, "key") == key
+        assert module_name.startswith("sabench.transforms.")
+        assert module_name != "sabench.transforms.transforms"
+
+        module = importlib.import_module(module_name)
+        exported_function = getattr(module, function_name)
+
+        assert exported_function is TRANSFORMS[key]["fn"]
+
+
+def test_committed_registry_metadata_has_no_legacy_transform_monolith_references() -> None:
+    package_root = Path(sabench.__file__).resolve().parent
+    metadata_root = package_root / "metadata"
+
+    for filename in [BENCHMARKS_REGISTRY_EXPORT_FILENAME, TRANSFORMS_REGISTRY_EXPORT_FILENAME]:
+        snapshot = (metadata_root / filename).read_text(encoding="utf-8")
+        assert "sabench.transforms.transforms" not in snapshot
