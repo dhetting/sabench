@@ -1,3 +1,19 @@
+from .bounds import (
+    BoundsApplicability,
+    LocalAffineDiagnostics,
+    SmoothPointwiseTransformAnalysis,
+    TaylorReferenceDiagnostics,
+    classify_bounds_applicability,
+    get_smooth_pointwise_analysis,
+    local_affine_diagnostics,
+    local_affine_perturbation_bound,
+    projection_perturbation_bound,
+    sufficient_taylor_eta,
+    supported_smooth_pointwise_transform_keys,
+    taylor_reference_diagnostics,
+    taylor_reference_values,
+    taylor_residual_values,
+)
 from .estimators import first_order, jansen_s1_st, total_effect
 from .grid import (
     NoncommutativityGridResult,
@@ -21,6 +37,20 @@ from .noncommutativity import (
 )
 
 __all__ = [
+    "taylor_residual_values",
+    "taylor_reference_values",
+    "taylor_reference_diagnostics",
+    "supported_smooth_pointwise_transform_keys",
+    "sufficient_taylor_eta",
+    "projection_perturbation_bound",
+    "local_affine_perturbation_bound",
+    "local_affine_diagnostics",
+    "get_smooth_pointwise_analysis",
+    "classify_bounds_applicability",
+    "TaylorReferenceDiagnostics",
+    "SmoothPointwiseTransformAnalysis",
+    "LocalAffineDiagnostics",
+    "BoundsApplicability",
     "NoncommutativityGridResult",
     "PairCompatibility",
     "as_estimator_output",
