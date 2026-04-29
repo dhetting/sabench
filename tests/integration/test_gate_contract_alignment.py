@@ -93,6 +93,23 @@ def test_gitignore_blocks_local_bundle_and_platform_artifacts() -> None:
         assert pattern in gitignore
 
 
+def test_clean_stage_removes_build_artifacts_recursively() -> None:
+    clean_section = _clean_section()
+
+    assert (
+        'find . -type d \\( -name "dist" -o -name "build" -o -name "*.egg-info" \\)'
+        in clean_section
+    )
+    assert '-not -path "./.git/*" -not -path "./.pixi/*"' in clean_section
+    assert "-prune -exec rm -rf {} +" in clean_section
+
+    for root_only_command in [
+        "rm -rf dist/ build/ sabench.egg-info/ src/*.egg-info",
+        "rm -rf dist/ build/ sabench.egg-info/",
+    ]:
+        assert root_only_command not in clean_section
+
+
 def test_clean_stage_removes_local_bundle_and_platform_artifacts_recursively() -> None:
     clean_section = _clean_section()
 

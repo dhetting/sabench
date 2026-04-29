@@ -25,6 +25,8 @@ def test_source_bundle_excludes_transient_repo_artifacts_and_preserves_executabl
     (repo_root / "__pycache__").mkdir()
     (repo_root / ".pytest_cache").mkdir()
     (repo_root / "dist").mkdir()
+    (repo_root / "sabench.egg-info").mkdir()
+    (repo_root / "nested" / "generated.egg-info").mkdir(parents=True)
 
     (repo_root / "sabench" / "__init__.py").write_text("__all__ = []\n", encoding="utf-8")
     (repo_root / "tests" / "integration" / "test_ok.py").write_text(
@@ -44,6 +46,10 @@ def test_source_bundle_excludes_transient_repo_artifacts_and_preserves_executabl
     (repo_root / "diff.txt").write_text("temporary diff\n", encoding="utf-8")
     (repo_root / "._README.md").write_text("appledouble\n", encoding="utf-8")
     (repo_root / "dist" / "artifact.whl").write_bytes(b"wheel")
+    (repo_root / "sabench.egg-info" / "PKG-INFO").write_text("metadata\n", encoding="utf-8")
+    (repo_root / "nested" / "generated.egg-info" / "SOURCES.txt").write_text(
+        "metadata\n", encoding="utf-8"
+    )
     (repo_root / "result.zip").write_bytes(b"zip")
     (repo_root / "source.tar.gz").write_bytes(b"archive")
 
@@ -76,6 +82,8 @@ def test_source_bundle_excludes_transient_repo_artifacts_and_preserves_executabl
         assert "diff.txt" not in names
         assert "._README.md" not in names
         assert "dist/artifact.whl" not in names
+        assert "sabench.egg-info/PKG-INFO" not in names
+        assert "nested/generated.egg-info/SOURCES.txt" not in names
         assert "result.zip" not in names
         assert "source.tar.gz" not in names
 

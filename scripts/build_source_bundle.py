@@ -30,6 +30,10 @@ EXCLUDED_SUFFIXES = {
     ".zip",
 }
 
+EXCLUDED_DIR_SUFFIXES = {
+    ".egg-info",
+}
+
 EXCLUDED_SUFFIX_CHAINS = {
     (".tar", ".gz"),
 }
@@ -40,13 +44,19 @@ def _has_excluded_suffix_chain(path: Path) -> bool:
     return any(suffixes[-len(chain) :] == chain for chain in EXCLUDED_SUFFIX_CHAINS)
 
 
+def _is_excluded_dir_name(name: str) -> bool:
+    return name in EXCLUDED_DIR_NAMES or any(
+        name.endswith(suffix) for suffix in EXCLUDED_DIR_SUFFIXES
+    )
+
+
 def is_excluded(relative_path: Path) -> bool:
     parts = relative_path.parts
-    if any(part in EXCLUDED_DIR_NAMES for part in parts[:-1]):
+    if any(_is_excluded_dir_name(part) for part in parts[:-1]):
         return True
 
     name = relative_path.name
-    if name in EXCLUDED_DIR_NAMES or name in EXCLUDED_FILE_NAMES:
+    if _is_excluded_dir_name(name) or name in EXCLUDED_FILE_NAMES:
         return True
     if name.startswith(".coverage") or name.startswith("._"):
         return True

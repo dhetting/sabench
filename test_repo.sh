@@ -101,8 +101,10 @@ if $DO_CLEAN; then
   info "Removing pixi environment (.pixi/)"
   rm -rf .pixi
 
-  info "Removing build artefacts (dist/, *.egg-info, build/)"
-  rm -rf dist/ build/ sabench.egg-info/ src/*.egg-info
+  info "Removing build artefacts (dist/, build/, *.egg-info)"
+  find . -type d \( -name "dist" -o -name "build" -o -name "*.egg-info" \) \
+    -not -path "./.git/*" -not -path "./.pixi/*" \
+    -prune -exec rm -rf {} +
 
   info "Removing Python caches"
   find . -type d -name "__pycache__" -not -path "./.pixi/*" | xargs rm -rf
@@ -293,8 +295,10 @@ fi
 if $DO_BUILD; then
   header "STAGE 4 — Build distribution (mirrors 'build' job)"
 
-  info "Cleaning old dist/"
-  rm -rf dist/ build/ sabench.egg-info/
+  info "Cleaning old build artefacts"
+  find . -type d \( -name "dist" -o -name "build" -o -name "*.egg-info" \) \
+    -not -path "./.git/*" -not -path "./.pixi/*" \
+    -prune -exec rm -rf {} +
 
   info "Building sdist and wheel"
   record "python -m build" $PIXI build
