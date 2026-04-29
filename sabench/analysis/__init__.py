@@ -1,4 +1,13 @@
 from .estimators import first_order, jansen_s1_st, total_effect
+from .grid import (
+    NoncommutativityGridResult,
+    PairCompatibility,
+    as_estimator_output,
+    classify_noncommutativity_pair,
+    evaluate_noncommutativity_grid,
+    evaluate_noncommutativity_pair,
+    variance_weighted_sobol_profile,
+)
 from .noncommutativity import (
     ProfileShiftMetrics,
     decision_score,
@@ -12,6 +21,13 @@ from .noncommutativity import (
 )
 
 __all__ = [
+    "NoncommutativityGridResult",
+    "PairCompatibility",
+    "as_estimator_output",
+    "classify_noncommutativity_pair",
+    "evaluate_noncommutativity_grid",
+    "evaluate_noncommutativity_pair",
+    "variance_weighted_sobol_profile",
     "ProfileShiftMetrics",
     "decision_score",
     "first_order",
