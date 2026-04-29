@@ -13,6 +13,7 @@ EXCLUDED_DIR_NAMES = {
     ".mypy_cache",
     ".ruff_cache",
     ".pixi",
+    "outputs",
     "dist",
     "build",
 }

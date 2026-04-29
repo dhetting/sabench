@@ -123,6 +123,7 @@ if $DO_CLEAN; then
     -delete
 
   info "Removing generated notebook outputs"
+  rm -rf outputs
   rm -f notebooks/demo_executed.ipynb notebooks/demo.html
   rm -f notebooks/*.png
 
@@ -249,7 +250,7 @@ print('  .zenodo.json OK')
 
   # ── 3g. check for merge conflict markers ──────────────────────────────────
   info "Checking for merge conflict markers"
-  MC=$(grep -RIl --include="*.py" -E '^<<<<<<< |^=======$|^>>>>>>> ' sabench/ tests/ 2>/dev/null | wc -l | tr -d ' ')
+  MC=$( (grep -RIl --include="*.py" -E '^<<<<<<< |^=======$|^>>>>>>> ' sabench/ tests/ 2>/dev/null || true) | wc -l | tr -d ' ' )
   if [ "${MC:-0}" -ne 0 ]; then
     fail "merge conflict markers found"
     grep -RIn --include="*.py" -E '^<<<<<<< |^=======$|^>>>>>>> ' sabench/ tests/ || true

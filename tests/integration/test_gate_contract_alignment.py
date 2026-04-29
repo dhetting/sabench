@@ -146,6 +146,7 @@ def test_git_index_does_not_track_generated_or_handoff_artifacts() -> None:
         ".mypy_cache",
         ".ruff_cache",
         ".pixi",
+        "outputs",
         "dist",
         "build",
         "htmlcov",
@@ -178,6 +179,7 @@ def test_gitignore_blocks_local_bundle_and_platform_artifacts() -> None:
         "*.tar.gz",
         "coverage.xml",
         "diff.txt",
+        "outputs/",
     ]:
         assert pattern in gitignore
 
@@ -222,3 +224,17 @@ def test_clean_stage_removes_local_bundle_and_platform_artifacts_recursively() -
         "rm -f ._.* diff.txt *.zip *.tar.gz",
     ]:
         assert root_only_command not in clean_section
+
+
+def test_clean_stage_removes_generated_notebook_output_directory() -> None:
+    clean_section = _clean_section()
+
+    assert "Removing generated notebook outputs" in clean_section
+    assert "rm -rf outputs" in clean_section
+
+
+def test_merge_conflict_marker_check_tolerates_no_matches_under_pipefail() -> None:
+    script = (_repo_root() / "test_repo.sh").read_text(encoding="utf-8")
+
+    assert 'MC=$( (grep -RIl --include="*.py" -E ' in script
+    assert "|| true) | wc -l | tr -d ' ' )" in script
