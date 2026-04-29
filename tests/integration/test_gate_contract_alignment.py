@@ -1,5 +1,7 @@
-from pathlib import Path
+import subprocess
+from pathlib import Path, PurePosixPath
 
+import pytest
 import tomllib
 
 import sabench
@@ -77,6 +79,55 @@ def test_ci_workflow_avoids_legacy_raw_toolchain_commands() -> None:
         "pixi run -e ci twine check --strict dist/*",
     ]:
         assert legacy_command not in workflow
+
+
+def test_git_index_does_not_track_generated_or_handoff_artifacts() -> None:
+    repo_root = _repo_root()
+    if not (repo_root / ".git").exists():
+        pytest.skip("tracked-file hygiene requires a git checkout")
+
+    result = subprocess.run(
+        ["git", "ls-files"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    tracked_paths = sorted(result.stdout.splitlines())
+
+    forbidden_exact_paths = {
+        ".coverage",
+        "coverage.xml",
+        "REMOVE_FILES.txt",
+        "REMOVED_PATHS.txt",
+    }
+    forbidden_dir_names = {
+        "__MACOSX",
+        "__pycache__",
+        ".pytest_cache",
+        ".mypy_cache",
+        ".ruff_cache",
+        ".pixi",
+        "dist",
+        "build",
+        "htmlcov",
+    }
+    forbidden_suffixes = (".pyc", ".pyo", ".whl", ".zip", ".tar.gz")
+
+    forbidden_tracked_paths = []
+    for tracked_path in tracked_paths:
+        path_parts = PurePosixPath(tracked_path).parts
+        name = path_parts[-1]
+        if tracked_path in forbidden_exact_paths:
+            forbidden_tracked_paths.append(tracked_path)
+        elif any(part in forbidden_dir_names or part.endswith(".egg-info") for part in path_parts):
+            forbidden_tracked_paths.append(tracked_path)
+        elif name == ".DS_Store" or name.startswith("._") or name == "diff.txt":
+            forbidden_tracked_paths.append(tracked_path)
+        elif tracked_path.startswith(".coverage") or tracked_path.endswith(forbidden_suffixes):
+            forbidden_tracked_paths.append(tracked_path)
+
+    assert forbidden_tracked_paths == []
 
 
 def test_gitignore_blocks_local_bundle_and_platform_artifacts() -> None:
