@@ -125,6 +125,23 @@ from sabench.transforms import (
 )
 ```
 
+## Analysis notebooks
+
+The repository includes clean, registry-driven notebooks for the two release
+analysis tracks. Both notebooks keep scientific calculations in tested
+`sabench.analysis` utilities and write generated CSV outputs under `outputs/`.
+
+| Notebook | Purpose | Primary exports |
+|----------|---------|-----------------|
+| `notebooks/02_noncommutativity_grid_analysis.ipynb` | Empirical benchmark × transform non-commutativity grid using the Decision Score `D`, sensitivity shift `Delta`, threshold flips, top-k changes, rank correlation, and top-driver changes. | `pair_status.csv`, `noncommutativity_metrics.csv`, `summary_by_transform.csv`, `summary_by_benchmark.csv` |
+| `notebooks/03_bounds_theorem_grid_analysis.ipynb` | Bounds-theorem diagnostics for scalar pointwise smooth-transform pairs, with theorem-supported rows separated from sample-range diagnostics. Projection-bound comparisons are against the Taylor reference `V_m`, not directly against `Y`. | `bounds_pair_status.csv`, `taylor_reference_results.csv`, `local_affine_results.csv`, `bounds_summary.csv` |
+
+Notebook execution is configurable through environment variables such as
+`SABENCH_GRID_N_BASE`, `SABENCH_GRID_MAX_BENCHMARKS`,
+`SABENCH_GRID_MAX_TRANSFORMS`, `SABENCH_BOUNDS_N_BASE`,
+`SABENCH_BOUNDS_MAX_BENCHMARKS`, `SABENCH_BOUNDS_MAX_TRANSFORMS`, and the
+corresponding output-directory variables.
+
 ## Citation
 
 If you use sabench in academic work, please cite:

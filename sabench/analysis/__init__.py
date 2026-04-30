@@ -14,6 +14,14 @@ from .bounds import (
     taylor_reference_values,
     taylor_residual_values,
 )
+from .bounds_grid import (
+    BOUNDS_STATUSES,
+    BoundsGridResult,
+    BoundsPairClassification,
+    classify_bounds_grid_pair,
+    evaluate_bounds_grid,
+    evaluate_bounds_pair,
+)
 from .estimators import first_order, jansen_s1_st, total_effect
 from .grid import (
     NoncommutativityGridResult,
@@ -51,6 +59,12 @@ __all__ = [
     "SmoothPointwiseTransformAnalysis",
     "LocalAffineDiagnostics",
     "BoundsApplicability",
+    "BOUNDS_STATUSES",
+    "BoundsGridResult",
+    "BoundsPairClassification",
+    "classify_bounds_grid_pair",
+    "evaluate_bounds_grid",
+    "evaluate_bounds_pair",
     "NoncommutativityGridResult",
     "PairCompatibility",
     "as_estimator_output",
