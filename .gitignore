@@ -33,6 +33,7 @@ diff.txt
 # Jupyter
 .ipynb_checkpoints/
 notebooks/*.png
+outputs/
 
 # Pixi / local environments
 .pixi/
