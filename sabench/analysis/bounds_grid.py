@@ -231,7 +231,7 @@ def evaluate_bounds_pair(
         **local_affine.as_summary_dict(),
     }
     diagnostics["taylor_status"] = taylor.status
-    if taylor.eta_empirical is not None:
+    if taylor.eta_empirical is not None and taylor.eta_empirical < 1.0:
         diagnostics.update(
             _projection_bound_summaries(
                 taylor.reference_values,
