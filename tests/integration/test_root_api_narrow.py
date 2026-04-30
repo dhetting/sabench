@@ -131,6 +131,24 @@ def test_readme_property_set_counts_match_registry() -> None:
         assert snippet in readme
 
 
+def test_readme_documents_analysis_notebook_tracks() -> None:
+    readme = _readme_text()
+
+    for expected in [
+        "notebooks/02_noncommutativity_grid_analysis.ipynb",
+        "notebooks/03_bounds_theorem_grid_analysis.ipynb",
+        "pair_status.csv",
+        "noncommutativity_metrics.csv",
+        "bounds_pair_status.csv",
+        "taylor_reference_results.csv",
+        "local_affine_results.csv",
+        "bounds_summary.csv",
+        "sample-range diagnostics",
+        "V_m",
+    ]:
+        assert expected in readme
+
+
 def test_demo_notebook_transform_keys_are_registered() -> None:
     registered_keys = set(list_transforms())
     source = _demo_code_cells()
