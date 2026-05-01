@@ -97,7 +97,7 @@ def test_source_bundle_excludes_transient_repo_artifacts_and_preserves_executabl
     (repo_root / "__MACOSX").mkdir()
     (repo_root / "__pycache__").mkdir()
     (repo_root / ".pytest_cache").mkdir()
-    (repo_root / "outputs" / "notebooks" / "02_noncommutativity_grid_analysis").mkdir(parents=True)
+    (repo_root / "outputs" / "noncommutativity_grid_analysis").mkdir(parents=True)
     (repo_root / "dist").mkdir()
     (repo_root / "sabench.egg-info").mkdir()
     (repo_root / "nested" / "generated.egg-info").mkdir(parents=True)
@@ -118,9 +118,9 @@ def test_source_bundle_excludes_transient_repo_artifacts_and_preserves_executabl
     (repo_root / ".coverage.unit").write_text("coverage\n", encoding="utf-8")
     (repo_root / "coverage.xml").write_text("<coverage/>\n", encoding="utf-8")
     (repo_root / "diff.txt").write_text("temporary diff\n", encoding="utf-8")
-    (
-        repo_root / "outputs" / "notebooks" / "02_noncommutativity_grid_analysis" / "metrics.csv"
-    ).write_text("benchmark_key,transform_key\n", encoding="utf-8")
+    (repo_root / "outputs" / "noncommutativity_grid_analysis" / "metrics.csv").write_text(
+        "benchmark_key,transform_key\n", encoding="utf-8"
+    )
     (repo_root / "._README.md").write_text("appledouble\n", encoding="utf-8")
     (repo_root / "dist" / "artifact.whl").write_bytes(b"wheel")
     (repo_root / "sabench.egg-info" / "PKG-INFO").write_text("metadata\n", encoding="utf-8")

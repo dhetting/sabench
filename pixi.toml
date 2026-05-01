@@ -22,6 +22,7 @@ python-build = ">=1.0"
 twine        = ">=5.0"
 pip          = "*"
 editables    = ">=0.5"
+pandas       = ">=1.5"
 
 [feature.notebook.dependencies]
 matplotlib   = ">=3.7"

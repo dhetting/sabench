@@ -126,14 +126,14 @@ Verified against the live repo on 2026-04-29 unless otherwise noted.
 
 ## Phase B — Empirical Noncommutativity Notebook
 
-Required track for `notebooks/02_noncommutativity_grid_analysis.ipynb`, which
+Required track for `notebooks/noncommutativity_grid_analysis.ipynb`, which
 computes empirical metrics from `noncommutativity_detailed.tex`.
 
 - [x] Verify or implement `sabench.analysis.noncommutativity`.
   - Present and covered by `tests/analysis/test_noncommutativity.py`.
 - [x] Verify or implement `sabench.analysis.grid`.
   - Present and covered by `tests/analysis/test_noncommutativity_grid.py`.
-- [x] Verify or implement `notebooks/02_noncommutativity_grid_analysis.ipynb`.
+- [x] Verify or implement `notebooks/noncommutativity_grid_analysis.ipynb`.
   - Present, registry-driven, and output-clean.
 - [x] Verify notebook-contract tests.
   - Present at `tests/integration/test_noncommutativity_grid_notebook.py`.
@@ -148,7 +148,7 @@ computes empirical metrics from `noncommutativity_detailed.tex`.
 
 ## Phase C — Bounds-Theorem Notebook
 
-Required track for `notebooks/03_bounds_theorem_grid_analysis.ipynb`, which
+Required track for `notebooks/bounds_theorem_grid_analysis.ipynb`, which
 computes theorem-oriented diagnostics from `bounds_memo_v22.tex`.
 
 - [x] Verify or implement `sabench.analysis.bounds`.
@@ -157,7 +157,7 @@ computes theorem-oriented diagnostics from `bounds_memo_v22.tex`.
   - Present at `sabench/analysis/bounds_grid.py`.
 - [x] Add or verify tests for bounds-grid classification and calculations.
   - Present at `tests/analysis/test_bounds_grid.py`.
-- [x] Implement `notebooks/03_bounds_theorem_grid_analysis.ipynb`.
+- [x] Implement `notebooks/bounds_theorem_grid_analysis.ipynb`.
   - Present, registry-driven, and output-clean.
 - [x] Add notebook-contract tests.
   - Present at `tests/integration/test_bounds_theorem_grid_notebook.py`.
