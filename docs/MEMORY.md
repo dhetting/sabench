@@ -1,6 +1,6 @@
 # MEMORY — sabench release-readiness continuation
 
-Last updated: 2026-04-30
+Last updated: 2026-05-01
 
 This file is continuity context only. It is advisory, not authoritative. In any
 new chat or future slice, audit the live repo on disk before trusting this file,
@@ -9,20 +9,18 @@ state.
 
 ## Current Working Posture
 
-The `sabench` repo is in late-stage release-readiness hardening. The transform
-monolith is retired in the live stack: transform implementations live in focused
-modules, canonical transform catalog data lives in `sabench/transforms/catalog.py`,
-and transform evaluation helpers live in `sabench/transforms/evaluation.py`.
+The `sabench` repo has completed all Phase A–D release-readiness work. The
+transform monolith is retired; typed registries are canonical; both analysis
+notebooks execute cleanly; the full local gate and GitHub CI pass.
 
-All implementation work through Phase C is merged into `main`. The PR stack
-(docs/engineering-manifest, fix/notebook-output-hygiene, feat/bounds-grid-engine,
-docs/bounds-theorem-notebook, docs/notebook-docs-memory) has been squash-merged.
-The current state of `main` as of 2026-04-30:
+Current state of `main` as of 2026-05-01:
 
-- `HEAD` = `aaa4b93 feat: add bounds grid and notebook finalization`
-- No open PRs
-- No stale branches (only `main` and legacy `master`)
-- Both analysis notebooks present, clean, and tested
+- All Phase A–D work merged and verified.
+- No open PRs, no stale branches.
+- Local gate (`./test_repo.sh --check-only --no-notebook`) passes all stages.
+- GitHub CI passes on `main`.
+- Both analysis notebooks execute end-to-end and export all expected CSVs.
+- Pre-commit mypy hook is fast (uses pixi-managed mypy, no isolated virtualenv).
 
 ## Non-Negotiable Operating Rules
 
@@ -107,11 +105,25 @@ Bounds statuses:
 - `bounds_eta_ge_one`
 - `bounds_failed`
 
-Status: **complete** — all files present, tested, and notebook-contract verified.
+Status: **complete** — all files present, tested, notebook-contract verified,
+and end-to-end execution validated (exports all 4 expected CSVs).
+
+## Release Status
+
+All Phases A–D are complete as of 2026-05-01:
+
+- Local gate passes (`./test_repo.sh --check-only --no-notebook` all green,
+  including fast pre-commit mypy via pixi-delegating hook).
+- GitHub CI passes on `main`.
+- Both analysis notebooks execute end-to-end in fast mode, exporting all
+  expected CSVs.
+- Pre-commit hooks fast and stable.
+
+The repo is release-ready. Remaining deferred items:
+- Resolving the JOSS DOI placeholder (external dependency).
+- Release tagging and PyPI publish when explicitly requested.
 
 ## Validation Commands To Prefer
-
-Use the repo-defined gate if it differs, but start with:
 
 ```bash
 cd ~/src/sabench
@@ -122,36 +134,11 @@ PYTHONPATH=. pytest -q tests/integration --tb=short
 ./test_repo.sh --check-only --no-notebook
 ```
 
-Full local gate (may be slow due to environment sync and build):
-
-```bash
-./test_repo.sh --check-only
-```
-
-For final release:
-
-```bash
-./test_repo.sh --clean
-./test_repo.sh --check-only
-git status --short
-gh pr status --repo dhetting/sabench
-```
-
-## Remaining Work
-
-1. Run the notebook execution gate end-to-end (both notebooks).
-2. Run the full local gate (`./test_repo.sh --check-only`) with clean state.
-3. Confirm GitHub CI passes on main.
-4. Document final release-readiness status in `docs/ENGINEERING_MANIFEST.md`
-   Phase D section.
-5. Only then proceed to release tagging/publishing workflow if explicitly
-   requested.
-
 ## Handoff Notes
 
 - Do not blindly stage generated artifacts. Validation may produce ignored
   `.coverage`, `coverage.xml`, `.pixi/`, cache directories, and `dist/`.
 - Keep notebooks clean: no committed outputs and no execution counts.
-- Outputs from notebook execution land under `outputs/` which is gitignored.
-- The `docs/manuscripts/` directory contains local LaTeX source files and is
-  tracked in git as scientific reference context.
+- Outputs from notebook execution land under `notebooks/outputs/` (gitignored).
+- The `docs/manuscripts/` directory contains LaTeX source files tracked in git
+  as scientific reference context.

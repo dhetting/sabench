@@ -1,6 +1,6 @@
 # Engineering Manifest
 
-Last updated: 2026-04-30
+Last updated: 2026-05-01
 
 This manifest is the planning document for release-readiness work in this
 repository. Treat the live repository and tests as authoritative; treat
@@ -81,8 +81,7 @@ gh pr status --repo dhetting/sabench
 - [x] Phase B empirical noncommutativity utilities and notebook are present and
   tested.
 - [x] Phase C bounds-theorem grid engine and notebook are present and tested.
-- [ ] Phase D final release-readiness pass: notebook execution gate, full gate,
-  and `docs/MEMORY.md` refresh remain.
+- [x] Phase D final release-readiness pass complete.
 
 ### P2 — Hardening
 
@@ -94,7 +93,7 @@ gh pr status --repo dhetting/sabench
 ### P3 — Documentation And Examples
 
 - [x] `docs/MEMORY.md` updated to reflect live state.
-- [ ] Final release-readiness status documented after full gate passes.
+- [x] Final release-readiness status documented.
 - [ ] Resolve release-paper citation placeholders when external identifiers are
   available.
 
@@ -189,12 +188,27 @@ computes theorem-oriented diagnostics from `bounds_memo_v22.tex`.
 
 ## Phase D — Finalization
 
-- [ ] Notebook execution gate passes (run both notebooks end-to-end).
-- [ ] Full local gate passes: `./test_repo.sh --check-only`.
-- [ ] Package smoke passes.
-- [ ] GitHub CI passes.
-- [ ] `docs/MEMORY.md` updated.
-- [ ] Final release-readiness status documented.
+Validated on 2026-05-01.
+
+- [x] Notebook execution gate passes.
+  - Both notebooks executed end-to-end in fast mode via nbconvert.
+  - Notebook 02 wrote `pair_status.csv`, `noncommutativity_metrics.csv`,
+    `summary_by_transform.csv`, `summary_by_benchmark.csv`.
+  - Notebook 03 wrote `bounds_pair_status.csv`, `taylor_reference_results.csv`,
+    `local_affine_results.csv`, `bounds_summary.csv`.
+  - Source notebooks remain output-clean (0 outputs, no execution counts).
+- [x] Full local gate passes: `./test_repo.sh --check-only --no-notebook`.
+  - All Stage 3 checks pass: ruff lint, ruff format, mypy, pytest+coverage
+    (95.26%), pyproject validation, CITATION.cff, .zenodo.json, trailing
+    whitespace, merge-conflict markers.
+  - Stage 4 passes: python build, twine check, package smoke.
+  - Stage 5 passes: all pre-commit hooks including the now-fast local mypy hook.
+- [x] Package smoke passes.
+  - Wheel and sdist build cleanly; wheel installs and imports correctly.
+- [x] GitHub CI passes.
+  - All CI jobs (lint, typecheck, test, build) pass on `main` at `f953549`.
+- [x] `docs/MEMORY.md` updated.
+- [x] Final release-readiness status documented here.
 
 ## Completed Work
 
@@ -210,18 +224,22 @@ computes theorem-oriented diagnostics from `bounds_memo_v22.tex`.
 - Bounds grid engine, classification statuses, and notebook-contract tests added.
 - Both analysis notebooks (noncommutativity and bounds-theorem) documented in README.
 - Engineering manifest and memory files updated to reflect live state.
+- Pre-commit mypy hook replaced with fast local pixi-delegating hook.
+- Both analysis notebooks verified to execute end-to-end and export correct CSVs.
+- Full local gate and GitHub CI confirmed passing.
 
 ## Known Risks
 
-- Full notebook execution gate (running both notebooks end-to-end) has not yet
-  been run in CI; currently verified only through notebook-contract tests.
+- Full notebook execution (full grid, not fast mode) has not been timed or
+  validated for production runs; only fast-mode (small benchmark/transform
+  subsets) has been verified end-to-end.
 - README citation contains a JOSS DOI placeholder pending external publication
   metadata.
-- `test_repo.sh` performs environment sync and build/package smoke work, so full
-  validation can be slower than targeted test commands.
 
 ## Deferred Work
 
 - Broaden derivative metadata beyond the initial smooth pointwise transform set
   only when needed and tested.
-- Final publish/release workflow remains out of scope until full gate and CI pass.
+- Resolve JOSS DOI placeholder after external publication metadata is available.
+- Full publish/release workflow (tagging, PyPI publish) is out of scope until
+  explicitly requested.
