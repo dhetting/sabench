@@ -120,8 +120,8 @@ from sabench.transforms import (
     CONVEX_TRANSFORMS,      # 23 transforms with φ″ ≥ 0
     CONCAVE_TRANSFORMS,     # 30 transforms with φ″ ≤ 0
     MONOTONE_TRANSFORMS,    # 56 monotone transforms
-    SMOOTH_TRANSFORMS,      # 90 C² or smoother transforms
-    NONSMOOTH_TRANSFORMS,   # 27 C⁰ or discontinuous transforms
+    SMOOTH_TRANSFORMS,      # 85 C² or smoother transforms
+    NONSMOOTH_TRANSFORMS,   # 32 C⁰ or discontinuous transforms
 )
 ```
 

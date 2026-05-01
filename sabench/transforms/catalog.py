@@ -1765,9 +1765,6 @@ SMOOTH_TRANSFORMS.update(
         "poly4",
         "poly5",
         "poly6",
-        "signed_power_p15",  # C1 for p>=1
-        "legendre_p3",
-        "chebyshev_t4",
         "hermite_he2",
         "hermite_he3",
         "atan2pi",
@@ -1778,12 +1775,10 @@ SMOOTH_TRANSFORMS.update(
         "sinc",
         "sin_squared",
         "cos_squared",
-        "damped_sin",
         "double_sin",
         "sin_cos_product",
         "soft_threshold",  # C0 not C1 -- exclude
         "spike_gaussian",
-        "donut",
         "power_exp",
         "exp_neg_sq",
         "anscombe",
@@ -1839,6 +1834,12 @@ NONSMOOTH_TRANSFORMS.update(
         "var_q95",  # piecewise quantile
         "drawdown",  # running-max is piecewise smooth
         "soft_threshold",  # C0
+        # Pointwise but not C∞ (previously misclassified as smooth):
+        "legendre_p3",  # clips input to [-1,1] → piecewise, not globally C∞
+        "chebyshev_t4",  # clips input to [-1,1] → piecewise, not globally C∞
+        "damped_sin",  # exp(-decay|y|) has a kink at y=0; C1 but not C2
+        "donut",  # |y-center| causes a kink at y=center; not C∞
+        "signed_power_p15",  # sign(u)|u|^1.5: C1 for p=1.5 but second derivative diverges at u=0
     }
 )
 
