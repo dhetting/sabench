@@ -455,7 +455,7 @@
     "tags": [
       "pointwise",
       "nonmonotone",
-      "smooth",
+      "nonsmooth",
       "nonlinear",
       "mathematical"
     ]
@@ -673,7 +673,7 @@
     "tags": [
       "pointwise",
       "nonmonotone",
-      "smooth",
+      "nonsmooth",
       "nonlinear",
       "mathematical"
     ]
@@ -712,7 +712,7 @@
     "tags": [
       "pointwise",
       "nonmonotone",
-      "smooth",
+      "nonsmooth",
       "nonlinear",
       "mathematical"
     ]
@@ -1525,7 +1525,7 @@
     "tags": [
       "pointwise",
       "nonmonotone",
-      "smooth",
+      "nonsmooth",
       "nonlinear",
       "mathematical"
     ]
@@ -2558,7 +2558,7 @@
       "pointwise",
       "convex",
       "monotone",
-      "smooth",
+      "nonsmooth",
       "nonlinear",
       "mathematical"
     ]
