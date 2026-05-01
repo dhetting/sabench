@@ -10,7 +10,7 @@ from pathlib import Path
 import sabench
 from sabench.analysis.bounds_grid import BOUNDS_STATUSES
 
-NOTEBOOK_NAME = "03_bounds_theorem_grid_analysis.ipynb"
+NOTEBOOK_NAME = "bounds_theorem_grid_analysis.ipynb"
 OUTPUT_FILENAMES = {
     "bounds_pair_status.csv",
     "taylor_reference_results.csv",

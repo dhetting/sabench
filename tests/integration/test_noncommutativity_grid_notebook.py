@@ -9,7 +9,7 @@ from pathlib import Path
 
 import sabench
 
-NOTEBOOK_NAME = "02_noncommutativity_grid_analysis.ipynb"
+NOTEBOOK_NAME = "noncommutativity_grid_analysis.ipynb"
 OUTPUT_FILENAMES = {
     "pair_status.csv",
     "noncommutativity_metrics.csv",

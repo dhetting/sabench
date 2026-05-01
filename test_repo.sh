@@ -125,7 +125,6 @@ if $DO_CLEAN; then
   info "Removing generated notebook outputs"
   rm -rf outputs
   rm -f notebooks/demo_executed.ipynb notebooks/demo.html
-  rm -f notebooks/*.png
 
   ok "Clean complete"
 fi
@@ -285,8 +284,8 @@ else:
     print(f"  All {len(cells)} notebook cells executed successfully")
 NBRUN
     ) && ok "notebook smoke test" || { fail "notebook smoke test"; FAILURES+=("notebook smoke test"); }
-    # Clean up generated PNGs from notebook run
-    rm -f notebooks/*.png
+    # Clean up generated outputs from notebook run
+    rm -rf outputs/demo/
   fi
 fi
 

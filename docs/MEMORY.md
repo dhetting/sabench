@@ -45,7 +45,7 @@ Files:
 
 - `sabench/analysis/noncommutativity.py`
 - `sabench/analysis/grid.py`
-- `notebooks/02_noncommutativity_grid_analysis.ipynb`
+- `notebooks/noncommutativity_grid_analysis.ipynb`
 - `tests/analysis/test_noncommutativity.py`
 - `tests/analysis/test_noncommutativity_grid.py`
 - `tests/integration/test_noncommutativity_grid_notebook.py`
@@ -76,7 +76,7 @@ Files:
 
 - `sabench/analysis/bounds.py`
 - `sabench/analysis/bounds_grid.py`
-- `notebooks/03_bounds_theorem_grid_analysis.ipynb`
+- `notebooks/bounds_theorem_grid_analysis.ipynb`
 - `tests/analysis/test_bounds.py`
 - `tests/analysis/test_bounds_grid.py`
 - `tests/integration/test_bounds_theorem_grid_notebook.py`

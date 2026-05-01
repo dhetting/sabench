@@ -135,8 +135,8 @@ def test_readme_documents_analysis_notebook_tracks() -> None:
     readme = _readme_text()
 
     for expected in [
-        "notebooks/02_noncommutativity_grid_analysis.ipynb",
-        "notebooks/03_bounds_theorem_grid_analysis.ipynb",
+        "notebooks/noncommutativity_grid_analysis.ipynb",
+        "notebooks/bounds_theorem_grid_analysis.ipynb",
         "pair_status.csv",
         "noncommutativity_metrics.csv",
         "bounds_pair_status.csv",

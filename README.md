@@ -127,20 +127,64 @@ from sabench.transforms import (
 
 ## Analysis notebooks
 
-The repository includes clean, registry-driven notebooks for the two release
-analysis tracks. Both notebooks keep scientific calculations in tested
-`sabench.analysis` utilities and write generated CSV outputs under `outputs/`.
+Two deterministic analysis notebooks implement the empirical and theorem-based
+diagnostics described in the manuscript sources.
 
-| Notebook | Purpose | Primary exports |
-|----------|---------|-----------------|
-| `notebooks/02_noncommutativity_grid_analysis.ipynb` | Empirical benchmark × transform non-commutativity grid using the Decision Score `D`, sensitivity shift `Delta`, threshold flips, top-k changes, rank correlation, and top-driver changes. | `pair_status.csv`, `noncommutativity_metrics.csv`, `summary_by_transform.csv`, `summary_by_benchmark.csv` |
-| `notebooks/03_bounds_theorem_grid_analysis.ipynb` | Bounds-theorem diagnostics for scalar pointwise smooth-transform pairs, with theorem-supported rows separated from sample-range diagnostics. Projection-bound comparisons are against the Taylor reference `V_m`, not directly against `Y`. | `bounds_pair_status.csv`, `taylor_reference_results.csv`, `local_affine_results.csv`, `bounds_summary.csv` |
+| Notebook | Purpose |
+|---|---|
+| `notebooks/noncommutativity_grid_analysis.ipynb` | Empirical noncommutativity metrics across all benchmark × transform pairs |
+| `notebooks/bounds_theorem_grid_analysis.ipynb` | Taylor-reference and local-affine diagnostics for theorem-compatible pairs; sample-range diagnostics use empirical support bounds and compare against Taylor reference `V_m` |
 
-Notebook execution is configurable through environment variables such as
-`SABENCH_GRID_N_BASE`, `SABENCH_GRID_MAX_BENCHMARKS`,
-`SABENCH_GRID_MAX_TRANSFORMS`, `SABENCH_BOUNDS_N_BASE`,
-`SABENCH_BOUNDS_MAX_BENCHMARKS`, `SABENCH_BOUNDS_MAX_TRANSFORMS`, and the
-corresponding output-directory variables.
+### Running the notebooks
+
+```bash
+pixi run jupyter notebook
+```
+
+Or run headless via nbconvert:
+
+```bash
+# Noncommutativity grid (all pairs, default N=128)
+pixi run jupyter nbconvert --to notebook --execute \
+  notebooks/noncommutativity_grid_analysis.ipynb \
+  --output /tmp/noncommutativity_executed.ipynb
+
+# Bounds theorem grid (all compatible pairs, default N=128)
+pixi run jupyter nbconvert --to notebook --execute \
+  notebooks/bounds_theorem_grid_analysis.ipynb \
+  --output /tmp/bounds_executed.ipynb
+```
+
+### Configuration
+
+Both notebooks read environment variables:
+
+| Variable | Notebook | Default | Effect |
+|---|---|---|---|
+| `SABENCH_GRID_N_BASE` | noncommutativity | `128` | Saltelli sample size |
+| `SABENCH_GRID_MAX_BENCHMARKS` | noncommutativity | `0` (all) | Limit benchmark count |
+| `SABENCH_GRID_MAX_TRANSFORMS` | noncommutativity | `0` (all) | Limit transform count |
+| `SABENCH_GRID_OUTPUT_DIR` | noncommutativity | `outputs/noncommutativity_grid_analysis` | Output CSV directory |
+| `SABENCH_BOUNDS_N_BASE` | bounds | `128` | Saltelli sample size |
+| `SABENCH_BOUNDS_MAX_BENCHMARKS` | bounds | `0` (all) | Limit benchmark count |
+| `SABENCH_BOUNDS_MAX_TRANSFORMS` | bounds | `0` (all) | Limit transform count |
+| `SABENCH_BOUNDS_OUTPUT_DIR` | bounds | `outputs/bounds_theorem_grid_analysis` | Output CSV directory |
+
+### Output artifacts
+
+Outputs are written to `outputs/` (gitignored) under the repo root.
+
+**Noncommutativity notebook** writes:
+- `outputs/noncommutativity_grid_analysis/pair_status.csv` — every candidate pair with status
+- `outputs/noncommutativity_grid_analysis/noncommutativity_metrics.csv` — metrics for computed pairs
+- `outputs/noncommutativity_grid_analysis/summary_by_transform.csv` — per-transform aggregates
+- `outputs/noncommutativity_grid_analysis/summary_by_benchmark.csv` — per-benchmark aggregates
+
+**Bounds notebook** writes:
+- `outputs/bounds_theorem_grid_analysis/bounds_pair_status.csv` — every candidate pair with bounds status
+- `outputs/bounds_theorem_grid_analysis/taylor_reference_results.csv` — Taylor-reference diagnostics
+- `outputs/bounds_theorem_grid_analysis/local_affine_results.csv` — local-affine diagnostics
+- `outputs/bounds_theorem_grid_analysis/bounds_summary.csv` — status counts
 
 ## Citation
 
