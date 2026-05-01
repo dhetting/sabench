@@ -56,7 +56,7 @@ def _install_wheel(wheel_path: Path) -> None:
 
 def _run_import_smoke(repo_root: Path) -> None:
     """Import the installed wheel from outside the source package tree."""
-    smoke_code = r'''
+    smoke_code = r"""
 from __future__ import annotations
 
 from importlib.metadata import version
@@ -100,7 +100,7 @@ if not np.allclose(transformed, affine_transform(values)):
     raise SystemExit("Installed transform smoke check failed")
 
 print(f"sabench wheel smoke OK: {package_file}")
-'''.replace("__REPO_ROOT__", repr(str(repo_root)))
+""".replace("__REPO_ROOT__", repr(str(repo_root)))
 
     with tempfile.TemporaryDirectory(prefix="sabench-wheel-smoke-") as tmpdir:
         subprocess.run(
