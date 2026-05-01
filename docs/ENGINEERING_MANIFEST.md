@@ -1,6 +1,6 @@
 # Engineering Manifest
 
-Last updated: 2026-04-29
+Last updated: 2026-04-30
 
 This manifest is the planning document for release-readiness work in this
 repository. Treat the live repository and tests as authoritative; treat
@@ -78,23 +78,23 @@ gh pr status --repo dhetting/sabench
 ### P1 — Required Feature Completion
 
 - [x] Phase A release baseline verified where covered by live files and tests.
-- [x] Phase B empirical noncommutativity utilities and notebook are present.
-- [ ] Phase C bounds-theorem grid engine and notebook remain incomplete.
-- [ ] Phase D final release-readiness pass remains incomplete.
+- [x] Phase B empirical noncommutativity utilities and notebook are present and
+  tested.
+- [x] Phase C bounds-theorem grid engine and notebook are present and tested.
+- [ ] Phase D final release-readiness pass: notebook execution gate, full gate,
+  and `docs/MEMORY.md` refresh remain.
 
 ### P2 — Hardening
 
-- [ ] Add bounds-grid tests that distinguish theorem-supported calculations,
-  empirical sample-support diagnostics, non-applicable pairs, and failed pairs.
-- [ ] Add notebook-contract tests for the bounds-theorem notebook.
-- [ ] Document both analysis notebooks in release-facing docs after they pass
-  their contract tests.
+- [x] Bounds-grid tests distinguish theorem-supported calculations, empirical
+  sample-support diagnostics, non-applicable pairs, and failed pairs.
+- [x] Notebook-contract tests for both notebooks are present.
+- [x] Both analysis notebooks documented in README.
 
 ### P3 — Documentation And Examples
 
-- [ ] Update `docs/MEMORY.md` after completing the notebook and finalization
-  slices.
-- [ ] Document final release-readiness status.
+- [x] `docs/MEMORY.md` updated to reflect live state.
+- [ ] Final release-readiness status documented after full gate passes.
 - [ ] Resolve release-paper citation placeholders when external identifiers are
   available.
 
@@ -149,24 +149,24 @@ computes empirical metrics from `noncommutativity_detailed.tex`.
 
 ## Phase C — Bounds-Theorem Notebook
 
-Required track for `notebooks/03_bounds_theorem_grid_analysis.ipynb`, which will
-compute theorem-oriented diagnostics from `bounds_memo_v22.tex`.
+Required track for `notebooks/03_bounds_theorem_grid_analysis.ipynb`, which
+computes theorem-oriented diagnostics from `bounds_memo_v22.tex`.
 
 - [x] Verify or implement `sabench.analysis.bounds`.
   - Present and covered by `tests/analysis/test_bounds.py`.
-- [ ] Add or verify a bounds grid engine.
-  - Expected path: `sabench/analysis/bounds_grid.py`.
-- [ ] Add or verify tests for bounds-grid classification and calculations.
-  - Expected path: `tests/analysis/test_bounds_grid.py`.
-- [ ] Implement `notebooks/03_bounds_theorem_grid_analysis.ipynb`.
-- [ ] Add notebook-contract tests.
-  - Expected path: `tests/integration/test_bounds_theorem_grid_notebook.py`.
-- [ ] Verify exported tables:
-  - `bounds_pair_status.csv`
-  - `taylor_reference_results.csv`
-  - `local_affine_results.csv`
-  - `bounds_summary.csv`
-- [ ] Ensure theorem statuses distinguish:
+- [x] Add or verify a bounds grid engine.
+  - Present at `sabench/analysis/bounds_grid.py`.
+- [x] Add or verify tests for bounds-grid classification and calculations.
+  - Present at `tests/analysis/test_bounds_grid.py`.
+- [x] Implement `notebooks/03_bounds_theorem_grid_analysis.ipynb`.
+  - Present, registry-driven, and output-clean.
+- [x] Add notebook-contract tests.
+  - Present at `tests/integration/test_bounds_theorem_grid_notebook.py`.
+- [x] Verify exported tables.
+  - Contract test verifies `bounds_pair_status.csv`,
+    `taylor_reference_results.csv`, `local_affine_results.csv`, and
+    `bounds_summary.csv`.
+- [x] Ensure theorem statuses distinguish:
   - `bounds_supported`
   - `bounds_diagnostic_sample_support`
   - `bounds_not_scalar_output`
@@ -177,13 +177,20 @@ compute theorem-oriented diagnostics from `bounds_memo_v22.tex`.
   - `bounds_reference_zero_variance`
   - `bounds_eta_ge_one`
   - `bounds_failed`
-- [ ] Ensure notebooks and exported tables clearly state when a theorem-bound
+- [x] Ensure notebooks and exported tables clearly state when a theorem-bound
   comparison is against the Taylor reference `V_m`, not directly against `Y`.
+
+  Taylor reference: `V_m = sum_{k=1}^m phi^(k)(mu_Y) (Y - mu_Y)^k / k!`
+  Residual: `R_m = phi(Y) - phi(mu_Y) - V_m`
+  Empirical eta: `eta_m = sd(R_m) / sd(V_m)`
+  Abstract projection bound: `[2 eta sqrt(p)(1+sqrt(p)) + eta^2(1+p)] / (1-eta)^2`
+  Local-affine diagnostics: `lambda = K kappa`,
+  `K = sqrt(mu4) / sigma_Y^2`, `kappa = rho2 sigma_Y / |phi'(mu_Y)|`
 
 ## Phase D — Finalization
 
-- [ ] Notebook execution gate passes.
-- [ ] Full local gate passes.
+- [ ] Notebook execution gate passes (run both notebooks end-to-end).
+- [ ] Full local gate passes: `./test_repo.sh --check-only`.
 - [ ] Package smoke passes.
 - [ ] GitHub CI passes.
 - [ ] `docs/MEMORY.md` updated.
@@ -200,22 +207,21 @@ compute theorem-oriented diagnostics from `bounds_memo_v22.tex`.
 - Empirical noncommutativity metric utilities, grid engine, notebook, and
   notebook-contract tests added.
 - Taylor-reference and local-affine bound utility functions added.
+- Bounds grid engine, classification statuses, and notebook-contract tests added.
+- Both analysis notebooks (noncommutativity and bounds-theorem) documented in README.
+- Engineering manifest and memory files updated to reflect live state.
 
 ## Known Risks
 
-- Bounds-theorem grid execution is not yet implemented.
-- Bounds notebook and contract tests are not yet implemented.
-- `test_repo.sh` performs environment sync and build/package smoke work, so full
-  validation can be slower than targeted test commands.
-- Generated notebook output directory handling should be reviewed before final
-  release.
+- Full notebook execution gate (running both notebooks end-to-end) has not yet
+  been run in CI; currently verified only through notebook-contract tests.
 - README citation contains a JOSS DOI placeholder pending external publication
   metadata.
+- `test_repo.sh` performs environment sync and build/package smoke work, so full
+  validation can be slower than targeted test commands.
 
 ## Deferred Work
 
 - Broaden derivative metadata beyond the initial smooth pointwise transform set
   only when needed and tested.
-- Add release-paper or README updates after both notebook tracks are complete.
-- Final publish/release workflow remains out of scope until full gate and CI
-  pass.
+- Final publish/release workflow remains out of scope until full gate and CI pass.
