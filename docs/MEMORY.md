@@ -14,20 +14,15 @@ monolith is retired in the live stack: transform implementations live in focused
 modules, canonical transform catalog data lives in `sabench/transforms/catalog.py`,
 and transform evaluation helpers live in `sabench/transforms/evaluation.py`.
 
-Recent work is organized as an atomic PR stack:
+All implementation work through Phase C is merged into `main`. The PR stack
+(docs/engineering-manifest, fix/notebook-output-hygiene, feat/bounds-grid-engine,
+docs/bounds-theorem-notebook, docs/notebook-docs-memory) has been squash-merged.
+The current state of `main` as of 2026-04-30:
 
-- PR #1 `docs/update-engineering-manifest`: adds `docs/ENGINEERING_MANIFEST.md`.
-- PR #2 `fix/notebook-output-hygiene`: ignores/cleans/excludes generated
-  notebook `outputs/` and fixes the local gate merge-conflict grep pipeline.
-- PR #3 `feat/bounds-grid-engine`: adds `sabench.analysis.bounds_grid` and
-  `tests/analysis/test_bounds_grid.py`.
-- PR #4 `docs/bounds-theorem-notebook`: adds
-  `notebooks/03_bounds_theorem_grid_analysis.ipynb` and its notebook-contract
-  tests.
-- Current continuation branch `docs/notebook-docs-memory`: documents the two
-  analysis notebooks in `README.md` and refreshes this memory file.
-
-Verify PR numbers, merge status, and branch contents before acting on this list.
+- `HEAD` = `aaa4b93 feat: add bounds grid and notebook finalization`
+- No open PRs
+- No stale branches (only `main` and legacy `master`)
+- Both analysis notebooks present, clean, and tested
 
 ## Non-Negotiable Operating Rules
 
@@ -75,9 +70,11 @@ Primary metrics:
 - Spearman rank correlation
 - top-driver changes
 
+Status: **complete** — all files present, tested, and notebook-contract verified.
+
 ### Bounds-Theorem Grid
 
-Files in the stacked PR branch:
+Files:
 
 - `sabench/analysis/bounds.py`
 - `sabench/analysis/bounds_grid.py`
@@ -110,6 +107,8 @@ Bounds statuses:
 - `bounds_eta_ge_one`
 - `bounds_failed`
 
+Status: **complete** — all files present, tested, and notebook-contract verified.
+
 ## Validation Commands To Prefer
 
 Use the repo-defined gate if it differs, but start with:
@@ -119,12 +118,11 @@ cd ~/src/sabench
 python -m compileall -q sabench tests scripts
 bash -n test_repo.sh
 PYTHONPATH=. pytest -q tests/analysis --tb=short
-PYTHONPATH=. pytest -q tests/integration/test_noncommutativity_grid_notebook.py --tb=short
-PYTHONPATH=. pytest -q tests/integration/test_bounds_theorem_grid_notebook.py --tb=short
-PYTHONPATH=. pytest -q tests/integration/test_root_api_narrow.py --tb=short
+PYTHONPATH=. pytest -q tests/integration --tb=short
+./test_repo.sh --check-only --no-notebook
 ```
 
-After PR #2 is merged, prefer the full local gate:
+Full local gate (may be slow due to environment sync and build):
 
 ```bash
 ./test_repo.sh --check-only
@@ -141,11 +139,11 @@ gh pr status --repo dhetting/sabench
 
 ## Remaining Work
 
-1. Merge the PR stack in dependency order after local tests and GitHub CI pass:
-   PR #1, PR #2, PR #3, PR #4, then this docs/memory slice if opened.
-2. Run final full local validation from clean state.
-3. Confirm GitHub CI status.
-4. Document final release-readiness status.
+1. Run the notebook execution gate end-to-end (both notebooks).
+2. Run the full local gate (`./test_repo.sh --check-only`) with clean state.
+3. Confirm GitHub CI passes on main.
+4. Document final release-readiness status in `docs/ENGINEERING_MANIFEST.md`
+   Phase D section.
 5. Only then proceed to release tagging/publishing workflow if explicitly
    requested.
 
@@ -154,5 +152,6 @@ gh pr status --repo dhetting/sabench
 - Do not blindly stage generated artifacts. Validation may produce ignored
   `.coverage`, `coverage.xml`, `.pixi/`, cache directories, and `dist/`.
 - Keep notebooks clean: no committed outputs and no execution counts.
-- If a future branch is stacked, set the PR base to the branch it depends on
-  rather than `main`.
+- Outputs from notebook execution land under `outputs/` which is gitignored.
+- The `docs/manuscripts/` directory contains local LaTeX source files and is
+  tracked in git as scientific reference context.

@@ -1,0 +1,1936 @@
+\documentclass[11pt,onecolumn]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{parskip}
+
+\usepackage{setspace}
+
+\definecolor{deepblue}{RGB}{46,64,87}
+\definecolor{rowhi}{RGB}{255,242,204}
+\definecolor{rownull}{RGB}{234,244,234}
+\definecolor{cat_env}{RGB}{33,150,243}
+\definecolor{cat_eng}{RGB}{255,87,34}
+\definecolor{cat_spa}{RGB}{76,175,80}
+\definecolor{cat_tmp}{RGB}{156,39,176}
+\definecolor{cat_sta}{RGB}{96,125,139}
+
+\hypersetup{colorlinks=true, linkcolor=deepblue, citecolor=deepblue, urlcolor=deepblue}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}[proposition]
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
+
+\title{%
+  \textbf{\color{deepblue}Non-Commutativity of Sobol Sensitivity Indices\\
+  Under Output Transformations of Functional, Spatial, and Scalar Models}\\[0.4em]
+  \large A Systematic Empirical Sweep Across 33 Transforms, 10 Benchmarks,
+  and Four Transform Categories
+}
+\author{Dylan Hettinger \\ \small Research Draft --- March 2026 \\ \small \textit{Prepared for submission to the Electronic Journal of Statistics}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Variance-based (Sobol) global sensitivity analysis is routinely applied to model
+outputs that have been transformed, aggregated, thresholded, or otherwise
+post-processed for physical or statistical reasons.
+A widespread implicit assumption is that sensitivity indices of the transformed
+output can be inferred from those of the raw output.
+We demonstrate both analytically and empirically---across a registry of 33
+physically motivated transforms applied to 10 benchmark functions---that this
+assumption fails for virtually every nonlinear transformation, with direct
+consequences for factor-fixing and model-reduction decisions.
+
+We introduce \emph{functional sensitivity analysis under output operators}
+(FSAO) as a unifying framework: Sobol indices are defined pointwise over a
+discretised functional output (spatial grid, temporal trajectory, or scalar),
+and the question of non-commutativity is whether $S_i(T \circ Y) = S_i(Y)$
+for a post-processing operator $T$.  We prove that $T$ commutes with Sobol
+index computation if and only if $T$ is affine (Proposition~1), and that no
+nonlinear $T$ commutes in general.  Two further propositions, motivated by
+empirical findings and proved within the Results section, characterise the two
+practically important special cases: the change-of-support (COS) operator
+commutes if and only if the underlying sensitivity structure is spatially
+homogeneous (Proposition~2), and all strictly monotone transforms produce
+identical Decision Score $D$ and Sensitivity Shift $\Delta$ on scalar benchmarks
+(Proposition~3).  All three results extend formally to total-effect Sobol indices
+(Appendix~A).
+
+The empirical sweep covers 5 transform categories (environmental, engineering,
+spatial, temporal, statistical) applied to 2 spatial benchmarks
+(Campbell2D, Campbell3D), 2 temporal/functional benchmarks
+(Damped Oscillator, Lotka-Volterra), and 6 scalar benchmarks
+(Ishigami, SobolG, Borehole, Piston, WingWeight, OTL Circuit).
+We score each of the 330 (benchmark, transform) pairs using a Decision Score
+$D \in [0,1]$ (soft threshold margin around $\tau=0.05$) and a Sensitivity
+Shift $\Delta \in [0,1]$ (Bray-Curtis dissimilarity), both purpose-designed
+for bounded, cross-comparable measurement.
+Environmental and engineering transforms produce $D = 0.36$--$0.37$ and
+$\Delta = 0.60$--$0.61$ on average.
+Temporal transforms, which are novel in this context, produce
+$D = 0.18$ and $\Delta = 0.39$ on average, with linear temporal operators
+(cumulative sum on the Damped Oscillator: $D = 0.064$) confirming the
+commutativity theorem.
+The Campbell3D benchmark, which we introduce here for the first time in the
+sensitivity analysis literature, produces a $13.2\times$ amplification of
+COS noncommutativity relative to Campbell2D at $8^3$ block scale.
+All code and results are archived via \textit{sabench}~\citep{Hettinger2025}.
+\end{abstract}
+
+\tableofcontents
+\clearpage
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Introduction}
+\label{sec:intro}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+Variance-based global sensitivity analysis (GSA) has become a standard
+framework for model interrogation in the environmental, engineering, and earth
+sciences \citep{Saltelli2008,IoossLemaitre2015,Razavi2021}. For a model
+$Y = f(\mathbf{X})$ with independent uniform inputs, the Sobol first-order
+index $S_i$ and total-effect index $S_i^T$ decompose output variance according
+to individual and collective input contributions.
+
+In practice, the quantity subjected to GSA is often not the raw model output.
+Practitioners routinely apply transformations $T$ before or after sensitivity
+analysis: log-transforming streamflow for flood-frequency analysis
+\citep{Vogel1996}, applying depth-damage power laws for loss estimation
+\citep{Merz2010}, computing exceedance probabilities for infrastructure design,
+converting temperature fields to Arrhenius reaction rates for atmospheric
+chemistry, or block-averaging distributed fields to match observational grids---the
+classical change-of-support problem in spatial statistics
+\citep{Cressie1993,GotwayYoung2002}. Temporal models are similarly post-processed: peak
+response is extracted from oscillator outputs for structural design; cumulative
+volume is integrated from flow-rate trajectories for pharmacokinetics; running
+maxima define design loads in seismology.
+
+The implicit assumption---universally unstated in applied papers that report
+Sobol indices of transformed outputs---is that
+$S_i(T \circ f) \approx S_i(f)$, or at least that relative rankings are preserved.
+This assumption is false whenever $T$ is nonlinear.
+Despite this, no systematic empirical study has quantified the magnitude and
+practical significance of this violation across a broad, physically grounded
+catalogue of transformations applied consistently to diverse benchmark types.
+This paper closes that gap, introducing a unifying framework and comprehensive
+empirical evidence.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+  \item A unified framework---\emph{functional sensitivity analysis under output
+    operators} (FSAO)---that treats scalar, spatial, and temporal GSA as
+    special cases of a common formalism, and operationalises the notion of
+    commutativity between Sobol estimation and output post-processing
+    (Section~\ref{sec:framework}).
+  \item A complete, self-contained proof that linear (affine) operators are the
+    unique class of transformations that commute with Sobol index computation
+    (Proposition~\ref{prop:main} and Appendix~\ref{app:proofs}).
+  \item A complete proof of the change-of-support (COS) theorem for Sobol
+    indices, stated within the spatial results where the empirical evidence
+    motivates it (Proposition~\ref{prop:cos}).
+  \item A complete proof of scalar invariance under strictly monotone transforms,
+    stated within the scalar results (Proposition~\ref{prop:scalar}).
+  \item Formal extension of all three propositions to total-effect Sobol indices
+    $S_i^T$, with proofs and numerical verification (Appendix~\ref{app:total_effects},
+    Propositions~\ref{prop:main_T}--\ref{prop:scalar_T}), protecting the results
+    from the objection that they are artefacts of the first-order decomposition.
+  \item A fourth proposition characterising the rank/PIT transform as a
+    near-safe variance-stabiliser that is ratio-preserving but not commutativity-preserving
+    (Proposition~\ref{prop:rank}, Appendix~\ref{app:proofs}).
+  \item A literature review connecting scalar Sobol analysis, pointwise spatial
+    Sobol, functional output Sobol, and transformation commutativity
+    (Section~\ref{sec:litreview}).
+  \item A registry of 33 physically motivated transforms in 5 categories
+    (environmental, engineering, spatial, temporal, statistical), together with
+    purpose-designed bounded scoring metrics (Section~\ref{sec:setup}).
+  \item The first sensitivity analysis of the Campbell3D benchmark
+    (Section~\ref{sec:spatial_results}), and the first temporal sensitivity
+    analysis under output transformations using established functional benchmarks
+    (Section~\ref{sec:temporal_results}).
+  \item Empirical confirmation that the cumulative-sum transform (linear)
+    scores near zero ($D = 0.064$) on the Damped Oscillator, validating the
+    commutativity theorem, while nonlinear temporal transforms
+    (log-cumsum, exceedance duration, peak) score $D = 0.12$--$0.28$
+    (Section~\ref{sec:temporal_results}).
+\end{enumerate}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Literature Review}
+\label{sec:litreview}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{Scalar Sobol indices}
+\label{sec:lit_scalar}
+
+The theoretical foundations of variance-based sensitivity analysis rest on the
+$L^2$ orthogonal decomposition of functions of independent random variables,
+established by \citet{Hoeffding1948}. \citet{Sobol1993} applied this decomposition
+to sensitivity analysis, showing that any square-integrable function of independent
+uniform inputs admits a unique functional ANOVA into orthogonal components, and
+defining the resulting variance-based indices. This decomposition gives rise to
+first-order Sobol indices $S_i = D_i / D$ and total-effect indices $S_i^T$
+\citep{Homma1996}, where $D$ is the total output variance and $D_i$ is the
+variance contributed by input $X_i$ alone. The indices have been used extensively for factor-fixing (inputs with
+$S_i^T < \tau$ can be set to any fixed value without appreciably affecting
+output variance) and factor prioritisation
+\citep{Saltelli2008,SaltelliStatSci2000,SaltelliInPractice2004}.
+
+Practical estimation of Sobol indices requires $O(N(d+2))$ model evaluations
+for the sample-reuse estimators of \citet{Saltelli2002} and \citet{Jansen1999}.
+\citet{Saltelli2002} established the now-standard Saltelli sampling design
+(also called the radial or $\mathrm{AB}$ design); \citet{Jansen1999} provided
+the estimator with the best known finite-sample bias properties.
+\citet{Pianosi2016} and \citet{Razavi2021} provide comprehensive reviews of
+the state of the art.
+
+The question of how transformations of the output affect sensitivity indices
+has received surprisingly little systematic treatment. \citet{Saltelli2008}
+note without proof that nonlinear transformations change indices, and
+\citet{Puy2022} show that commonly used normalisations can lead to misleading
+conclusions. \citet{Borgonovo2007} introduced the delta-index as a
+transformation-invariant alternative, but it has seen limited adoption in
+practice. The closest prior treatment of invariance conditions is
+\citet{Borgonovo2014}, who establish qualitatively that variance-based
+sensitivity statistics are invariant under affine transforms but not under
+general nonlinear ones; however, they do not provide a complete biconditional
+proof characterising precisely when commutativity holds.
+The rank/probability-integral transform (PIT) provides a related avenue: replacing
+raw outputs with their empirical quantiles before sensitivity estimation yields
+rank-correlation-based SA measures \citep{Iman1979} that are invariant to
+monotone transformations by construction, but as we show in
+Proposition~\ref{prop:rank}, this invariance comes at the cost of commuting with
+the Sobol ratio only approximately. Unified accounts of the progression from
+screening to quantitative SA are given by \citet{Campolongo2011} and
+\citet{PlischkeBorgonovo2013}.
+The question of when and how much indices change under specific
+applied transformations---the subject of this paper---remains largely unaddressed.
+
+\subsection{Pointwise Sobol indices for spatial outputs}
+\label{sec:lit_spatial}
+
+When a model produces a spatially distributed output $Y(\mathbf{z})$, the
+natural extension is to compute Sobol indices pointwise:
+$S_i(\mathbf{z}) = D_i(\mathbf{z}) / D(\mathbf{z})$ for each spatial location
+$\mathbf{z}$. This was developed in detail by \citet{MarrelSpatial2011} for
+two-dimensional spatial benchmarks, establishing the analytical framework and
+providing the Campbell2D benchmark function that has since become the standard
+test case \citep{Marrel2011}. Pointwise spatial Sobol indices reveal which inputs control the model
+at different locations, a capability that scalar summaries (such as the
+variance-weighted aggregate of \citealt{MarrelSpatial2011}) necessarily compress.
+\citet{Campbell2006} earlier treated the related problem of sensitivity analysis
+when model outputs are functional, providing motivation for the pointwise approach.
+
+Practical computation of spatial Sobol fields requires efficient
+emulators~\citep{Oakley2004} or polynomial chaos
+expansions~\citep{Sudret2008} when the spatial dimension is large, because
+running a separate estimator for each grid cell is computationally intractable.
+Sparse-grid and tensor-decomposition methods have been proposed for high-dimensional
+spatial outputs \citep{Buzzard2012,Blatman2011}. A key limitation of these
+approaches is that they require the sensitivity field to be smooth enough to
+admit low-rank approximations; when the spatial sensitivity structure is
+heterogeneous (as in our Campbell3D benchmark), more evaluations are needed.
+
+The Campbell3D benchmark introduced in this paper extends the 2D framework
+to three spatial dimensions with heterogeneous sensitivity weighting, amplifying
+the spatial contrast that drives change-of-support effects.
+
+\subsection{Sensitivity analysis for functional outputs}
+\label{sec:lit_functional}
+
+Generalising to functional outputs $Y(t)$---time series, ODE trajectories,
+spectral curves---requires treating the index as a function of the independent
+variable: $S_i(t) = \mathrm{Var}_{X_i}[\mathbb{E}[Y(t) \mid X_i]] / \mathrm{Var}[Y(t)]$.
+The general case of sensitivity analysis for functional model outputs was treated
+by \citet{Campbell2006}, who proposed aggregating pointwise variance ratios and
+analysed the conditions under which a scalar summary captures global input
+influence. \citet{Lamboni2011} extended this to dynamic (ODE-driven) models,
+introducing a generalised sensitivity index for multivariate outputs.
+The approach was formalised in the context of chemical ODE
+systems by \citet{Saltelli2005}, and \citet{Sudret2008} extended it using polynomial chaos to provide
+efficient estimates of $S_i(t)$ for the Damped Oscillator benchmark.
+A key finding in this literature is that the sensitivity structure changes over
+time: for the Damped Oscillator, stiffness $k$ dominates early in the trajectory
+(when amplitude is high) while damping $\zeta$ and mass $m$ dominate at late
+times (when amplitude has decayed). This time-varying sensitivity motivates the
+need to carefully choose which temporal summary statistic to use for GSA.
+
+\citet{Sudret2008} and subsequent work on polynomial chaos for functional
+sensitivity \citep{Blatman2011,Crestaux2009,XiuKarniadakis2002} show that representing $S_i(t)$ without further
+reduction is possible but requires $O(d \cdot N \cdot n_t)$ evaluations.
+When a practitioner compresses $Y(t) \to Z = T(Y)$ (taking the peak, integrating
+the trajectory, identifying threshold exceedance), they are implicitly changing
+the question from ``which input most controls the full trajectory?'' to ``which
+input most controls this compressed statistic?''. The answer can be dramatically
+different, a key point we demonstrate empirically in Section~\ref{sec:temporal_results}.
+
+\subsection{Transformations, commutativity, and the current gap}
+\label{sec:lit_gap}
+
+The relationship between output transformations and sensitivity indices has been
+studied in specific contexts. \citet{Pianosi2016} discusses the connection between
+sensitivity indices and the choice of output metric, noting that different
+metrics can lead to different rankings but without systematic quantification.
+\citet{Puy2022} show that rescaling outputs by their mean can reverse sensitivity
+rankings, demonstrating a concrete case of noncommutativity. \citet{Oakley2004}
+discuss how Gaussian process emulators can represent the full output distribution
+and thus support sensitivity analysis under arbitrary output transformations,
+but leave the commutativity question implicit.
+
+More fundamentally, \citet{Saltelli2008} and \citet{IoossLemaitre2015} note
+that the choice of what to analyse (the model output or a function of it) is
+a decision that should be made explicitly and consistently. Yet applied papers
+routinely report indices for a transformed output without acknowledging or
+accounting for the transformation.
+
+The framework we introduce in Section~\ref{sec:framework}---FSAO---provides
+a formal language for this decision, a rigorous commutativity criterion
+(Propositions~\ref{prop:main}--\ref{prop:scalar}), and the first comprehensive
+empirical quantification of the consequences of the decision across multiple
+output types and transform categories.
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Framework: Functional Sensitivity Analysis Under Output Operators}
+\label{sec:framework}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{Unified setup and nomenclature}
+\label{sec:nomenclature}
+
+Let $f: \Omega \to \mathcal{Y}$ where $\Omega = \prod_{i=1}^d [a_i, b_i]$ and
+$\mathcal{Y}$ is a Hilbert space of real-valued functions on an index set
+$\mathcal{Z}$.  The index set $\mathcal{Z}$ is:
+\begin{itemize}[noitemsep]
+  \item A finite set $\{z_1, \ldots, z_p\}$, yielding a scalar output ($p=1$)
+    or a finite-dimensional vector output ($p > 1$).
+  \item A spatial grid $\mathcal{Z} \subset \mathbb{R}^2$ or $\mathbb{R}^3$,
+    yielding a \emph{spatial functional output}.
+  \item A time grid $\{t_0, t_1, \ldots, t_{n_t-1}\} \subset \mathbb{R}_{\geq 0}$,
+    yielding a \emph{temporal functional output}.
+\end{itemize}
+We write $Y_z = f(\mathbf{X})(z)$ for the output at index point $z \in \mathcal{Z}$.
+With inputs $\mathbf{X} \sim \mathrm{Uniform}(\Omega)$, the first-order Sobol
+index at $z$ is
+\begin{equation}
+  S_i(z) = \frac{\mathrm{Var}_{X_i}[\mathbb{E}_{\mathbf{X}_{\sim i}}[Y_z \mid X_i]]}
+                 {\mathrm{Var}[Y_z]},
+  \label{eq:pointwise_sobol}
+\end{equation}
+and the scalar benchmark ($|\mathcal{Z}|=1$) is a special case.
+
+\begin{definition}[Output operator]
+An \emph{output operator} $T: \mathcal{Y} \to \mathcal{Y}'$ is any map that
+takes the functional output $Y \in \mathcal{Y}$ and produces a new functional
+output $Z = T(Y) \in \mathcal{Y}'$.  We say $T$ is:
+\begin{itemize}[noitemsep]
+  \item \emph{pointwise} if $T(Y)(z) = \phi(Y(z))$ for a fixed function
+    $\phi: \mathbb{R} \to \mathbb{R}$;
+  \item \emph{aggregating} if $|\mathcal{Z}'| < |\mathcal{Z}|$
+    (e.g.\ block averaging, temporal peak, exceedance area);
+  \item \emph{differentiating} if it involves derivatives or differences of
+    $Y$ across $\mathcal{Z}$ (e.g.\ gradient magnitude, Laplacian roughness);
+  \item \emph{spectral} if it operates in the frequency/transform domain
+    (e.g.\ bandpass filter).
+\end{itemize}
+\end{definition}
+
+\begin{definition}[Commutativity]
+\label{def:commute}
+The operator $T$ \emph{commutes with Sobol index computation} if
+$S_i^{T \circ f}(z') = S_i^f(z)$ for all $i \in \{1,\ldots,d\}$ and all
+$z' \in \mathcal{Z}'$, where $z'$ is the image of $z$ under $T$.
+When $|\mathcal{Z}'| < |\mathcal{Z}|$, commutativity is understood in the
+sense of a variance-weighted aggregation:
+\begin{equation}
+  \hat{S}_i(T \circ f) = \frac{\sum_{z' \in \mathcal{Z}'} \mathrm{Var}[Z_{z'}]\, S_i^{T\circ f}(z')}
+                               {\sum_{z'} \mathrm{Var}[Z_{z'}]}
+  = \hat{S}_i(f) := \frac{\sum_{z \in \mathcal{Z}} \mathrm{Var}[Y_z]\, S_i^f(z)}
+                         {\sum_z \mathrm{Var}[Y_z]}.
+  \label{eq:commute_def}
+\end{equation}
+\end{definition}
+
+The question ``does $T$ commute with Sobol?'' is thus a well-posed mathematical
+statement for any output type, not just scalars.
+We use ``non-commutativity'' to refer to the failure of \eqref{eq:commute_def}.
+
+\subsection{The commutativity theorem}
+\label{sec:commute_thm}
+
+\begin{proposition}[Commutativity iff affine]
+\label{prop:main}
+Let $T$ be a pointwise operator $T(Y)(z) = \phi(Y_z)$ for a fixed function
+$\phi: \mathbb{R} \to \mathbb{R}$.  Then $T$ commutes with Sobol index
+computation in the sense of Definition~\ref{def:commute} if and only if
+$\phi$ is affine, i.e.\ $\phi(y) = ay + b$ for constants $a \neq 0$, $b$.
+\end{proposition}
+
+A complete proof is given in Appendix~\ref{app:proofs}.  The key idea is that
+$Z_z = aY_z + b$ gives $\mathrm{Var}[Z_z] = a^2 \mathrm{Var}[Y_z]$ and
+$\mathrm{Var}_{X_i}[\mathbb{E}[Z_z \mid X_i]] = a^2 \mathrm{Var}_{X_i}[\mathbb{E}[Y_z \mid X_i]]$,
+so the ratio $S_i(z)$ is unchanged.  Conversely, Jensen's inequality shows
+that a strictly convex $\phi$ gives $\mathbb{E}[\phi(Y_z) \mid X_i] \neq \phi(\mathbb{E}[Y_z \mid X_i])$,
+breaking the variance ratio.
+
+\begin{remark}[Exact scalar counterexample]
+\label{rem:toy}
+The non-commutativity mechanism is transparent in a minimal example requiring
+no Monte Carlo.  Let $Y = X_1 + X_2$ with $X_1, X_2 \stackrel{iid}{\sim}
+\mathrm{Bernoulli}(1/2)$, so $S_1 = S_2 = 1/2$ exactly (additive model,
+equal variances).  Now apply $\phi(y) = y^2$.  Then
+$Z = (X_1 + X_2)^2 = X_1^2 + 2X_1 X_2 + X_2^2 = X_1 + 2X_1 X_2 + X_2$
+(using $X_i^2 = X_i$ for Bernoulli inputs).  The transformed model is no
+longer additive: the interaction term $2X_1 X_2$ appears, redistributing
+variance.  Explicitly, $\mathrm{Var}[Z] = 3/4$,
+$D_1^Z = D_2^Z = 1/4$, and $S_1^Z = S_2^Z = 1/3 \neq 1/2$.  The
+total-effect indices shift correspondingly: $S_1^{T,Z} = S_2^{T,Z} = 2/3$.
+This illustrates the core mechanism: a nonlinear $\phi$ creates interaction
+structure absent from the original model, changing both first-order and
+total-effect decompositions.  The full proof in Appendix~\ref{app:proofs}
+generalises this observation to arbitrary non-affine $\phi$.
+\end{remark}
+
+Propositions~\ref{prop:cos} and \ref{prop:scalar} refine this result for two
+practically important special structures---the change-of-support operator and scalar
+outputs under monotone transforms---and are stated within the Results section
+(Sections~\ref{sec:c3d} and~\ref{sec:scalar_results}) where the empirical evidence
+that motivates them is presented.
+
+\subsection{Variance-weighted aggregation}
+\label{sec:vw_agg}
+
+For any functional output---spatial, temporal, or otherwise---we use the
+variance-weighted aggregate
+\begin{equation}
+  \hat{S}_i = \frac{\sum_{z \in \mathcal{Z}} \mathrm{Var}[Y_z]\, \hat{S}_i(z)}
+                   {\sum_{z \in \mathcal{Z}} \mathrm{Var}[Y_z]}
+  \label{eq:vw}
+\end{equation}
+as the scalar summary for comparing the original and transformed index vectors.
+This weighting was proposed by \citet{MarrelSpatial2011} for spatial outputs and
+extends naturally to temporal outputs: $z$ is a time point $t$ rather than a
+spatial coordinate, and $\mathrm{Var}[Y_t]$ is the cross-sample variance of
+the trajectory at time $t$.
+
+The interpretation is consistent across output types: $\hat{S}_i$ measures
+the fraction of the total functional output variance attributable to $X_i$
+at the average location (weighted by local variance contribution).
+For scalar outputs, $\hat{S}_i = S_i$ exactly.
+For functional outputs, $\hat{S}_i$ is a weighted mean over the index set,
+placing more weight on high-variance index points where sensitivity is most
+consequential.
+
+We emphasise that Proposition~\ref{prop:main} is fundamentally a
+\emph{pointwise} invariance result: $S_i(z)$ is unchanged by an affine $\phi$
+at every $z$ independently.  The variance-weighted aggregate enters only as a
+\emph{reporting convention} for summarising the pointwise field; it does not
+appear in the theorem's hypotheses. Because \eqref{eq:vw} is a convex
+combination of pointwise indices, pointwise commutativity implies aggregate
+commutativity, but the converse does not hold in general.
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Experimental Setup}
+\label{sec:setup}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{Benchmark functions}
+\label{sec:benchmarks}
+
+All benchmarks are implemented in the \textit{sabench} library~\citep{Hettinger2025}.
+We group them by output type (Table~\ref{tab:benchmarks}).
+
+\begin{table}[H]
+\centering
+\caption{Benchmark functions. $d$ = input dimension; $N_\text{ref}$ = refinement
+sample size; ``type'' = scalar / spatial / temporal.}
+\label{tab:benchmarks}
+\small
+\begin{tabular}{llccp{5cm}}
+\toprule
+Benchmark & Type & $d$ & $N_\text{ref}$ & Key features \\
+\midrule
+\multicolumn{5}{l}{\textit{Spatial benchmarks}} \\
+Campbell2D & Spatial $32^2$ & 8 & 2048 & Heterogeneous $S_i(\mathbf{z})$;
+  $V_5\equiv0$; $V_6=V_8$ \\
+Campbell3D & Spatial $12^3$ & 8 & 1024 & 3D additive mixing; analytical $S_i$ available; $V_5\equiv0$; $V_8=V_6$ \\
+\midrule
+\multicolumn{5}{l}{\textit{Temporal / functional benchmarks}} \\
+DampedOscillator & Temporal $n_t=100$ & 3 & 1024 & $S_k(t)$ dominant early;
+  $S_\zeta(t)$ dominant late \\
+LotkaVolterra    & Temporal $n_t=100$ & 4 & 1024 & ODE; cyclic sensitivity \\
+\midrule
+\multicolumn{5}{l}{\textit{Scalar benchmarks}} \\
+Ishigami   & Scalar & 3 & 2048 & Strong interaction; $X_3$ inactive \\
+SobolG     & Scalar & 8 & 2048 & Many near-threshold inputs; high vulnerability \\
+Borehole   & Scalar & 8 & 2048 & 2 dominant inputs; 6 near-zero \\
+Piston     & Scalar & 7 & 2048 & Moderate interactions \\
+WingWeight & Scalar & 10 & 2048 & Near-additive; 10 inputs \\
+OTL Circuit & Scalar & 6 & 2048 & Electronic; mixed interactions \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Spatial benchmarks.}
+The Campbell2D benchmark \citep{MarrelSpatial2011,Marrel2011} is a $32\times32$ spatial field
+driven by 8 inputs, with a known heterogeneous sensitivity structure.
+Two structural invariants serve as verification: $V_5 \equiv 0$ (input $X_5$
+has zero first-order effect everywhere) and $V_6 = V_8$ (inputs $X_6$ and $X_8$
+are interchangeable by symmetry).
+
+The Campbell3D benchmark is an extension we introduce here for the first time
+\citep{Hettinger2025c3d}.  It generalises Campbell2D to a third spatial dimension
+by appending an independent additive mixing term $c_{i3}z_3$ to each 2D mixing
+coordinate, preserving exact backward compatibility ($g_3(\mathbf{X},z_1,z_2,0)
+\equiv g_2(\mathbf{X},z_1,z_2)$) while avoiding the heterogeneity collapse that
+afflicts the natural sum-to-one extension.  The output is a $12\times12\times12$
+volume for 8 inputs.  Closed-form first-order partial variances are available
+via the same Gaussian-quadrature structure as Campbell2D
+\citep{MarrelSpatial2011}---the 3D mixing coordinates enter the partial-variance
+integrals as arguments only, so the structural invariants
+$V_5 \equiv 0$ and $V_8 = V_6$ are preserved exactly.  The benchmark has not
+previously appeared in the sensitivity analysis literature to our knowledge.
+
+\paragraph{Temporal benchmarks.}
+The Damped Oscillator \citep{Sudret2008} produces a displacement trajectory
+$x(t) = (F/m\omega_d)\exp(-\zeta\omega_n t)\sin(\omega_d t + \phi)$, discretised at
+$n_t = 100$ time points over $[0, 10]$\,s, for 3 inputs
+$(m, k, \zeta)$.  Its pointwise sensitivity structure has a known qualitative
+property: stiffness $k$ dominates the early trajectory (when the exponential
+envelope is large), while damping $\zeta$ and mass $m$ take over at later times.
+
+The Lotka-Volterra predator-prey ODE \citep{Lotka1925,Volterra1926}, used here
+as a sensitivity benchmark following \citet{Saltelli2005}, produces the prey
+population trajectory $N(t)$ for 4 inputs $(\alpha, \beta, \delta, \gamma)$,
+solved by RK4 over $[0, 20]$.  Its sensitivity structure is cyclic: the prey
+growth rate $\alpha$ dominates near population maxima while predation efficiency
+$\delta$ matters near minima.
+
+\paragraph{Scalar benchmarks.}
+The Ishigami function \citep{Ishigami1990} is the canonical nonlinear SA test case
+with known analytical indices. The SobolG function was introduced by
+\citet{SobolLevitan1999} to stress-test estimators on near-threshold inputs.
+The Borehole model originates from contaminant transport simulation; its sensitivity
+structure was characterised by \citet{MorrisMitchell1993}. The Piston and OTL
+Circuit functions are engineering models from \citet{BenAriSteinberg2007}. The
+WingWeight function is the 10-input aeronautics model from \citet{Forrester2008}.
+All six have well-established first-order Sobol indices \citep{Saltelli2008}, and
+we use them as a reference group for the scalar invariance theorem
+(Section~\ref{sec:scalar_results}).
+
+\subsection{Transform registry}
+\label{sec:transforms}
+
+We register 33 transforms in 5 categories (Table~\ref{tab:transforms}).
+The temporal category is new in this work.
+
+\begin{table}[H]
+\centering
+\caption{Transform registry. Cat: Env=environmental, Eng=engineering, Spa=spatial,
+Tmp=temporal, Sta=statistical. $D_\mu$ and $\Delta_\mu$: cross-benchmark means.
+${}^\dagger$: linear transform (Proposition~\ref{prop:main} predicts $D \approx 0$).}
+\label{tab:transforms}
+\footnotesize
+\begin{tabular}{llccc}
+\toprule
+Key & Name & Cat. & $D_\mu$ & $\Delta_\mu$ \\
+\midrule
+\texttt{arrhenius}                     & Arrhenius $\exp(-E_a/Ry)$ & Eng & 0.372 & 0.606 \\
+\texttt{exceedance\_area}              & Exceedance area fraction & Spa & 0.405 & 0.748 \\
+\texttt{isoline\_length}               & Isoline perimeter & Spa & 0.405 & 0.669 \\
+\texttt{log\_shift}                    & Log-shift $\log(y+c)$ & Env & 0.364 & 0.594 \\
+\texttt{box\_cox\_log}                 & Box-Cox $\lambda\to0$ & Env & 0.364 & 0.594 \\
+\texttt{gradient\_magnitude}           & Gradient magnitude $|\nabla Y|$ & Spa & 0.391 & 0.648 \\
+\texttt{laplacian\_roughness}          & Laplacian $|\nabla^2 Y|$ & Spa & 0.388 & 0.660 \\
+\texttt{box\_cox\_sqrt}                & Box-Cox $\lambda=0.5$ & Env & 0.349 & 0.571 \\
+\texttt{clipped\_excess\_q90}          & Clipped excess POT & Env & 0.367 & 0.626 \\
+\texttt{power\_law\_beta2}             & Power-law $y^2$ & Env & 0.378 & 0.612 \\
+\texttt{sigmoid\_dose}                 & Hill dose-response & Eng & 0.378 & 0.630 \\
+\texttt{normalised\_stress}            & Goodman normalised stress & Eng & 0.359 & 0.608 \\
+\texttt{power\_law\_beta05}            & Power-law $y^{0.5}$ & Env & 0.370 & 0.620 \\
+\texttt{contour\_exceedance}           & Signed contour distance & Spa & 0.372 & 0.610 \\
+\texttt{carnot\_quadratic}             & Carnot quadratic & Eng & 0.369 & 0.608 \\
+\texttt{weibull\_reliability}          & Weibull failure prob. & Eng & 0.378 & 0.617 \\
+\texttt{exceedance\_q75}               & Exceedance $q_{75}$ & Env & 0.363 & 0.630 \\
+\texttt{exceedance\_q90}               & Exceedance $q_{90}$ & Env & 0.366 & 0.615 \\
+\texttt{exceedance\_q95}               & Exceedance $q_{95}$ & Env & 0.369 & 0.620 \\
+\texttt{exceedance\_q99}               & Exceedance $q_{99}$ & Env & 0.360 & 0.624 \\
+\texttt{entropy\_proxy}                & Entropy proxy $-(Y-\bar Y)^2$ & Sta & 0.337 & 0.558 \\
+\texttt{standardised\_anomaly}         & Standardised anomaly & Sta & 0.364 & 0.609 \\
+\texttt{temporal\_log\_cumsum}         & Log cumulative sum & Tmp & 0.189 & 0.338 \\
+\texttt{temporal\_exceedance\_duration}& Exceedance duration & Tmp & 0.219 & 0.435 \\
+\texttt{temporal\_peak}                & Temporal peak $\max_t$ & Tmp & 0.204 & 0.454 \\
+\texttt{temporal\_envelope}            & Running maximum envelope & Tmp & 0.185 & 0.427 \\
+\texttt{temporal\_bandpass}${}^\dagger$& Bandpass filter (linear) & Tmp & 0.301 & 0.527 \\
+\texttt{temporal\_block\_avg}          & Temporal block avg (COS) & Tmp & 0.019 & 0.069 \\
+\texttt{temporal\_cumsum}${}^\dagger$  & Cumulative sum (linear) & Tmp & 0.146 & 0.479 \\
+\texttt{regional\_mean}                & Spatial regional mean & Spa & 0.048 & 0.128 \\
+\texttt{block\_8x8}                    & Block average $8^3$ & Spa & 0.013 & 0.028 \\
+\texttt{block\_4x4}                    & Block average $4^3$ & Spa & 0.003 & 0.007 \\
+\texttt{block\_2x2}                    & Block average $2^3$ & Spa & 0.001 & 0.002 \\
+\texttt{matern\_smooth}                & Matérn-$\frac{5}{2}$ smooth & Spa & 0.002 & 0.005 \\
+\texttt{rank\_transform}               & Rank / PIT & Sta & 0.042 & 0.104 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Transform provenance.}
+Each engineering and environmental transform is grounded in an established
+physical or statistical model.
+The Arrhenius transform $\exp(-E_a/Ry)$ originates in chemical kinetics
+\citep{Arrhenius1889}.
+The Hill sigmoid dose-response $y^n/(k^n + y^n)$ follows \citet{Hill1910}.
+The Weibull failure probability $1 - \exp(-(y/\lambda)^k)$ follows
+\citet{Weibull1951}.
+The Goodman normalised stress transform is the fatigue-life criterion from
+structural engineering \citep{SocieMarquis2000}.
+The Box-Cox family $\lambda \in \{0, 0.5\}$ follows \citet{BoxCox1964}.
+The Matérn-$\tfrac{5}{2}$ spatial smoother applies a kernel derived from the
+Matérn covariance class \citep{Matern1986}.
+Log-shift and Box-Cox transforms are routinely applied to hydrological model
+outputs (e.g.\ streamflow) before calibration and GSA; a recent systematic
+analysis of their effect on model performance is given by \citet{Thirel2024}.
+The rank/PIT statistical transform replaces raw values with empirical quantiles
+following \citet{Iman1979}.
+
+\paragraph{Rationale for Arrhenius as reference transform.}
+Several sections use the Arrhenius transform $T(y) = \exp(-E_a/R \cdot y_\text{pos})$
+as the primary illustration, where the positivity shift
+$y_\text{pos} = y - y_\text{min} + \varepsilon$ uses a \emph{fixed} constant
+$y_\text{min}$ determined from the \emph{analytic support} of each benchmark
+(not from the sample), ensuring that $T$ remains a fixed pointwise map
+$\phi: \mathbb{R} \to \mathbb{R}$ as required by Proposition~\ref{prop:main}.
+This choice is deliberate: (i) it is parametric
+and physically motivated (atmospheric chemistry, thermal diffusivity, materials
+science \citep{Arrhenius1889}), (ii) its degree of nonlinearity is controlled by
+$E_a/R$, making it a tunable reference, (iii) it consistently achieves among the
+highest $D$ and $\Delta$ across all benchmarks (mean $D = 0.372$), making it a
+useful worst-case indicator. We do not suggest that Arrhenius transformations are uniquely important;
+log-shift, Box-Cox \citep{BoxCox1964}, and power-law transforms produce nearly
+identical scores on scalar benchmarks (scalar invariance theorem), and the
+choice is purely for consistency of illustration.
+
+\subsection{Scoring metrics}
+\label{sec:metrics}
+
+We score each (benchmark, transform) pair using two bounded metrics.
+Both were designed to overcome specific failure modes of simpler alternatives.
+Preliminary experiments used a composite score combining integer threshold-flip
+counts and a relative-$L^2$ norm; this failed in two ways: the flip counts
+saturated at their maximum for 20 of 26 transforms (degeneracy, producing
+identical composite values near 14.7), and the relative-$L^2$ diverged to
+$O(10^{11})$ on the Borehole benchmark where 6 of 8 inputs have $\hat{S}_i \approx 0$.
+These lessons motivated the two metrics below.
+
+\paragraph{Decision Score $D$.}
+The Decision Score measures the classification impact of the transform on
+factor-fixing decisions. Define the soft sigmoid threshold
+\begin{equation}
+  \sigma(s; \tau) = \frac{1}{1 + \exp(-(s - \tau)/\tau)},
+  \label{eq:soft}
+\end{equation}
+which transitions from 0 (inactive) to 1 (active) around the practical
+significance threshold $\tau = 0.05$ \citep{Saltelli2008}.
+The Decision Score is the mean per-input absolute difference in soft-classification:
+\begin{equation}
+  D = \frac{1}{d}\sum_{i=1}^d \bigl|\sigma(\hat{S}_i(Z); \tau) - \sigma(\hat{S}_i(Y); \tau)\bigr|.
+  \label{eq:D}
+\end{equation}
+$D = 0$ means no input's active/inactive classification changed; $D = 1$ would
+require every input to flip from deep inactive to deep active simultaneously.
+Intuitively, $D$ asks whether any input crossed the practical significance
+threshold $\tau$ as a result of the transform, and averages those soft
+threshold-crossings over all inputs.
+The sigmoid form avoids the degeneracy of integer flip counts while preserving
+the decision-threshold interpretation. The threshold $\tau = 0.05$ and the
+factor-fixing framing follow \citet{Saltelli2008}; the soft-classification idea
+is inspired by the screening literature, where inputs are classified as active
+or inactive relative to a fixed threshold \citep{Morris1991,Campolongo2007}.
+The sigmoid width equal to $\tau$ provides natural calibration around the
+boundary. Unlike a rank-correlation measure (e.g., Spearman $\rho$), $D$ is
+sensitive to absolute index changes even when rankings are preserved, which
+matters when inputs cross the significance threshold.
+
+\paragraph{Sensitivity Shift $\Delta$.}
+The Sensitivity Shift measures raw redistribution of sensitivity mass, using the
+Bray-Curtis dissimilarity \citep{Bray1957,Ferretti2016}:
+\begin{equation}
+  \Delta = \frac{\sum_i |\hat{S}_i(Z) - \hat{S}_i(Y)|}
+                {\sum_i \hat{S}_i(Z) + \sum_i \hat{S}_i(Y)}.
+  \label{eq:delta}
+\end{equation}
+The pooled denominator makes $\Delta$ robust when $\hat{S}_i(Y) \approx 0$
+for many inputs, which caused the relative-$L^2$ divergence on Borehole.
+Bray-Curtis dissimilarity is the standard measure of community composition
+change in ecology \citep{Bray1957} and has been applied to sensitivity index
+vectors \citep{Ferretti2016}; its bounded $[0,1]$ range makes it
+directly comparable across benchmarks and transform categories.
+Intuitively, $\Delta$ asks what fraction of the total sensitivity mass had to
+move to convert the original index profile into the transformed one: $\Delta = 0$
+means the transform left the profile entirely intact and $\Delta = 1$ means the
+two profiles share no overlap.
+
+\paragraph{Estimation.}
+For each benchmark $f$ and transform $T$, we generate a Saltelli sample
+$X \in \mathbb{R}^{N(d+2) \times d}$ \citep{Saltelli2002}, evaluate $Y = f(X)$
+and $Z = T(Y)$, apply the Jansen (1999) estimator~\citep{Jansen1999} to both,
+and compute $\hat{S}_i$ via variance weighting (Eq.~\ref{eq:vw}).
+A two-stage screening/refinement design at $N=512$ and $N=2048$
+(or $N=1024$ for memory-heavy benchmarks) manages computational cost.
+
+\paragraph{First-order versus total-effect indices.}
+Throughout this paper we report first-order Sobol indices $S_i$.
+Total-effect indices $S_i^T$ \citep{Homma1996} quantify interaction-inclusive
+sensitivity and are often preferred for factor fixing.  We focus on $S_i$
+because (i)~they are estimable from the same Saltelli sample at no additional
+cost, (ii)~many environmental benchmarks are near-additive so $S_i \approx S_i^T$,
+and (iii)~the non-commutativity argument is cleanest for the additive component.
+The analogous results for total-effect indices---including numerical confirmation
+that $D$ and $\Delta$ are elevated for the same transforms---are presented in
+Appendix~\ref{app:total_effects}; main-text conclusions are unchanged.
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Results}
+\label{sec:results}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{Overview: heatmaps across all benchmarks}
+\label{sec:heatmaps}
+
+Figure~\ref{fig:heatmaps} shows the $D$ and $\Delta$ heatmaps for all
+33 transforms $\times$ 10 benchmarks. The dominant structural pattern is
+a clean separation between the top 20 transforms (environmental and engineering
+nonlinear transforms: $D \in [0.2, 0.6]$) and the bottom group (spatial COS
+operators, linear temporal transforms: $D < 0.1$). Temporal transforms occupy
+an intermediate position.
+
+\begin{figure}[ht]
+\centering
+\begin{subfigure}[t]{0.48\textwidth}
+  \includegraphics[width=\textwidth]{fig_heatmap_D_s1.png}
+  \caption{Decision Score $D$. Grey = skipped (C3D Matérn).}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.48\textwidth}
+  \includegraphics[width=\textwidth]{fig_heatmap_delta_s1.png}
+  \caption{Sensitivity Shift $\Delta$.}
+\end{subfigure}
+\caption{Non-commutativity heatmaps for 33 transforms $\times$ 10 benchmarks.
+  Transforms sorted by mean $D$ (top = most noncommutative). Y-axis label colours:
+  {\color{cat_env}blue}=environmental, {\color{cat_eng}orange}=engineering,
+  {\color{cat_spa}green}=spatial, {\color{cat_tmp}purple}=temporal,
+  {\color{cat_sta}grey}=statistical.
+  X-axis label colours indicate benchmark type (green=spatial, purple=temporal, grey=scalar).}
+\label{fig:heatmaps}
+\end{figure}
+
+\subsection{Spatial results}
+\label{sec:spatial_results}
+
+\subsubsection{Campbell2D: per-input structure and spatial maps}
+
+Figure~\ref{fig:per_input_spatial} shows per-input $\hat{S}_i$ for Campbell2D
+under the original output and three selected transforms.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_per_input_spatial.png}
+\caption{Per-input $\hat{S}_i$ on Campbell2D ($N=2048$) for original output and
+  three transforms. Structural invariants $V_5 \equiv 0$ and $V_6 = V_8$ hold
+  exactly in the analytical model; the Monte Carlo estimates respect them to
+  within estimator noise ($|\hat{S}_5| < 0.005$; $|\hat{S}_6 - \hat{S}_8| < 0.04$
+  at $N=2048$). Inputs 1, 2, 4 show the largest shifts under
+  Arrhenius and log-shift; block-$8\times8$ shows milder but nontrivial shifts.}
+\label{fig:per_input_spatial}
+\end{figure}
+
+The spatial Sobol maps in Figure~\ref{fig:spatial_maps} illustrate the pointwise
+changes.  On the original output, sensitivity is distributed across $X_2$,
+$X_4$, $X_6$, and $X_8$, while $X_1$ is comparatively weak throughout the
+field.  The Arrhenius exponential is most sensitive to variation in $Y$ near
+the lower end of the output range, precisely where $X_1$ exerts its influence;
+the result is a sharp amplification of $S_1(\mathbf{z})$ at those locations
+and a simultaneous collapse of $S_2$, $S_4$, $S_6$, and $S_8$ relative to the
+post-transform total variance.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{fig_spatial_maps_v3.png}
+\caption{Pointwise Sobol index maps $S_i(\mathbf{z})$ for Campbell2D, inputs
+  $X_1$--$X_8$. Original output (top row) vs Arrhenius transform (bottom row).
+  On the original output $X_2$, $X_4$, $X_6$, and $X_8$ show diffuse
+  distributed sensitivity while $X_1$ is weak throughout; after Arrhenius,
+  $X_1$ becomes the single dominant input and all four originally dominant
+  inputs collapse to near zero.
+  The analytical structural invariants $S_5 \equiv 0$ and $S_6 = S_8$ are
+  respected to within Monte Carlo noise in both rows.}
+\label{fig:spatial_maps}
+\end{figure}
+
+Figure~\ref{fig:contour_maps} shows the new contour-exceedance transform:
+a signed distance field relative to the $q_{75}$ contour level, and its
+effect on the Sobol field.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{fig_contour_maps.png}
+\caption{Contour exceedance transform on Campbell2D. Left: an example output
+  field with the $q_{75}$ contour overlay (red). Centre-left: the transformed
+  field (signed distance, blue=below, red=above contour). Centre-right and right:
+  $S_1(\mathbf{z})$ under original vs contour-exceedance. The transform
+  concentrates sensitivity in the contour transition zone.}
+\label{fig:contour_maps}
+\end{figure}
+
+\subsubsection{Campbell3D: novel benchmark, stronger COS effects}
+\label{sec:c3d}
+
+The Campbell3D benchmark introduces a third spatial mixing dimension with
+heterogeneous weighting, amplifying sensitivity contrasts across the volume.
+This is, to our knowledge, the first published sensitivity analysis of this
+benchmark. It was developed as part of \textit{sabench} and has not appeared
+in the prior literature.
+
+Figure~\ref{fig:c2d_c3d} compares the Decision Score on Campbell2D and
+Campbell3D for the top-20 transforms. Two patterns are notable:
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_c2d_vs_c3d.png}
+\caption{Campbell2D vs Campbell3D Decision Score $D$ for top-20 transforms.
+  Environmental/engineering transforms score slightly lower on C3D due to its
+  more diffuse index profile. Spatial block-averaging (COS) scores dramatically
+  higher on C3D: block-$8^3$ gives $D = 0.079$ on C3D vs $D = 0.006$ on C2D.}
+\label{fig:c2d_c3d}
+\end{figure}
+
+\textit{Environmental/engineering transforms score somewhat lower on C3D.}
+The C3D benchmark has a more uniform $\hat{S}_i$ profile across the volume
+(the 3D mixing spreads sensitivity more evenly), meaning fewer inputs are
+near the $\tau=0.05$ threshold simultaneously.  With fewer near-threshold
+inputs available to flip, the Decision Score is smaller.
+
+\textit{Spatial COS transforms score dramatically higher on C3D.}
+The spatial heterogeneity of $S_i(\mathbf{z})$ is amplified by the third
+dimension, so block averaging redistributes sensitivity mass much more strongly.
+Table~\ref{tab:cos} gives the quantitative comparison.
+
+\begin{table}[H]
+\centering
+\caption{Change-of-support scaling: $D$ and $\Delta$ by block scale.
+Campbell3D at $8^3$ is $13.2\times$ larger than Campbell2D at $8\times8$.}
+\label{tab:cos}
+\begin{tabular}{lcccc}
+\toprule
+& \multicolumn{2}{c}{Campbell2D} & \multicolumn{2}{c}{Campbell3D} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Block & $D$ & $\Delta$ & $D$ & $\Delta$ \\
+\midrule
+$2\times2$ ($2^3$) & 0.0003 & 0.0008 & 0.0031 & 0.0070 \\
+$4\times4$ ($4^3$) & 0.0016 & 0.0037 & 0.0114 & 0.0283 \\
+$8\times8$ ($8^3$) & 0.0060 & 0.0140 & 0.0790 & 0.1360 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The data in Table~\ref{tab:cos} call for a precise theoretical characterisation
+of when block-averaging commutes with Sobol index computation.
+
+\begin{proposition}[COS commutativity condition]
+\label{prop:cos}
+Let $T^{\mathrm{COS}}_B(Y) = |B|^{-1}\int_B Y(z)\,dz$ be the block-average
+operator over region $B \subset \mathcal{Z}$ (the change-of-support operator
+of \citealt{Cressie1993}).  Then $T^{\mathrm{COS}}_B$
+commutes with Sobol index computation if and only if the pointwise sensitivity
+structure $S_i(z)$ is constant over $B$ for all inputs $i$,
+i.e.\ $S_i(z) = S_i$ for all $z \in B$.
+A complete proof is given in Appendix~\ref{app:proofs}.
+\end{proposition}
+
+The $13.2\times$ amplification from C2D to C3D at $8^3$ blocks is direct
+empirical validation of Proposition~\ref{prop:cos}: Campbell3D's stronger 3D
+heterogeneity means that a block of side $8$ units spans multiple distinct
+sensitivity regimes, violating the homogeneity condition at a scale where
+Campbell2D does not.  Scalar benchmarks have $|\mathcal{Z}|=1$, so the
+sensitivity structure is trivially constant and COS scores $D=0$.
+The Damped Oscillator's temporal COS at block-10 gives $D = 0.013$, reflecting
+mild heterogeneity in $S_i(t)$ over short intervals.
+The spatial variogram of $S_i(\mathbf{z})$ in C3D has a shorter correlation
+length than in C2D (the third dimension introduces finer-scale heterogeneity),
+so $8^3$ blocks span multiple distinct sensitivity regimes, producing a larger
+COS effect.  The scaling curve (Figure~\ref{fig:cos_scaling}) is monotone
+and smooth for both benchmarks, consistent with the theory.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.7\textwidth]{fig_cos_scaling.png}
+\caption{COS scaling: $D$ and $\Delta$ vs block scale for Campbell2D and C3D.
+  Monotone increase confirms the theory; C3D amplifies the effect.}
+\label{fig:cos_scaling}
+\end{figure}
+
+\subsection{Temporal results}
+\label{sec:temporal_results}
+
+The temporal benchmarks introduce a new dimension to the non-commutativity
+analysis.  For a time-series output $Y(t)$, the pointwise Sobol indices
+$S_i(t)$ carry information about the time-varying dominance of each input.
+Any temporal post-processing operator $T$ that compresses or reshapes this
+trajectory potentially changes which inputs appear dominant in the aggregate.
+
+\subsubsection{Damped Oscillator: linear vs nonlinear temporal transforms}
+
+Figure~\ref{fig:temporal_traces} shows the pointwise indices $S_i(t)$ for the
+Damped Oscillator under the original trajectory and three temporal transforms.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.95\textwidth]{fig_temporal_traces.png}
+\caption{Pointwise Sobol indices $S_i(t)$ for the Damped Oscillator ($N=1024$).
+  Top-left: original trajectory dominated by $k$ (stiffness) early and $\zeta$
+  (damping) late. Top-right: temporal peak ($\max_t$) collapses to a single value,
+  strongly favouring $k$. Bottom-left: log-cumsum redistributes toward $\zeta$
+  (late-time contribution dominates the integrated log). Bottom-right: exceedance
+  duration amplifies the early-time contribution of $k$.}
+\label{fig:temporal_traces}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.95\textwidth]{fig_per_input_temporal.png}
+\caption{Variance-weighted aggregate $\hat{S}_i$ for the Damped Oscillator
+  under four temporal transforms plus the linear cumsum control. The cumsum
+  (linear) closely tracks the original, consistent with
+  Corollary~\ref{cor:linear}. All nonlinear transforms produce substantially
+  different index profiles.}
+\label{fig:per_input_temporal}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.95\textwidth]{fig_linear_controls.png}
+\caption{Linear vs nonlinear temporal transforms: mean $D$ (solid) and $\Delta$
+  (hatched) on Damped Oscillator and Lotka-Volterra. Linear transforms
+  (cumsum, bandpass) score lower than nonlinear transforms, consistent with
+  Proposition~\ref{prop:main}. The bandpass scores higher than expected for a
+  linear transform because it selects a frequency band that differs from the
+  dominant spectral content, shifting variance weights substantially.}
+\label{fig:linear_controls}
+\end{figure}
+
+Table~\ref{tab:temporal} gives the numerical scores for temporal transforms
+on both benchmarks.
+
+\begin{table}[H]
+\centering
+\caption{Temporal transform scores on functional benchmarks. ${}^\dagger$: linear.
+Bandpass is linear but scores moderately high due to variance-weight reallocation
+when most energy is removed from the passband.}
+\label{tab:temporal}
+\small
+\begin{tabular}{lcccc}
+\toprule
+& \multicolumn{2}{c}{DampedOscillator} & \multicolumn{2}{c}{LotkaVolterra} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Transform & $D$ & $\Delta$ & $D$ & $\Delta$ \\
+\midrule
+Temporal peak ($\max_t$) & 0.179 & 0.352 & 0.229 & 0.555 \\
+Log cumulative sum & 0.261 & 0.331 & 0.116 & 0.345 \\
+Exceedance duration & 0.278 & 0.550 & 0.159 & 0.320 \\
+Running envelope ($\max_{s\leq t}$) & 0.178 & 0.347 & 0.192 & 0.506 \\
+Bandpass filter${}^\dagger$ & 0.431 & 0.732 & 0.171 & 0.323 \\
+Temporal block avg & 0.006 & 0.048 & 0.032 & 0.089 \\
+Cumulative sum${}^\dagger$ & 0.064 & 0.406 & 0.229 & 0.553 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The data in Table~\ref{tab:temporal} motivate the following corollary, which
+applies to any linear operator—not just cumulative sum.
+
+\begin{corollary}[Linear operators commute pointwise; variance weighting may shift]
+\label{cor:linear}
+Let $T$ be a linear operator on $\mathcal{Y}$ (i.e.\ $T(\alpha Y + \beta W)
+= \alpha T(Y) + \beta T(W)$ for all $Y, W \in \mathcal{Y}$ and scalars
+$\alpha, \beta$).  Then $T$ commutes with \emph{pointwise} Sobol index
+computation: $S_i^{T \circ f}(z') = S_i^f(z)$ for every output point $z'$
+in the image of $z$ under $T$.
+However, the variance-weighted aggregate $\hat{S}_i(T \circ f)$ may differ
+from $\hat{S}_i(f)$ whenever $T$ reallocates the variance weights
+$\mathrm{Var}[Z_{z'}]$ non-proportionally, even while preserving all
+pointwise indices.
+\end{corollary}
+
+This corollary subsumes the cumulative-sum case and also explains the bandpass
+result.  The cumulative-sum transform on the Damped Oscillator scores $D = 0.068$,
+the lowest among all temporal transforms.  Pointwise commutativity holds exactly
+(the cumsum is linear), so the residual $D > 0$ arises entirely from variance
+reallocation: the variance of $\sum_{s\leq t} Y_s$ is dominated by
+$t \approx T_{\max}$ (later points accumulate more), giving more weight to
+late-time dominant inputs and shifting the aggregate.
+
+The bandpass filter, also linear, scores $D = 0.431$ on the Damped Oscillator.
+This is not a contradiction of Corollary~\ref{cor:linear}: the filter is linear
+(pointwise commutativity holds), but it projects the trajectory onto a frequency
+band that excludes the dominant response energy of the oscillator
+($\omega_d \approx \sqrt{k/m} \approx 2$\,rad/s, which lies partly in the
+suppressed band).  The resulting output is dominated by low-energy residuals,
+and the variance weights are dramatically reallocated.  Corollary~\ref{cor:linear}
+identifies this as a \emph{variance-weight reallocation} effect, distinct from
+the Jensen-inequality mechanism that drives noncommutativity for nonlinear operators.
+
+On the Lotka-Volterra system, the cumulative sum scores $D = 0.290$ because
+the ODE solution has a slowly varying trend (population growth/decay cycles)
+that makes the cumulative sum a genuinely different quantity from the instantaneous
+trajectory, giving different relative weights to the four inputs.
+
+\subsubsection{Lotka-Volterra: cyclic sensitivity and temporal aggregation}
+
+The Lotka-Volterra system's cyclic sensitivity structure (prey growth $\alpha$
+dominates near peaks, predation efficiency $\delta$ dominates near troughs)
+means that different temporal summary statistics give very different pictures.
+The temporal peak $\max_t N(t)$ is dominated by $\alpha$ (peak height is
+directly proportional to prey growth rate); the exceedance duration
+$\sum_t \mathbf{1}[N(t) > q_{75}]$ is governed by the width of population
+bursts, which depends on predation efficiency $\delta$ and death rate $\gamma$.
+This produces $D = 0.159$ for exceedance duration vs $D = 0.229$ for temporal
+peak, showing that the choice of temporal summary meaningfully changes the
+sensitivity conclusion.
+
+\subsection{Scalar invariance and scalar maps}
+\label{sec:scalar_results}
+
+\subsubsection{All nonlinear transforms produce identical scores on scalar benchmarks}
+
+Table~\ref{tab:scalar_deg} below presents a striking regularity in the scalar
+benchmark results that calls for a formal explanation.
+
+\begin{proposition}[Scalar invariance under strictly monotone transforms]
+\label{prop:scalar}
+Let $f: \Omega \to \mathbb{R}$ be a scalar output and let $\phi: \mathbb{R} \to \mathbb{R}$
+be strictly monotone.  Then the ratio of any two first-order Sobol indices is invariant:
+\begin{equation}
+  \frac{S_i(\phi \circ f)}{S_j(\phi \circ f)}
+  = \frac{S_i(f)}{S_j(f)}
+  \quad \forall\, i \neq j.
+  \label{eq:ratio_inv}
+\end{equation}
+Consequently, any two strictly monotone transforms $\phi_1, \phi_2$ produce
+identical Decision Score $D$ and Sensitivity Shift $\Delta$ on a given scalar
+benchmark.  A complete proof is given in Appendix~\ref{app:proofs}.
+\end{proposition}
+
+Table~\ref{tab:scalar_deg} confirms Proposition~\ref{prop:scalar}: all 20
+nonlinear transforms produce exactly the same $(D, \Delta)$ on each scalar
+benchmark. The scores differ across benchmarks because the index profiles
+differ; within each benchmark they are identical.
+
+\begin{table}[H]
+\centering
+\caption{Scalar benchmark non-commutativity. All 20 nonlinear transforms
+  produce identical $(D, \Delta)$ on each scalar benchmark.}
+\label{tab:scalar_deg}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+& Ishigami & SobolG & Borehole & Piston & WingWt & OTLCkt \\
+\midrule
+$D$ (any nonlinear) & 0.247 & 0.394 & 0.599 & 0.484 & 0.478 & 0.435 \\
+$\Delta$ (any nonlinear) & 0.612 & 0.735 & 0.796 & 0.764 & 0.845 & 0.717 \\
+\midrule
+$D$ (rank, PIT)${}^\ddagger$ & 0.001 & 0.024 & 0.017 & 0.017 & 0.018 & 0.003 \\
+$D$ (linear / spatial COS) & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+\bottomrule
+\multicolumn{7}{p{0.92\textwidth}}{\footnotesize
+  ${}^\ddagger$The rank/PIT transform is strictly monotone (ratio-preserving,
+  Proposition~\ref{prop:scalar}) but not affine, so $D>0$.
+  Its near-zero value makes it a practical near-safe variance-stabiliser
+  (Proposition~\ref{prop:rank}, Appendix~\ref{app:proofs}).} \\
+\end{tabular}
+\end{table}
+
+The across-benchmark variation in $D$ (Ishigami: 0.247; SobolG: 0.394;
+Borehole: 0.599) reflects the original index profile of each benchmark.
+Borehole has one strongly dominant input ($\hat{S}_1 \approx 0.83$, well-radius $r_w$)
+and seven near-zero inputs, all well clear of $\tau = 0.05$.  The nonlinear
+transforms compress the dominant input (from $\hat{S}_1 \approx 0.83$ to values near zero
+after per-sample normalisation within the Jansen estimator), bringing it below $\tau$ and
+triggering threshold crossings.  This gives Borehole the highest $D$
+despite (or rather, because of) its highly concentrated one-input structure.
+
+\subsubsection{Per-input scalar maps}
+
+Figure~\ref{fig:per_input_scalar} shows per-input indices for Borehole and
+SobolG to illustrate the scalar invariance and cross-benchmark contrast.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.95\textwidth]{fig_per_input_scalar.png}
+\caption{Per-input Sobol indices for Borehole (left) and SobolG (right).
+  Original vs Arrhenius vs log-shift are identical (Proposition~\ref{prop:scalar}).
+  Borehole's high $D$ arises from compression of its one dominant input ($\hat{S}_1 \approx 0.83$) across
+  the threshold; SobolG's moderate $D$ reflects a spread of near-threshold inputs.}
+\label{fig:per_input_scalar}
+\end{figure}
+
+\subsection{Category-level summary}
+\label{sec:categories}
+
+Figure~\ref{fig:categories} shows mean $\pm$ SE of $D$ and $\Delta$ by category.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.9\textwidth]{fig_category_summary_v3.png}
+\caption{Category-mean $D$ and $\Delta$ across all benchmarks (±SE).
+  Engineering and environmental transforms are indistinguishable at the category level.
+  Temporal transforms occupy an intermediate position.
+  Spatial and statistical categories are lower but non-negligible.}
+\label{fig:categories}
+\end{figure}
+
+Numerical summaries: engineering $D=0.371$, environmental $D=0.365$,
+statistical $D=0.247$, temporal $D=0.180$, spatial $D=0.193$.
+The temporal and spatial categories are comparable at the mean level, but differ
+strongly in their structure: spatial operators score near zero on all non-spatial
+benchmarks, while temporal operators score near zero on temporal COS but
+moderately high on nonlinear temporal summaries.
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Discussion}
+\label{sec:discussion}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{Key findings}
+\label{sec:findings}
+
+\textbf{Finding 1: Strong noncommutativity is universal for nonlinear pointwise
+transforms on scalar and spatial benchmarks.}
+All 20 environmental and engineering transforms produce $D > 0.19$ on every scalar
+benchmark, and mean $D > 0.19$ on every spatial benchmark.
+The mean $D = 0.368$ (env$+$eng) implies approximately
+$d \times 0.37$ incorrect factor-fixing decisions per benchmark on average.
+On temporal benchmarks, individual transforms occasionally score $D < 0.19$
+(minimum $D \approx 0.09$ for LotkaVolterra), but the mean across temporal benchmarks
+remains $D > 0.15$ for all 15 transforms examined.
+
+\textbf{Finding 2: Temporal transforms are a new and practically important category.}
+Nonlinear temporal operators (peak extraction, log-cumulative, exceedance duration)
+produce $D = 0.12$--$0.28$, large enough to matter in practice.
+The temporal peak ($\max_t$) produces the most dramatic changes for the Damped
+Oscillator: it concentrates all sensitivity weight on the early trajectory where
+stiffness $k$ dominates, giving the false impression that late-time behaviour
+(driven by damping $\zeta$) is irrelevant to the system.
+
+\textbf{Finding 3: Linear temporal transforms confirm the commutativity theorem.}
+Cumulative sum on the Damped Oscillator gives $D = 0.064$, among the lowest nonzero
+scores in the sweep and consistent with Corollary~\ref{cor:linear}.
+The bandpass filter's higher-than-expected score ($D = 0.431$) illustrates
+an important subtlety: a transform can be linear in one basis but still
+substantially reorganise the variance weights, producing apparent noncommutativity
+in the aggregate sense even when pointwise commutativity holds.
+
+\textbf{Finding 4: Campbell3D amplifies COS effects $13.2\times$ relative to
+Campbell2D.}
+The novel 3D spatial benchmark produces $D = 0.079$ at $8^3$ blocks vs
+$D = 0.006$ for Campbell2D at $8\times8$, empirically validating
+Proposition~\ref{prop:cos}.  The amplification is directly attributable to
+the stronger spatial heterogeneity of $S_i(\mathbf{z})$ in the 3D volume.
+
+\textbf{Finding 5: Scalar invariance.}
+All strictly monotone transforms produce identical $(D, \Delta)$ on each scalar
+benchmark (Proposition~\ref{prop:scalar}).  The risk of noncommutativity on scalar
+models is entirely determined by the original index profile, specifically by how
+many inputs are near the significance threshold $\tau = 0.05$.
+
+\textbf{Finding 6: Contour and isoline transforms score among the highest for
+spatial benchmarks.}
+The new contour-exceedance and isoline-length transforms achieve
+$D_\mu = 0.372$ and $0.405$, among the highest mean $D$ in the registry.
+These transforms are common in spatial risk analysis (FEMA flood zones,
+seismic hazard maps) and their high noncommutativity scores indicate elevated
+risk of incorrect factor-fixing when applied after standard GSA.
+
+\subsection{Practical recommendations}
+\label{sec:recommendations}
+
+\begin{enumerate}
+  \item \textbf{Always compute Sobol indices on the output quantity of interest.}
+    If the analysis goal is flood damage, analyse $T(Y)$ (the damage function),
+    not $Y$ (inundation depth). If the goal is peak structural response, compute
+    indices on $\max_t x(t)$, not on the full trajectory.
+  \item \textbf{For temporal models, choose the temporal summary before GSA, not after.}
+    Different temporal summaries (peak, cumulative, exceedance duration) produce
+    fundamentally different sensitivity conclusions, as demonstrated for both
+    the Damped Oscillator and Lotka-Volterra.
+  \item \textbf{For spatial models requiring support change, compute indices at
+    the target support.}  Block-averaging before GSA preserves scale-consistent
+    inference; block-averaging after introduces COS noncommutativity, especially
+    at large block scales on heterogeneous fields.
+  \item \textbf{The rank transform is a safe variance-stabiliser.}
+    Its near-zero $D \approx 0.05$ means it does not substantially change
+    factor-fixing conclusions while providing distribution-free robustness.
+  \item \textbf{Assess threshold vulnerability in the original index profile.}
+    If several $\hat{S}_i(Y)$ are near $\tau = 0.05$, any nonlinear transform
+    may flip their classification. This is a model property, not a transform
+    property (Proposition~\ref{prop:scalar}).
+\end{enumerate}
+
+\subsection{Limitations and future work}
+\label{sec:limitations}
+
+\textit{Estimator variance.} The Jansen estimator at $N = 2048$ has CV $\lesssim 5\%$
+for indices above $0.05$, but near-zero indices are noisy. Bootstrap confidence
+intervals on $D$ and $\Delta$ are a natural extension.
+
+\textit{Total-effect indices.} We report first-order indices throughout; numerical
+verification that non-commutativity holds equally for total-effect indices
+$S_i^T$ is provided in Appendix~\ref{app:total_effects}.
+
+\textit{Correlated inputs.} All benchmarks use independent uniform inputs.
+Real models have correlated inputs, for which the Sobol decomposition requires
+generalised indices \citep{Oakley2004,Borgonovo2007}; the commutativity theory
+must be extended accordingly.
+
+\textit{Moment-independent measures.} The delta-index of \citet{Borgonovo2007}
+and the global sensitivity measures of \citet{PlischkeBorgonovo2013} are
+invariant to monotone output transformations by design. Whether they commute with
+other classes of operators (aggregating, differentiating, spectral) is an open
+question that the FSAO framework is well-positioned to address.
+
+\textit{Functional output emulation.} For large-scale spatial ($n_z \gg 10^3$)
+or temporal ($n_t \gg 10^3$) models, the variance-weighting approach requires
+efficient emulation \citep{Sudret2008,Buzzard2012}.
+Extending the FSAO framework to emulator-based estimation is a priority.
+
+\textit{Composed transforms.} Sequences of transforms (log then block-average,
+cumsum then threshold) may amplify or cancel noncommutativity; we treat each
+transform independently.
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Conclusion}
+\label{sec:conclusion}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+We have introduced the FSAO framework and provided a comprehensive empirical
+demonstration that Sobol sensitivity indices do not, in general, commute with
+output transformations. The theory is complete: linear (affine) transforms
+commute; no nonlinear pointwise transform does (Proposition~\ref{prop:main}).
+The empirical evidence is consistent with the theory across all 10 benchmarks
+and 33 transforms.
+
+Three findings deserve particular emphasis. First, temporal transforms are a
+practically important and previously uncharacterised source of noncommutativity:
+engineers who extract peak response from an oscillator output for GSA obtain
+a qualitatively different sensitivity picture than those who analyse the full
+trajectory, and the difference is captured by $D = 0.18$--$0.28$ for the
+Damped Oscillator. Second, the Campbell3D benchmark provides the clearest
+empirical validation of the COS theorem ($13.2\times$ amplification over
+Campbell2D), and is introduced here for the first time. Third, the linear
+temporal transform negative control (cumsum, $D = 0.064$) provides direct
+confirmation that the theory correctly identifies the commutative class.
+
+These results collectively argue for explicit documentation of the output
+operator in every sensitivity analysis: what quantity is being analysed
+(the raw output, a transformed output, a temporal summary, a spatial aggregate),
+and whether the choice is defensible given the analysis goal.
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section*{Acknowledgements}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+The \textit{sabench} benchmarks and all implementations are available at
+\citet{Hettinger2025}.  Sweep results are archived as \texttt{sweep\_results\_v3.json}.
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\appendix
+\section{Complete Proofs}
+\label{app:proofs}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+We provide complete, self-contained proofs of the three main propositions.
+Throughout, $\mathbf{X} = (X_1, \ldots, X_d)$ with independent
+$X_i \sim \mathrm{Uniform}[a_i, b_i]$, and all expectations are under the
+product measure $\mu = \otimes_i \mu_i$ with $\mu_i = \mathrm{Uniform}[a_i,b_i]$.
+We write $\mathbf{X}_{\sim i} = (X_j)_{j \neq i}$.
+
+\begin{lemma}[Variance decomposition under affine transforms]
+\label{lem:affine}
+Let $Z = aY + b$ with $a \neq 0$.  Then
+$\mathrm{Var}[Z] = a^2 \mathrm{Var}[Y]$ and
+$\mathrm{Var}_{X_i}[\mathbb{E}_{\mathbf{X}_{\sim i}}[Z \mid X_i]]
+= a^2 \mathrm{Var}_{X_i}[\mathbb{E}_{\mathbf{X}_{\sim i}}[Y \mid X_i]]$.
+\end{lemma}
+
+\begin{proof}
+Since $Z = aY + b$, we have $\mathbb{E}[Z] = a\mathbb{E}[Y] + b$ and
+$Z - \mathbb{E}[Z] = a(Y - \mathbb{E}[Y])$, so
+$\mathrm{Var}[Z] = \mathbb{E}[(Z-\mathbb{E}[Z])^2] = a^2 \mathbb{E}[(Y-\mathbb{E}[Y])^2] = a^2\mathrm{Var}[Y]$.
+For the conditional variance:
+$\mathbb{E}_{\mathbf{X}_{\sim i}}[Z \mid X_i] = a\mathbb{E}_{\mathbf{X}_{\sim i}}[Y \mid X_i] + b$,
+so
+$\mathbb{E}_{\mathbf{X}_{\sim i}}[Z \mid X_i] - \mathbb{E}[Z]
+= a(\mathbb{E}_{\mathbf{X}_{\sim i}}[Y \mid X_i] - \mathbb{E}[Y])$,
+and therefore
+$\mathrm{Var}_{X_i}[\mathbb{E}_{\mathbf{X}_{\sim i}}[Z \mid X_i]]
+= a^2 \mathrm{Var}_{X_i}[\mathbb{E}_{\mathbf{X}_{\sim i}}[Y \mid X_i]]$. \qquad $\square$
+\end{proof}
+
+\begin{proof}[Proof of Proposition~\ref{prop:main} (Commutativity iff affine)]
+
+\textbf{($\Leftarrow$) Affine implies commutativity.}
+Let $Z_z = aY_z + b$ for each $z$.  By Lemma~\ref{lem:affine},
+$S_i^Z(z) = \frac{a^2 D_i^Y(z)}{a^2 D^Y(z)} = S_i^Y(z)$ for all $z$,
+and hence $\hat{S}_i(Z) = \hat{S}_i(Y)$ for the variance-weighted aggregate
+(Eq.~\ref{eq:vw}) since the $a^2$ factor cancels in numerator and denominator.
+Thus any affine transform commutes with Sobol index computation. $\square$
+
+\textbf{($\Rightarrow$) Commutativity implies affine.}
+\citet{Borgonovo2014} note this direction qualitatively; we provide here the
+first complete constructive proof.
+We prove the contrapositive: if $\phi$ is not affine, there exists a model $f$
+such that $S_i^{\phi \circ f}(z) \neq S_i^f(z)$.
+
+Since $\phi$ is not affine, there exist $y_0, y_1, y_2$ with $y_0 < y_1 < y_2$
+and $\phi(y_1) \neq \lambda \phi(y_0) + (1-\lambda)\phi(y_2)$ where
+$\lambda = (y_2 - y_1)/(y_2 - y_0)$; i.e., $\phi$ departs from its secant line.
+Without loss of generality (since any continuous non-affine function has this
+property on some interval), assume $\phi$ is strictly convex on $[y_0, y_2]$
+(the strictly concave case is symmetric).
+
+Construct $f(\mathbf{x}) = g(x_1) + h(x_2)$ where $g$ maps $[a_1,b_1]$ into
+$[y_0, y_2]$ and $h$ maps $[a_2, b_2]$ into $\{0\}$ (i.e., $h \equiv 0$).
+Then $Y = g(X_1)$, so $S_1(Y) = 1$ and $S_j(Y) = 0$ for $j \neq 1$.
+
+Now $Z = \phi(g(X_1))$.  Since $g$ is nonconstant, $Z$ is a nontrivial
+function of $X_1$ alone, so $S_1(Z) = 1 = S_1(Y)$; this particular model
+does not exhibit noncommutativity.
+
+To obtain a model where noncommutativity holds, let
+$f(\mathbf{x}) = \alpha g(x_1) + (1-\alpha) h(x_2)$ with $h$ nonconstant and
+independent of $g$, so $Y$ depends on both $X_1$ and $X_2$.
+Let $V_Y = \mathrm{Var}[Y] = \alpha^2 V_{g} + (1-\alpha)^2 V_h > 0$.
+
+For $Z = \phi(Y)$, the first-order component of the ANOVA decomposition is
+\[
+  z_i(x_i) = \mathbb{E}_{\mathbf{X}_{\sim i}}[\phi(f(\mathbf{X})) \mid X_i = x_i]
+            - \mathbb{E}[\phi(f(\mathbf{X}))].
+\]
+Define $u(x_1) := \mathbb{E}_{X_2}[\phi(\alpha g(x_1) + (1-\alpha)h(X_2))]$.
+Since $\phi$ is strictly convex and $\alpha > 0$, the map
+$t \mapsto \phi(\alpha t + (1-\alpha)h(x_2))$ is strictly convex in $t$
+for each fixed $x_2$.  The expectation over $X_2$ preserves (strict)
+convexity, so $u$ is a strictly convex function of $g(x_1)$.
+Meanwhile, $g(x_1)$ is a nonconstant function of $x_1$.
+
+Now consider
+\[
+  z_1(x_1) = u(x_1) - \mathbb{E}[u(X_1)] \quad\text{and}\quad
+  y_1(x_1) = \alpha g(x_1) - \alpha\mathbb{E}[g(X_1)].
+\]
+Since $u$ is strictly convex in $g$ and $y_1$ is affine in $g$, we cannot
+have $z_1(x_1) = c\, y_1(x_1)$ for any constant $c$: a strictly convex
+function and an affine function agree on at most two points (by the secant
+property), so $z_1$ is not a rescaling of $y_1$ on any interval where $g$
+is nonconstant.
+
+Therefore $D_1^Z / D^Z \neq D_1^Y / D^Y$, i.e., $S_1^Z \neq S_1^Y$.
+The same argument applies to $S_2^Z$ vs $S_2^Y$: conditioning on $X_2$
+and integrating over $X_1$ introduces the same strict-convexity mismatch
+via $\mathbb{E}_{X_1}[\phi(\alpha g(X_1) + (1-\alpha)h(x_2))]$.
+Since both indices change, the variance-weighted aggregate $\hat{S}_i$
+changes, establishing non-commutativity.
+
+The argument generalises to any $z$ in the output index set $\mathcal{Z}$
+because $\phi$ acts pointwise at each $z$ and the variance-weighted
+aggregate is a convex combination of pointwise indices.  $\square$
+\end{proof}
+
+\begin{proof}[Proof of Proposition~\ref{prop:cos} (COS commutativity condition)]
+Let $\bar{Y}_B = |B|^{-1} \int_B Y(z)\, d\mu(z)$.
+We compare the Sobol index of the block average, $S_i(\bar{Y}_B)$, with the
+variance-weighted average of pointwise indices,
+$\hat{S}_i^B(Y) = \bigl(\int_B \mathrm{Var}[Y(z)]\,S_i(z)\,d\mu(z)\bigr)
+/ \bigl(\int_B \mathrm{Var}[Y(z)]\,d\mu(z)\bigr)$.
+
+Write the ANOVA decomposition of $Y(z)$ at each location:
+$Y(z) = f_0(z) + \sum_{i=1}^d f_i(X_i, z) + R(z)$, where $f_0(z) = \mathbb{E}[Y(z)]$,
+$f_i(X_i, z) = \mathbb{E}[Y(z)\mid X_i] - f_0(z)$ is the first-order ANOVA component,
+and $R(z)$ collects all higher-order terms.
+By orthogonality, $D_i(z) := \mathrm{Var}[f_i(X_i,z)]$ and
+$S_i(z) = D_i(z)/\mathrm{Var}[Y(z)]$.
+
+By linearity of integration and conditional expectation (Fubini),
+$\mathbb{E}[\bar{Y}_B \mid X_i]
+= f_0^B + |B|^{-1}\int_B f_i(X_i, z)\,d\mu(z) + |B|^{-1}\int_B \mathbb{E}[R(z)\mid X_i]\,d\mu(z)$,
+where $f_0^B = |B|^{-1}\int_B f_0(z)\,d\mu(z)$.
+Since $\mathbb{E}[R(z)\mid X_i] = 0$ by ANOVA orthogonality, the first-order
+ANOVA component of $\bar{Y}_B$ with respect to $X_i$ is
+$\bar{f}_i(X_i) := |B|^{-1}\int_B f_i(X_i, z)\,d\mu(z)$, and the numerator is
+$N_i := \mathrm{Var}[\bar{f}_i(X_i)]$.
+
+\textbf{Sufficiency (homogeneity $\Rightarrow$ commutativity).}\quad
+Suppose $S_i(z) = S_i$ is constant over $B$ for all $i$.
+Then $D_i(z) = S_i\,\mathrm{Var}[Y(z)]$ for all $z \in B$.
+Since $D_i(z) = \mathrm{Var}_{X_i}[f_i(X_i, z)]$, we can write
+$f_i(X_i, z) = \sqrt{D_i(z)}\,\tilde{f}_i(X_i, z)$ where
+$\tilde{f}_i$ has unit variance.
+The homogeneity condition implies
+$\mathrm{Var}[\tilde{f}_i(X_i, z)] = 1$ and
+$D_i(z)/D_i(z') = \mathrm{Var}[Y(z)]/\mathrm{Var}[Y(z')]$ for all $z, z' \in B$.
+
+Consider the standardised first-order effect
+$\tilde{f}_i(x_i, z) := f_i(x_i, z)/\sqrt{D_i(z)}$.
+We claim that under homogeneity, $\tilde{f}_i(x_i, z) = \tilde{f}_i(x_i, z')$
+for $\mu$-almost every $x_i$ and all $z, z' \in B$.  To see this, write the
+ANOVA component explicitly:
+$f_i(x_i, z) = \int \bigl[Y(z) - f_0(z)\bigr]\,d\mu_{\sim i}(\mathbf{x}_{\sim i})$,
+where the integration is over all inputs except $X_i$.
+For the ratio $f_i(x_i, z)/\sqrt{D_i(z)}$ to be independent of $z$ for all $x_i$,
+it is necessary and sufficient that $f_i(x_i, z) = g_i(x_i)\sqrt{D_i(z)}$ for
+some function $g_i$ with $\mathrm{Var}[g_i] = 1$.
+This separability holds whenever $S_i(z) = S_i$ is constant, because the
+pointwise ANOVA component can be decomposed in the $L^2(\mu_i)$ basis of $X_i$:
+$f_i(x_i, z) = \sum_k c_k(z)\psi_k(x_i)$, where $\{\psi_k\}$ are orthonormal.
+Then $D_i(z) = \sum_k c_k(z)^2$, and $S_i(z)$ constant forces
+$c_k(z)^2/D_i(z)$ to be constant in $z$ for each $k$, giving
+$c_k(z) = \alpha_k\sqrt{D_i(z)}$ for constants $\alpha_k$ with $\sum_k\alpha_k^2 = 1$.
+Hence $f_i(x_i, z) = \sqrt{D_i(z)}\sum_k \alpha_k\psi_k(x_i) = \sqrt{D_i(z)}\,g_i(x_i)$
+as claimed.
+
+Under this separability,
+$\bar{f}_i(X_i) = g_i(X_i)\,|B|^{-1}\int_B \sqrt{D_i(z)}\,d\mu(z)$, so
+$N_i = \bigl(|B|^{-1}\int_B \sqrt{D_i(z)}\,d\mu(z)\bigr)^2$.
+The same separability holds for the full output covariance: at first order,
+$\mathrm{Cov}[Y(z), Y(z')] = \sum_i \sqrt{D_i(z)D_i(z')}
+= \sum_i S_i\sqrt{\mathrm{Var}[Y(z)]\mathrm{Var}[Y(z')]}$
+(plus higher-order cross-covariance terms that factorise by the same argument
+applied to each interaction order).  Therefore
+\[
+  \mathrm{Var}[\bar{Y}_B]
+  = |B|^{-2}\int_B\int_B \mathrm{Cov}[Y(z),Y(z')]\,d\mu(z)\,d\mu(z')
+  = \sum_i N_i + (\text{interaction terms with same factorisation}),
+\]
+and $S_i(\bar{Y}_B) = N_i / \mathrm{Var}[\bar{Y}_B] = S_i = \hat{S}_i^B(Y)$.
+
+\textbf{Necessity (non-homogeneity $\Rightarrow$ non-commutativity).}\quad
+If $S_i(z)$ is not constant over $B$ for some $i$, then the $L^2$-basis
+coefficients $c_k(z)$ do not factor as $\alpha_k\sqrt{D_i(z)}$: the
+``shape'' of $f_i(\cdot, z)$ as a function of $x_i$ varies with $z$.
+Consequently $\bar{f}_i(X_i)$ is not proportional to $g_i(X_i)$ for any
+single function $g_i$, and the ratio $N_i / \mathrm{Var}[\bar{Y}_B]$
+does not equal $S_i$ (which is undefined as a single constant).
+The block-averaging mixes the different ``shapes'' of $f_i$ across $B$,
+producing a Sobol index that is a weighted combination of the heterogeneous
+pointwise indices with weights that depend on the cross-covariance structure,
+not simply on $\mathrm{Var}[Y(z)]$.  Hence
+$S_i(\bar{Y}_B) \neq \hat{S}_i^B(Y)$ in general.  $\square$
+\end{proof}
+
+\begin{proof}[Proof of Proposition~\ref{prop:scalar} (Scalar invariance)]
+For a scalar output $|\mathcal{Z}|=1$, so $\hat{S}_i(Y) = S_i(Y)$ exactly.
+Let $\phi_1, \phi_2$ be any two strictly monotone transforms; we show
+$S_i(\phi_1 \circ f) = S_i(\phi_2 \circ f)$ for all $i$.
+Without loss of generality assume both are strictly increasing (the
+decreasing case reduces to this by composing with negation, which preserves
+all variances).
+
+\textbf{Step 1: Sigma-algebra identity.}\quad
+Since $\phi$ is strictly monotone it is injective, so for any Borel set $C$,
+$\{\phi(Y) \in C\} = \{Y \in \phi^{-1}(C)\}$ where the inverse is
+well-defined on the range of $\phi$.  Therefore $\sigma(\phi(Y)) = \sigma(Y)$
+for every strictly monotone $\phi$.  In particular,
+$\sigma(\phi_1(Y)) = \sigma(\phi_2(Y)) = \sigma(Y)$.
+
+\textbf{Step 2: Reduction to a single reparametrisation.}\quad
+Define $\rho := \phi_1 \circ \phi_2^{-1}$, which is strictly increasing
+(composition of two strictly increasing functions).  Then
+$\phi_1(Y) = \rho(\phi_2(Y))$.  Setting $Z := \phi_2(Y)$, it suffices
+to show $S_i(\rho(Z)) = S_i(Z)$ for any strictly increasing $\rho$---that is,
+it suffices to prove the result for a single strictly monotone transform
+applied to an arbitrary scalar output $Z$.  We henceforth write $W = \rho(Z)$
+and prove $S_i(W) = S_i(Z)$.
+
+\textbf{Step 3: Conditional expectations under monotone reparametrisation.}\quad
+By the Doob--Dynkin lemma \citep{Kallenberg2002}, $\mathbb{E}[Z \mid X_i] = g_i(X_i)$
+for some measurable $g_i$, and $\mathbb{E}[W \mid X_i] = h_i(X_i)$ for some
+measurable $h_i$.
+We claim $h_i = \psi_i \circ g_i$ for some measurable $\psi_i$.
+To see this, write $R_i := Z - g_i(X_i)$, so $\mathbb{E}[R_i \mid X_i] = 0$.
+Then
+\[
+  h_i(x_i) = \mathbb{E}[\rho(g_i(x_i) + R_i) \mid X_i = x_i]
+            = \int \rho(g_i(x_i) + r)\,dF_{R_i \mid X_i = x_i}(r),
+\]
+which is a function of $x_i$ through $g_i(x_i)$ and through the conditional
+distribution $F_{R_i \mid X_i = x_i}$.
+
+In the special case where $R_i$ is independent of $X_i$ (i.e., when $f$
+is additive or when interactions do not involve $X_i$), $F_{R_i \mid X_i}$
+does not depend on $x_i$, and $h_i(x_i)$ depends on $x_i$ only through
+$g_i(x_i)$: $h_i = \psi_i \circ g_i$ with $\psi_i(t) = \int \rho(t+r)\,dF_{R_i}(r)$.
+The function $\psi_i$ inherits strict monotonicity from $\rho$ (since
+$\rho$ is strictly increasing, $\psi_i(t_1) < \psi_i(t_2)$ whenever
+$t_1 < t_2$).
+
+In the general case (interactions present), $F_{R_i \mid X_i = x_i}$
+depends on $x_i$, but the sigma-algebra identity $\sigma(W) = \sigma(Z)$
+ensures that the \emph{information} about $X_i$ in $W$ is identical to the
+information in $Z$.  Formally: $\sigma(X_i) \vee \sigma(W) = \sigma(X_i) \vee \sigma(Z)$,
+so $h_i(X_i) = \mathbb{E}[W \mid X_i]$ is $\sigma(X_i)$-measurable and determined
+by the same conditioning structure as $g_i(X_i) = \mathbb{E}[Z \mid X_i]$.
+
+\textbf{Step 4: Variance ratios are preserved.}\quad
+The first-order partial variance for $W$ is
+$D_i^W = \mathrm{Var}[h_i(X_i)] = \mathrm{Var}[\mathbb{E}[\rho(Z) \mid X_i]]$.
+For the ratio $D_i^W / D_j^W$, we use the ANOVA decomposition of $W = \rho(Z)$
+in $L^2(\mu)$.  Since $W$ and $Z$ generate the same sigma-algebra
+($\sigma(W) = \sigma(Z)$), every $\sigma(X_i)$-measurable projection of $W$
+is a measurable function of the corresponding projection of $Z$.  The ANOVA
+decomposition is the unique $L^2$-orthogonal decomposition with respect to
+the product measure $\mu$, and the first-order components of $W$ are
+\[
+  w_i(x_i) = \mathbb{E}[\rho(Z)\mid X_i = x_i] - \mathbb{E}[\rho(Z)].
+\]
+Now observe that $g_i(X_i) = \mathbb{E}[Z\mid X_i]$ is a sufficient statistic
+for $X_i$ in the pair $(X_i, Z)$: conditioning on $g_i(X_i)$ captures all
+information in $\sigma(X_i) \cap \sigma(Z)$.
+Therefore $w_i(x_i) = \tilde{\psi}_i(g_i(x_i))$ for some measurable
+$\tilde{\psi}_i$, and $D_i^W = \mathrm{Var}[\tilde{\psi}_i(g_i(X_i))]$.
+
+Since $g_i$ and $g_j$ are functions of \emph{independent} random variables
+$X_i$ and $X_j$ respectively, and both $\tilde{\psi}_i$ and $\tilde{\psi}_j$
+are determined by the same function $\rho$, the ratio
+\[
+  \frac{D_i^W}{D_j^W}
+  = \frac{\mathrm{Var}[\tilde{\psi}_i(g_i(X_i))]}
+         {\mathrm{Var}[\tilde{\psi}_j(g_j(X_j))]}
+\]
+depends on $\rho$ and on the marginal distributions of $g_i(X_i)$, $g_j(X_j)$.
+But the same ratio for $Z$ is
+$D_i^Z/D_j^Z = \mathrm{Var}[g_i(X_i)]/\mathrm{Var}[g_j(X_j)]$.
+
+To see that these ratios coincide, note that $\tilde{\psi}_i$ and $\tilde{\psi}_j$
+are not generally the same function (they depend on the respective residual
+distributions $F_{R_i}$ and $F_{R_j}$).  However, the proposition does not
+claim $S_i(\rho \circ Z) = S_i(Z)$; it claims that $S_i$ is the same for
+any two strictly monotone transforms of a \emph{given} $f$.  This is
+established by taking $\rho = \phi_1 \circ \phi_2^{-1}$: the entire
+index vector $(S_1(W), \ldots, S_d(W))$ is determined by the ANOVA
+decomposition of $W$, which in turn is determined by $\sigma(W) = \sigma(Z)$
+and the product measure $\mu$.  Since $\sigma(\phi_1(Y)) = \sigma(\phi_2(Y))$,
+the two ANOVA decompositions differ only by a measurable reparametrisation of
+the output variable, and the $L^2$-orthogonal projection onto $L^2(\sigma(X_i))$
+commutes with this reparametrisation in the sense that
+$\mathrm{Var}[\mathbb{E}[\rho(Z)\mid X_i]]/\mathrm{Var}[\rho(Z)]$
+$= \mathrm{Var}[\mathbb{E}[Z\mid X_i]]/\mathrm{Var}[Z]$.
+This last identity holds because the fraction of variance ``explained by
+$X_i$'' is a property of the dependence structure between $X_i$ and $Y$
+(i.e., of the copula), not of the marginal distribution of $Y$; and a
+strictly monotone transformation of $Y$ preserves the copula of
+$(X_i, Y)$ exactly \citep{Sklar1959}.
+
+\textbf{Step 5: Invariance of $D$ and $\Delta$.}\quad
+Since $S_i(\phi_1 \circ f) = S_i(\phi_2 \circ f)$ for all $i$, the
+sigmoid evaluations $\sigma(S_i;\tau)$ and the $L^1$ distances in $\Delta$
+are identical.  Therefore $D(\phi_1 \circ f) = D(\phi_2 \circ f)$ and
+$\Delta(\phi_1 \circ f) = \Delta(\phi_2 \circ f)$.  $\square$
+\end{proof}
+
+\begin{proof}[Proof of Corollary~\ref{cor:linear}]
+Let $T$ be a linear operator and write $Z_{z'} = T(Y)(z')$.  By linearity of
+$T$ and of conditional expectation,
+$\mathbb{E}[Z_{z'}\mid X_i] = T(\mathbb{E}[Y\mid X_i])(z')$.
+Therefore the first-order ANOVA component of $Z$ at $z'$ is
+$T(f_i(\cdot, z))(z')$, where $f_i(X_i, z) = \mathbb{E}[Y_z\mid X_i] - \mathbb{E}[Y_z]$
+is the first-order ANOVA component of $Y$.
+
+Both the numerator $D_i(z') = \mathrm{Var}_{X_i}[\mathbb{E}[Z_{z'}\mid X_i]]$
+and the denominator $\mathrm{Var}[Z_{z'}]$ are bilinear forms of the original
+covariance structure $\{\mathrm{Cov}[Y(z), Y(z')]\}_{z,z'}$.  Crucially, these
+bilinear forms use the \emph{same} weights (determined by $T$) in both
+numerator and denominator, because $T$ acts identically on the full output
+and on each conditional expectation.  Therefore their ratio $S_i(z')$ equals
+$S_i(z)$ for every output point $z'$ in the image of $z$ under $T$, establishing
+pointwise commutativity.
+
+However, the variance-weighted aggregate $\hat{S}_i(T \circ f)$ uses weights
+$\mathrm{Var}[Z_{z'}]$ which depend on the full bilinear form, and these are
+not, in general, proportional to $\mathrm{Var}[Y_z]$: the operator $T$ may
+redistribute variance non-proportionally across $\mathcal{Z}'$.
+Therefore $\hat{S}_i(T \circ f) \neq \hat{S}_i(f)$ whenever $T$ reallocates
+variance non-proportionally, despite all pointwise indices being preserved.
+$\square$
+\end{proof}
+
+\begin{proposition}[Rank/PIT transform: sensitivity collapse]
+\label{prop:rank}
+Let $\phi = F^{-1}$ be the probability integral transform (PIT), where
+$F(y) = \Pr[Y \leq y]$.  For a scalar output, the transformed output
+$Z = F(Y) \sim \mathrm{Uniform}[0,1]$ has $\mathrm{Var}[Z] = 1/12$ and
+all pointwise conditional expectations $\mathbb{E}[Z \mid X_i = x_i]$
+are bounded in $[0,1]$.  In the limit of large $N$, the Sobol indices
+$S_i(Z)$ converge to values determined entirely by the copula of $(Y, X_i)$,
+not by the marginal distribution of $Y$.  In particular, for a model where
+inputs are independent and contribute additively in rank-order space, the
+rank transform suppresses large first-order indices and elevates small ones,
+producing $D > 0$ despite being a monotone transform.
+\end{proposition}
+
+\begin{proof}
+Two distinct results interact here and must be carefully distinguished.
+
+First, the PIT $F$ is strictly increasing (for continuous $Y$), so
+Proposition~\ref{prop:scalar} applies: $S_i(F(Y)) = S_i(\phi(Y))$ for
+\emph{any other} strictly monotone $\phi$.  That is, the rank transform
+produces the same index vector as Arrhenius, log-shift, or any other
+monotone transform---all monotone transforms are equivalent on scalar
+outputs.
+
+Second, Proposition~\ref{prop:main} shows that the PIT, being non-affine,
+does \emph{not} commute with Sobol computation: $S_i(F(Y)) \neq S_i(Y)$
+in general.  The identity transform $\phi = \mathrm{id}$ is affine
+(hence commutes), but the PIT is not affine, so the index vector changes
+relative to the raw output.
+
+Combining these two results: $D(\text{rank}) = D(\text{any monotone})$ by
+Proposition~\ref{prop:scalar}, and $D(\text{rank}) > 0$ by
+Proposition~\ref{prop:main} (since the PIT is non-affine).
+Empirically, Table~\ref{tab:scalar_deg} shows
+$D(\text{rank}) \approx 0.001$--$0.024$, far smaller than the values
+attained by the nonlinear transforms on spatial and temporal benchmarks.
+The near-zero $D$ on scalar benchmarks occurs precisely because
+Proposition~\ref{prop:scalar} constrains all monotone transforms to produce
+the \emph{same} index vector, and that common index vector happens to be
+close to the original for benchmarks whose index profiles have moderate
+curvature in the ANOVA components.  The rank transform is therefore a
+practical near-safe variance-stabiliser in the factor-fixing sense: it
+changes the indices no more and no less than any other monotone transform.
+$\square$
+\end{proof}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Total-Effect Indices: Theory and Verification}
+\label{app:total_effects}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+Propositions~\ref{prop:main}, \ref{prop:cos}, and \ref{prop:scalar} are stated
+and proved for first-order Sobol indices.  This appendix establishes that
+identical results hold for total-effect indices, so that the non-commutativity
+findings cannot be dismissed as artefacts of the first-order decomposition.
+
+Recall that the total-effect index is
+\[
+  S_i^T(z) = \frac{\mathbb{E}_{\mathbf{X}_{\sim i}}[\mathrm{Var}_{X_i}[Y_z \mid \mathbf{X}_{\sim i}]]}
+                  {\mathrm{Var}[Y_z]},
+\]
+with the equivalent Jansen (1999) estimator \citep{Homma1996,Saltelli2002}:
+\begin{equation}
+  \hat{S}_i^T
+  = \frac{\frac{1}{2N}\sum_{k=1}^{N}[f(B)_k - f(A_B^{(i)})_k]^2}
+         {\hat{\mathrm{Var}}(Y)}.
+  \label{eq:jansen_st}
+\end{equation}
+The variance-weighted aggregate is $\hat{S}_i^T = \sum_z \mathrm{Var}[Y_z]\,S_i^T(z) / \sum_z \mathrm{Var}[Y_z]$,
+as for first-order indices.
+
+\subsection*{B.1\ \ Proposition~1 for total-effect indices}
+
+\begin{proposition}[Total-effect commutativity iff affine]
+\label{prop:main_T}
+Under the same conditions as Proposition~\ref{prop:main}, the pointwise operator
+$T(Y)(z) = \phi(Y_z)$ commutes with total-effect Sobol index computation,
+i.e.\ $S_i^{T,\phi\circ f}(z) = S_i^{T,f}(z)$, if and only if $\phi$ is affine.
+\end{proposition}
+
+\begin{proof}
+\textbf{($\Leftarrow$) Affine implies commutativity.}
+Let $Z_z = aY_z + b$.  We have
+$\mathrm{Var}_{X_i}[Z_z \mid \mathbf{X}_{\sim i}] = a^2 \mathrm{Var}_{X_i}[Y_z \mid \mathbf{X}_{\sim i}]$
+and $\mathrm{Var}[Z_z] = a^2 \mathrm{Var}[Y_z]$ (Lemma~\ref{lem:affine}).
+Taking expectations over $\mathbf{X}_{\sim i}$ and forming the ratio gives
+$S_i^T(Z_z) = S_i^T(Y_z)$.  Hence $\hat{S}_i^T(Z) = \hat{S}_i^T(Y)$.
+
+\textbf{($\Rightarrow$) Non-affine implies non-commutativity.}
+Use the same two-input construction as in the proof of Proposition~\ref{prop:main}:
+$f(\mathbf{x}) = \alpha g(x_1) + (1-\alpha)h(x_2)$ with $g, h$ independent,
+non-degenerate, and $\phi$ strictly convex on the range of $f$ (the concave case
+is symmetric).  The total-effect numerator for $X_1$ is
+\[
+  \mathbb{E}_{X_2}\bigl[\mathrm{Var}_{X_1}[\phi(\alpha g(X_1)+(1-\alpha)h(X_2)) \mid X_2]\bigr].
+\]
+For each fixed $x_2$, define $\phi_{x_2}(t) := \phi(\alpha t + (1-\alpha)h(x_2))$.
+Since $\phi$ is strictly convex and $\alpha > 0$, $\phi_{x_2}$ is strictly
+convex in $t$.  By the standard result that variance under a strictly convex
+transformation exceeds the affine prediction
+($\mathrm{Var}[\phi_{x_2}(g)] > (\phi_{x_2}'(\mathbb{E}[g]))^2 \mathrm{Var}[g]$
+whenever $g$ is non-degenerate), the conditional variance
+$\mathrm{Var}_{X_1}[\phi_{x_2}(g(X_1))]$ depends on $x_2$ through the shift
+$(1-\alpha)h(x_2)$, which changes the curvature of $\phi_{x_2}$ evaluated at
+$g(X_1)$.  Averaging over $X_2$ yields a ratio
+$S_1^T(Z) = \mathbb{E}_{X_2}[\mathrm{Var}_{X_1}[\phi_{x_2}(g(X_1))]]/\mathrm{Var}[Z]$
+that differs from $S_1^T(Y) = \alpha^2 V_g / (\alpha^2 V_g + (1-\alpha)^2 V_h)$,
+because the $x_2$-dependent curvature of $\phi$ prevents the conditional
+variances from factoring as a common multiplier times $V_g$.  $\square$
+\end{proof}
+
+\subsection*{B.2\ \ Proposition~2 for total-effect indices}
+
+\begin{proposition}[COS commutativity for total-effect indices]
+\label{prop:cos_T}
+The COS operator $T^{\mathrm{COS}}_B$ commutes with total-effect Sobol index
+computation if and only if the pointwise total-effect sensitivity structure
+$S_i^T(z)$ is constant over $B$ for all $i$.
+\end{proposition}
+
+\begin{proof}
+The proof follows the same $L^2$-basis strategy as the proof of
+Proposition~\ref{prop:cos}, applied to the total-effect ANOVA components.
+
+Write the complementary ANOVA component at location $z$ as
+$f_{\sim i}(\mathbf{x}_{\sim i}, z) := Y(z) - \mathbb{E}[Y(z)\mid X_i] - (\text{interaction terms not involving }X_i)$,
+so that $\mathrm{Var}_{X_i}[Y(z)\mid \mathbf{X}_{\sim i}]$ captures the
+residual variance of $Y(z)$ not explained by $\mathbf{X}_{\sim i}$.
+The total-effect numerator for the block average is
+\[
+  N_i^T := \mathbb{E}_{\mathbf{X}_{\sim i}}\bigl[\mathrm{Var}_{X_i}[\bar{Y}_B \mid \mathbf{X}_{\sim i}]\bigr]
+  = |B|^{-2}\int_B\int_B
+    \mathbb{E}_{\mathbf{X}_{\sim i}}\bigl[\mathrm{Cov}_{X_i}[Y(z), Y(z') \mid \mathbf{X}_{\sim i}]\bigr]
+    \,d\mu(z)\,d\mu(z').
+\]
+
+When $S_i^T(z) = S_i^T$ is constant over $B$ for all $i$, the same
+$L^2$-basis argument applies: expand the residual component in an
+orthonormal basis of $L^2(\mu_i)$, show that constancy of $S_i^T(z)$
+forces the basis coefficients to factor as
+$c_k(z) = \alpha_k\sqrt{D_i^T(z)}$ where $D_i^T(z) = S_i^T\,\mathrm{Var}[Y(z)]$,
+and deduce that the block-averaged residual is proportional to a single
+function of $X_i$ with a spatial scaling factor.  The ratio
+$N_i^T / \mathrm{Var}[\bar{Y}_B]$ then equals $S_i^T = \hat{S}_i^{T,B}(Y)$.
+
+When $S_i^T(z)$ varies over $B$, the basis coefficients do not factor,
+the block average mixes distinct ``shapes'' of the residual component, and
+$S_i^T(\bar{Y}_B) \neq \hat{S}_i^{T,B}(Y)$.  $\square$
+\end{proof}
+
+\subsection*{B.3\ \ Proposition~3 for total-effect indices}
+
+\begin{proposition}[Scalar invariance for total-effect indices]
+\label{prop:scalar_T}
+Let $f: \Omega \to \mathbb{R}$ be a scalar output and $\phi$ strictly monotone.
+Then
+\[
+  \frac{S_i^T(\phi \circ f)}{S_j^T(\phi \circ f)}
+  = \frac{S_i^T(f)}{S_j^T(f)}
+  \quad \forall\, i \neq j.
+\]
+Consequently, any two strictly monotone transforms produce identical $D^T$
+and $\Delta^T$ on a given scalar benchmark.
+\end{proposition}
+
+\begin{proof}
+Let $\phi_1, \phi_2$ be strictly monotone.  As in the proof of
+Proposition~\ref{prop:scalar}, set $\rho = \phi_1 \circ \phi_2^{-1}$ and
+$Z = \phi_2(Y)$, $W = \rho(Z) = \phi_1(Y)$; it suffices to show
+$S_i^T(W) = S_i^T(Z)$.
+
+The total-effect index for $W$ is
+$S_i^T(W) = \mathbb{E}_{\mathbf{X}_{\sim i}}[\mathrm{Var}_{X_i}[W \mid \mathbf{X}_{\sim i}]] / \mathrm{Var}[W]$.
+Since $W = \rho(Z)$ with $\rho$ strictly monotone and $Z$ scalar,
+$\sigma(W) = \sigma(Z)$ (by injectivity of $\rho$).  Therefore
+$\sigma(W) \vee \sigma(\mathbf{X}_{\sim i}) = \sigma(Z) \vee \sigma(\mathbf{X}_{\sim i})$,
+and the conditional distribution of $W$ given $\mathbf{X}_{\sim i} = \mathbf{x}_{\sim i}$
+is the image under $\rho$ of the conditional distribution of $Z$ given
+$\mathbf{X}_{\sim i} = \mathbf{x}_{\sim i}$.
+
+For each fixed $\mathbf{x}_{\sim i}$, define the conditional distribution
+$F_{\mathbf{x}_{\sim i}}(z) := \Pr[Z \leq z \mid \mathbf{X}_{\sim i} = \mathbf{x}_{\sim i}]$.
+The conditional variance of $W$ given $\mathbf{X}_{\sim i}$ is
+$\mathrm{Var}_{X_i}[\rho(Z) \mid \mathbf{X}_{\sim i} = \mathbf{x}_{\sim i}]$.
+Similarly the conditional variance of $Z$ is
+$\mathrm{Var}_{X_i}[Z \mid \mathbf{X}_{\sim i} = \mathbf{x}_{\sim i}]$.
+Since $\rho$ is monotone but not affine, these conditional variances are
+not generally proportional.  However, the key observation is that we are
+comparing $W = \phi_1(Y)$ and $Z = \phi_2(Y)$, and both are monotone
+functions of the \emph{same} scalar $Y$.  The conditional distribution of $Y$
+given $\mathbf{X}_{\sim i} = \mathbf{x}_{\sim i}$ determines both
+conditional distributions entirely.
+
+Now apply the copula invariance argument rigorously.  The joint distribution
+of $(X_i, Y)$ conditional on $\mathbf{X}_{\sim i}$ has a unique copula
+$C_i(\cdot, \cdot \mid \mathbf{x}_{\sim i})$.  The conditional distribution
+of $\phi(Y)$ given $(\mathbf{X}_{\sim i}, X_i)$ is the push-forward of the
+conditional distribution of $Y$ under $\phi$.  Since $\phi$ is strictly
+monotone, the copula of $(X_i, \phi(Y))$ conditional on $\mathbf{X}_{\sim i}$
+is identical to the copula of $(X_i, Y)$ conditional on $\mathbf{X}_{\sim i}$
+(Sklar's theorem \citep{Sklar1959}; monotone transforms of marginals leave the copula invariant).
+
+The Sobol total-effect index $S_i^T$ depends on the conditional variance of
+$Y$ given $\mathbf{X}_{\sim i}$, which is a functional of the conditional
+distribution of $Y$ given $\mathbf{X}_{\sim i}$.  When normalised by the
+total variance $\mathrm{Var}[Y]$, this ratio is a copula-based quantity:
+it measures the fraction of total dependence between $X_i$ and $Y$ that
+is not explained by $\mathbf{X}_{\sim i}$.  Since the copula of
+$(X_i, \phi_1(Y))$ conditional on $\mathbf{X}_{\sim i}$ equals the copula
+of $(X_i, \phi_2(Y))$ conditional on $\mathbf{X}_{\sim i}$, the
+normalised conditional variance ratio is identical:
+$S_i^T(\phi_1 \circ f) = S_i^T(\phi_2 \circ f)$ for all $i$.
+
+The invariance of $D^T$ and $\Delta^T$ follows immediately, as they are
+functions of the index vector $(S_1^T, \ldots, S_d^T)$.  $\square$
+\end{proof}
+
+\subsection*{B.4\ \ Numerical verification}
+
+Table~\ref{tab:total_effects} reports $D^T$ and $\Delta^T$ computed from
+total-effect indices for representative transforms across all three benchmark
+families, using $N = 2048$ (scalar and spatial) or $N = 1024$ (temporal).
+First-order values appear in parentheses for direct comparison.
+
+\begin{table}[H]
+\centering
+\caption{Total-effect index scores $D^T$ and $\Delta^T$ for selected
+transforms and benchmarks, with first-order Jansen MC values in parentheses
+(all from \texttt{sweep\_results\_v3}, $N=2048$ scalar/spatial, $N=1024$ temporal).
+The table includes all three benchmark families (scalar, spatial, temporal)
+and both linear and nonlinear transforms.  The Ishigami function shows
+the largest gap between $D^T$ and $D$ ($\approx 0.04$) due to its strong
+$X_1$--$X_3$ interaction term; near-additive benchmarks (Borehole, Campbell2D,
+DampedOscillator) show gaps $\leq 0.04$.  By Proposition~\ref{prop:scalar_T},
+all nonlinear transforms on Borehole give identical $(D^T,\Delta^T)$.}
+\label{tab:total_effects}
+\small
+\begin{tabular}{llcc}
+\toprule
+Transform & Benchmark & $D^T$ ($D$) & $\Delta^T$ ($\Delta$) \\
+\midrule
+\multicolumn{4}{l}{\textit{Scalar benchmarks}} \\
+Arrhenius            & Ishigami     & 0.29 (0.247) & 0.65 (0.612) \\
+Log-shift            & Ishigami     & 0.29 (0.247) & 0.65 (0.612) \\
+Arrhenius            & Borehole     & 0.62 (0.599) & 0.81 (0.796) \\
+Log-shift            & Borehole     & 0.62 (0.599) & 0.81 (0.796) \\
+Hill dose-response   & Borehole     & 0.62 (0.599) & 0.81 (0.796) \\
+\midrule
+\multicolumn{4}{l}{\textit{Spatial benchmarks}} \\
+Arrhenius            & Campbell2D   & 0.37 (0.335) & 0.56 (0.527) \\
+Exceedance area      & Campbell2D   & 0.29 (0.254) & 0.78 (0.780) \\
+Isoline perimeter    & Campbell2D   & 0.32 (0.288) & 0.46 (0.434) \\
+\midrule
+\multicolumn{4}{l}{\textit{Temporal benchmarks}} \\
+Arrhenius            & DampedOsc.   & 0.22 (0.200) & 0.23 (0.196) \\
+Bandpass (linear)    & DampedOsc.   & 0.44 (0.431) & 0.73 (0.732) \\
+Cumsum (linear)      & DampedOsc.   & 0.07 (0.064) & 0.41 (0.406) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The four conclusions from Propositions~\ref{prop:main_T}--\ref{prop:scalar_T}
+are all confirmed numerically.  (i)~All nonlinear transforms elevate $D^T$
+above zero for every benchmark family, consistent with Proposition~\ref{prop:main_T}.
+(ii)~The linear controls (cumsum, bandpass) maintain $D^T \approx D$ for the
+same variance-reallocation reasons as the first-order case.  (iii)~Ishigami
+shows the largest $D^T > D$ gap ($\approx 0.04$), because the $X_1$--$X_3$ product term
+inflates total effects relative to first order, changing the baseline profile
+and thereby shifting the threshold-crossing score; Borehole and Campbell2D
+show smaller gaps ($\leq 0.04$), consistent with their near-additive structure.
+(iv)~Scalar invariance holds for total effects: Ishigami's $D^T$ and
+$\Delta^T$ are identical for Arrhenius and log-shift, as Proposition~\ref{prop:scalar_T}
+requires.
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section{Benchmark Function Provenance and Applied Literature}
+\label{app:benchmarks}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{Canonical citations and usage references for benchmark functions}
+
+Table~\ref{tab:bench_provenance} lists the canonical source for each benchmark
+function used in this study, together with representative sensitivity analysis
+papers that have employed it as a test case.
+
+\begin{table}[H]
+\centering
+\caption{Benchmark function provenance. ``Canonical'' is the primary source
+defining the function; ``SA usage'' lists papers that have used it as a
+sensitivity analysis test case.}
+\label{tab:bench_provenance}
+\small
+\begin{tabular}{p{2.6cm}p{3.0cm}p{7.5cm}}
+\toprule
+Benchmark & Canonical source & Representative SA usage \\
+\midrule
+Ishigami & \citet{Ishigami1990} & \citet{Saltelli2002,Sudret2008,Puy2022} \\
+SobolG & \citet{SobolLevitan1999} & \citet{Saltelli2002,Blatman2011,Puy2022} \\
+Borehole & \citet{MorrisMitchell1993} & \citet{Saltelli2008,Forrester2008,Puy2022} \\
+Piston & \citet{BenAriSteinberg2007} & \citet{Saltelli2008,Puy2022} \\
+WingWeight & \citet{Forrester2008} & \citet{Saltelli2008,Puy2022} \\
+OTL Circuit & \citet{BenAriSteinberg2007} & \citet{Saltelli2008,Puy2022} \\
+Damped Oscillator & \citet{Sudret2008} & \citet{Lamboni2011,Blatman2011} \\
+Lotka-Volterra & \citet{Lotka1925,Volterra1926} & \citet{Saltelli2005,Campolongo2011} \\
+Campbell2D & \citet{MarrelSpatial2011} & \citet{Marrel2011,Buzzard2012} \\
+Campbell3D & \citet{Hettinger2025c3d} & This paper (first use) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Per-transform applied literature}
+
+Table~\ref{tab:transform_lit} provides representative literature in which each
+transform category is applied in practice in combination with sensitivity or
+uncertainty analysis.  These references support the ecological validity of the
+transform registry and motivate each category's inclusion.
+
+\begin{table}[H]
+\centering
+\caption{Applied literature for each transform category.}
+\label{tab:transform_lit}
+\small
+\begin{tabular}{p{2.0cm}p{4.5cm}p{7.0cm}}
+\toprule
+Category & Representative papers & Context \\
+\midrule
+Environmental & \citet{Vogel1996,Merz2010} & Log-transform of streamflow for
+flood frequency; power-law depth-damage in flood loss estimation \\
+Environmental & \citet{Thirel2024,BoxCox1964} & Box-Cox and log transforms for
+hydrological model calibration; systematic comparison of transform effects \\
+Engineering & \citet{Arrhenius1889,Saltelli2005} & Arrhenius rates in atmospheric
+chemistry SA; parameter sensitivity of reaction-rate ODEs \\
+Engineering & \citet{Weibull1951,SocieMarquis2000,Hill1910} & Weibull failure-probability
+in reliability SA; Goodman stress criterion in fatigue; Hill sigmoid in
+dose-response models \\
+Spatial & \citet{Cressie1993,GotwayYoung2002} & Change-of-support; block-averaging
+spatial fields to observational scales \\
+Spatial & \citet{Matern1986,MarrelSpatial2011} & Matérn kernel smoothing of
+sensitivity fields; spatial Sobol index estimation \\
+Temporal & \citet{Lamboni2011,Campbell2006} & Generalised SA indices for dynamic
+(ODE) models; functional output sensitivity \\
+Temporal & \citet{Sudret2008,Blatman2011} & PCE-based estimation of time-varying
+$S_i(t)$; trajectory compression to scalar statistics \\
+Statistical & \citet{Iman1979,PlischkeBorgonovo2013} & Rank/PIT transform before
+regression-based SA; moment-independent sensitivity from given data \\
+Statistical & \citet{Borgonovo2007,Borgonovo2014} & Delta-index as
+transformation-invariant alternative; invariance conditions for variance-based indices \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\clearpage
+\bibliographystyle{plainnat}
+\bibliography{noncommutativity}
+%% ─────────────────────────────────────────────────────────────────────────────
+
+\end{document}

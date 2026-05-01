@@ -1,0 +1,1716 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{mathrsfs}
+\usepackage{natbib}
+\usepackage{url}
+\usepackage{cancel}
+\newcommand{\doi}[1]{doi: #1}
+
+% ---- macros (match proof_exposition_v22) ----
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\bX}{\boldsymbol{X}}
+
+% ---- theorem environments ----
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\title{Quantitative Bounds on Sobol Index Shifts\\
+Under Smooth Output Transformations}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+% ======================================================================
+\section{Background and purpose}
+\label{sec:background}
+% ======================================================================
+
+The companion commutativity memo proves a qualitative statement: a continuous
+nonconstant pointwise transform $\phi\colon\R\to\R$ commutes with Sobol index
+computation for every admissible scalar model if and only if $\phi$ is affine.
+The necessity direction uses a binary midpoint witness model: for each endpoint
+pair, the witness forces midpoint preservation of $\phi$, and the
+Roberts--Varberg midpoint theorem then converts midpoint preservation plus
+continuity into global affinity \citep[Theorem~4.1]{RobertsVarberg1973}. The
+witness model is not intended to represent all admissible models; it is a
+diagnostic submodel that establishes the midpoint property for an arbitrary
+endpoint pair.
+
+This memo asks the next quantitative question. If $Z=\phi(Y)$ is a smooth
+output transformation, how large can the shift in Sobol ANOVA component,
+closed, or total-effect indices be? A theorem that compares $Z$ only to $Y$
+would miss a central mechanism: when the first derivative of $\phi$ vanishes at
+the mean of $Y$, the transformed output may be governed by a quadratic or
+higher-order Taylor term rather than by an affine rescaling of $Y$. For example,
+if $Y=X_1+X_2$ and $\phi(y)=y^2$ at a centered mean, then
+$\phi(Y)=X_1^2+2X_1X_2+X_2^2$ introduces an interaction term into an otherwise
+additive model.
+
+The main result therefore uses a unified perturbation formulation. Instead of
+forcing the reference output to be $Y$, Proposition~\ref{prop:abstract_bound}
+compares Sobol indices of two arbitrary square-integrable outputs $Z=V+E$ when
+the centered perturbation $E-\E E$ is small in $L^2$ relative to the standard
+deviation of the reference $V$. Corollary~\ref{cor:taylor_bound} then applies
+this abstract result with the Taylor-polynomial reference
+\begin{equation}
+  V_m=\sum_{k=1}^{m}\frac{\phi^{(k)}(\mu_Y)}{k!}(Y-\mu_Y)^k.
+\end{equation}
+The nonzero-slope local-affine bound is the special case $m=1$ with
+$\phi'(\mu_Y)\neq0$. The critical-point case is not excluded: if the first
+nonzero Taylor term is quadratic and the resulting quadratic reference is
+nonconstant, choose $m=2$ and compare $\phi(Y)$ to that reference. For an exactly
+polynomial transform of degree at most $m$, the Taylor residual is zero and the
+comparison is exact whenever the polynomial reference has positive variance.
+
+No new sensitivity measure is introduced. The only additional notation below is
+a normalized-projection shorthand used to prove bounds simultaneously for Sobol
+ANOVA component indices, closed indices, and total-effect indices.
+
+% ======================================================================
+\section{Literature review}
+\label{sec:lit}
+% ======================================================================
+
+\subsection{Summary of the companion memo}
+
+The companion memo establishes the following context, summarized here for
+completeness. The product-measure structure guarantees that a square-integrable
+scalar output $Y=f(\bX)$ with independent inputs admits a unique
+Hoeffding--Sobol functional ANOVA decomposition into mutually orthogonal
+$L^2$-components \citep{Hoeffding1948,Sobol1993}.\footnote{The 1948 Hoeffding
+paper introduced U-statistics and a related orthogonality property for symmetric
+kernels of two variables; it does not state the variance-based ANOVA decomposition
+of a function of $d$ independent inputs. The latter is due to \citet{Sobol1993}.
+The joint attribution follows standard practice in the sensitivity analysis
+literature \citep[e.g.,][]{Saltelli2008}.}
+The variance decomposes as
+$\Var[Y]=\sum_{\emptyset\neq u}D_u^Y$, where $D_u^Y=\Var[f_u(\bX_u)]$.
+The corresponding Sobol ANOVA component index is
+$S_u^Y=D_u^Y/\Var[Y]$ for each nonempty ANOVA subset $u$.
+The first-order Sobol index for input $X_i$ is \citep{Sobol1993}
+\begin{equation}
+  S_i^Y=\frac{D_i^Y}{\Var[Y]},\qquad D_i^Y=\Var_{X_i}\{\E[Y\mid X_i]\},
+  \label{eq:sobol_def}
+\end{equation}
+where the conditional expectation integrates over all randomness except $X_i$
+under the product input law. The total-effect index is
+$(S_i^T)^Y=(\sum_{u\ni i}D_u^Y)/\Var[Y]$ \citep{Homma1996}. Widely used
+Monte Carlo designs and estimators for these variance components are discussed
+by \citet{Saltelli2002}, \citet{Jansen1999}, \citet{Saltelli2008}, and
+\citet{Saltelli2010}. For the independent-input variance game,
+\citet{Owen2014} shows that first-order and total-effect Sobol indices bracket
+the corresponding Shapley effect.
+
+Affine output transformations $Z=aY+b$ ($a\neq 0$) preserve all Sobol indices
+because every ANOVA component and the total variance are multiplied by the same
+factor $a^2$. For Hilbert-space-valued outputs, \citet{Gamboa2014} prove that
+generalized Sobol indices are invariant under isometries, scalings, and
+translations; in the scalar case this reduces to the same affine cancellation.
+The companion memo proves that affine maps are the \emph{only} continuous
+nonconstant pointwise transforms that commute with Sobol index computation for
+every admissible scalar model. That result is qualitative: it guarantees a
+shift exists for any non-affine $\phi$, but gives no bound on its magnitude.
+The present memo supplies a complementary quantitative bound. It should not be
+read as a second commutativity theorem: affine maps remain the only universal
+commuting transformations. The bound here explains how far the Sobol structure of
+$\phi(Y)$ can lie from the Sobol structure of an appropriate reference output,
+usually a Taylor polynomial in $Y-\E Y$.
+
+\subsection{Transformation invariance and its limits}
+
+\citet{Borgonovo2014} study which global sensitivity statistics retain their
+interpretation under monotone output transformations. They show that classical
+variance-based indices, including Sobol indices, are not invariant under
+nonlinear monotone transforms, whereas certain density- and CDF-based statistics
+are. The review of \citet{Borgonovo2016} further emphasizes that different
+sensitivity measures answer different transformation-dependent questions. For
+independent inputs, one-to-one marginal reparametrisations of \emph{inputs}
+preserve $S_i^Y$ because the conditioning sigma-fields are unchanged; output
+transformations are fundamentally different because they replace $\E[Y\mid X_i]$
+with $\E[\phi(Y)\mid X_i]$.
+Relatedly, \citet{BaucellsBorgonovo2013} develop invariant probabilistic
+sensitivity analysis in a decision-analytic setting by measuring distances
+between risk profiles in a way that is invariant to monotone transformations.
+This reinforces the main distinction: transformation-invariant measures answer a
+distributional or decision-analytic question, whereas Sobol indices allocate
+variance on the output scale being analyzed.
+
+Rank transformation of the output is a widely used diagnostic tool.
+\citet{Iman1988} and \citet{Saltelli1995} show that recomputing sensitivity
+indices after replacing $Y$ by ranks or normal scores yields sensitivity indices
+for the transformed response, not invariant versions of the original Sobol
+indices. Such rank-based analyses can change the apparent balance between main
+and interaction effects; the direction and size of that change are model
+specific. This memo studies the analogous question for a smooth deterministic
+transform: the output of the calculation is an index for $\phi(Y)$, and the
+question is how far it lies from the corresponding index of a chosen reference
+output.
+
+\subsection{Derivative-based bounds and distribution-based alternatives}
+
+The closest structural analogue to the present result is the derivative-based
+global sensitivity measure (DGSM) literature. \citet{SobolKucherenko2009}
+introduced derivative-based global sensitivity measures and showed that
+derivative-based quantities can control total-effect Sobol indices in standard
+settings. Subsequent work expresses these links through one-dimensional
+Poincar\'{e} inequalities: under such inequalities the bound takes the
+dimensionless form
+\begin{equation}
+  (S_i^T)^Y\leq \frac{C_i\,\nu_i}{\Var[Y]},\qquad
+  \nu_i=\E\!\left[\!\left(\tfrac{\partial f}{\partial x_i}\right)^{\!2}\right],
+  \label{eq:dgsm_bound}
+\end{equation}
+where $C_i$ is the Poincar\'{e} constant of the marginal distribution of $X_i$.
+\citet{Lamboni2013} give general links between DGSMs and total Sobol indices,
+and \citet{Roustant2017} develop interval Poincar\'{e} inequalities for applying
+these bounds to broader marginal distributions. \citet{Roustant2020} provide
+Parseval-type lower bounds on variance-based indices via spectral expansions.
+All of these results bound the index itself in terms of derivatives of the model
+function $f$. Proposition~\ref{prop:abstract_bound} is complementary: it bounds
+index displacement under an output perturbation, and
+Corollary~\ref{cor:taylor_bound} expresses that perturbation in terms of Taylor
+remainders of the output transform $\phi$.
+
+Moment-independent and distribution-based measures offer an alternative
+perspective. Borgonovo's $\delta$ index \citep{Borgonovo2007} measures the
+expected $L^1$ distance between the unconditional and conditional output
+densities,
+\begin{equation}
+  \delta_i=\tfrac12\,\E_{X_i}\!\left[
+    \int_{\R}\left|p_Y(y)-p_{Y\mid X_i}(y\mid X_i)\right|dy
+  \right],
+  \label{eq:delta_index}
+\end{equation}
+and is invariant under strictly monotone output transformations under the usual
+regular density-transformation conditions \citep{Borgonovo2014}, making it
+immune to the Sobol-index displacement quantified here. Estimation of
+$\delta_i$ and related CDF-based measures from given data is studied by
+\citet{Plischke2013}. Cram\'{e}r--von Mises sensitivity indices provide another
+distribution-oriented alternative: \citet{GamboaKleinLagnoux2018} define indices
+based on distances between unconditional and conditional output distributions,
+thereby targeting whole-distribution sensitivity rather than variance allocation
+alone. Dependence-measure sensitivity indices, including HSIC-based indices,
+measure input--output dependence through kernel embeddings \citep{DaVeiga2015}.
+They are valuable alternatives to variance allocation, especially for screening,
+but fixed-kernel HSIC values generally depend on the chosen kernels and on the
+scale or transformation of the output; they should not be described as
+Sobol-like invariant variance shares.
+
+Perturbed-law indices study a different perturbation direction: they perturb the
+input distribution and track the change in a reliability probability or quantile.
+\citet{Lemaitre2015} develop density-modification-based reliability sensitivity,
+and \citet{SueurIoossDelage2017} discuss quantile-oriented perturbed-law indices.
+Both frameworks ask how a sensitivity-relevant quantity moves under a controlled
+perturbation; the perturbation here is output-side transformation rather than
+input-law modification.
+
+\subsection{Gap addressed here}
+
+The existing output-transformation literature primarily identifies whether a
+sensitivity measure is invariant under a given class of transforms, or recommends
+a measure whose target is invariant. Distributional alternatives such as
+$\delta$ indices, invariant probabilistic sensitivity analysis, and
+Cram\'{e}r--von Mises indices answer different inferential questions. The DGSM
+literature supplies bounds on total-effect indices $(S_i^T)^Y$ through
+derivatives of the model function $f$; those results do not bound the
+displacement caused by replacing one scalar output by another. We have not found
+a directly analogous nonasymptotic population bound for the displacement of
+Sobol ANOVA component indices or for the standard closed and total-effect sums
+of those components under a smooth output transformation. The result below fills
+that gap by treating Sobol indices as squared norms of orthogonal ANOVA
+projections. The smooth-transform statement is then a Taylor-reference
+corollary, which includes both the local-affine and critical-point regimes.
+
+% ======================================================================
+\section{Quantitative bound}
+\label{sec:bound}
+% ======================================================================
+
+This section uses Hilbert-space notation only to make the Sobol algebra
+compact. All random variables below live in the same probability space generated
+by the independent inputs $X_1,\ldots,X_d$. The space $L^2$ is the set of
+square-integrable scalar random variables. Its inner product and norm are
+\begin{equation}
+  \langle A,B\rangle=\E[AB],
+  \qquad
+  \|A\|_2=(\E[A^2])^{1/2}.
+\end{equation}
+After centering a random variable, this norm is its standard deviation:
+$\|W-\E W\|_2=\operatorname{sd}(W)$.
+
+Let
+\begin{equation}
+  \mathcal U_d={u\subseteq{1,\ldots,d}:u\neq\emptyset}
+\end{equation}
+denote the set of nonempty ANOVA subsets. For each $u\in\mathcal U_d$, let
+$\mathcal H_u$ denote the Hoeffding--Sobol ANOVA subspace containing the part of
+an output that depends on $\bX_u=(X_j)_{j\in u}$ and is orthogonal to all lower
+order components. Under the product input law, these subspaces are mutually
+orthogonal, so a centered square-integrable output decomposes as an orthogonal
+sum of its ANOVA components. If $\mathscr C\subseteq\mathcal U_d$ is a nonempty
+collection of such subsets, define
+\begin{equation}
+  \mathcal H_{\mathscr C}=\bigoplus_{u\in\mathscr C}\mathcal H_u,
+\end{equation}
+and let $\Pi_{\mathscr C}$ be the orthogonal projection onto
+$\mathcal H_{\mathscr C}$. Intuitively, $\Pi_{\mathscr C}(W-\E W)$ extracts only
+the part of the centered output whose ANOVA components belong to the collection
+$\mathscr C$.
+
+For any nonconstant square-integrable scalar output $W$, define
+\begin{equation}
+  W^\circ=W-\E W,
+  \qquad
+  \mathsf{PE}_{\mathscr C}(W)
+  =\frac{\|\Pi_{\mathscr C} W^\circ\|_2^2}{\Var[W]},
+  \label{eq:pe_def}
+\end{equation}
+where $\mathsf{PE}_{\mathscr C}$ means normalized projection energy. This is
+proof bookkeeping, not a new sensitivity measure. For $\mathscr C={u}$ it is
+the Sobol ANOVA component index $S_u^W$; for the collections in
+Corollary~\ref{cor:special_cases} it is the standard closed or total-effect
+Sobol index. The theorem is stated for $\mathsf{PE}_{\mathscr C}$ only so that
+one projection calculation covers all three standard cases.
+
+\begin{proposition}[Projection perturbation bound for Sobol indices]
+\label{prop:abstract_bound}
+Let $V,E\in L^2$ be scalar outputs on the same independent-input product space,
+and set
+\begin{equation}
+  Z=V+E,
+  \qquad
+  \sigma_V^2=\Var[V]>0,
+  \qquad
+  \eta=\frac{\|E-\E E\|_2}{\sigma_V}.
+  \label{eq:eta_def}
+\end{equation}
+If $\eta<1$, then $0<\Var[Z]<\infty$ and, for every nonempty
+$\mathscr C\subseteq\mathcal U_d$,
+\begin{equation}
+  \left|\mathsf{PE}_{\mathscr C}(Z)-\mathsf{PE}_{\mathscr C}(V)\right|
+  \leq
+  \frac{
+    2\eta\sqrt{p_{\mathscr C}}(1+\sqrt{p_{\mathscr C}})
+    +\eta^2(1+p_{\mathscr C})
+  }{(1-\eta)^2},
+  \qquad
+  p_{\mathscr C}=\mathsf{PE}_{\mathscr C}(V).
+  \label{eq:abstract_bound}
+\end{equation}
+Equivalently, the right side may be replaced by its minimum with one, since
+Sobol component, closed, and total-effect indices all lie in $[0,1]$.
+\end{proposition}
+
+\begin{corollary}[Taylor-reference bound for smooth output transformations]
+\label{cor:taylor_bound}
+Let $Y=f(\bX)$, where $\bX=(X_1,\ldots,X_d)$ has independent components. Assume
+$Y\in[y_-,y_+]$ almost surely, and let $Z=\phi(Y)$ with
+$\phi\in C^{m+1}([y_-,y_+])$ for some integer $m\geq1$. Define
+\begin{equation}
+  \mu_Y=\E[Y],
+  \qquad
+  U=Y-\mu_Y,
+  \qquad
+  V_m=\sum_{k=1}^{m}\frac{\phi^{(k)}(\mu_Y)}{k!}U^k,
+  \label{eq:taylor_reference}
+\end{equation}
+and let
+\begin{equation}
+  R_m=\phi(Y)-\phi(\mu_Y)-V_m.
+  \label{eq:taylor_remainder_def}
+\end{equation}
+Assume $\sigma_m^2:=\Var[V_m]>0$. This is a substantive reference-variance
+condition, not merely a statement that some Taylor coefficient is nonzero. A
+nonzero polynomial in $U$ can still be constant on the support of $Y$; for
+example, if $U^2$ is almost surely constant, a purely quadratic reference has
+zero variance and Sobol indices for that reference are undefined. In practice
+one should choose $m$ so that the Taylor reference $V_m$ is nonconstant on the
+support of the output distribution. If every useful Taylor reference is constant
+on that support, the transformed output may itself be constant or may require a
+different expansion center or reference construction.
+Define
+\begin{equation}
+  \eta_m=\frac{\|R_m-\E R_m\|_2}{\sigma_m}.
+  \label{eq:eta_m_def}
+\end{equation}
+If $\eta_m<1$, then for every nonempty $\mathscr C\subseteq\mathcal U_d$,
+\begin{equation}
+  \left|\mathsf{PE}_{\mathscr C}(Z)-\mathsf{PE}_{\mathscr C}(V_m)\right|
+  \leq
+  \frac{
+    2\eta_m\sqrt{p_{m,\mathscr C}}(1+\sqrt{p_{m,\mathscr C}})
+    +\eta_m^2(1+p_{m,\mathscr C})
+  }{(1-\eta_m)^2},
+  \qquad
+  p_{m,\mathscr C}=\mathsf{PE}_{\mathscr C}(V_m).
+  \label{eq:taylor_bound}
+\end{equation}
+Moreover, if
+\begin{equation}
+  \rho_{m+1}=\|\phi^{(m+1)}\|_{\infty,[y_-,y_+]},
+\end{equation}
+then Taylor's theorem gives the sufficient computable bound
+\begin{equation}
+  \eta_m
+  \leq
+  \bar\eta_m
+  :=
+  \frac{\rho_{m+1}}{(m+1)!\,\sigma_m}
+  \left\{\E|Y-\mu_Y|^{2m+2}\right\}^{1/2}.
+  \label{eq:eta_m_sufficient}
+\end{equation}
+Because the right side of \eqref{eq:taylor_bound} is increasing in $\eta_m$ on
+$0\leq\eta_m<1$, the same bound remains valid with $\eta_m$ replaced by
+$\bar\eta_m$ whenever $\bar\eta_m<1$.
+\end{corollary}
+
+\begin{corollary}[Nonzero-slope local-affine case]
+\label{cor:local_affine}
+Under the assumptions of Corollary~\ref{cor:taylor_bound} with $m=1$, suppose
+$c=\phi'(\mu_Y)\neq0$. Then $V_1=c(Y-\mu_Y)$, so
+$\mathsf{PE}_{\mathscr C}(V_1)=\mathsf{PE}_{\mathscr C}(Y)$ for every
+$\mathscr C$. Define
+\begin{equation}
+  \sigma_Y^2=\Var[Y],\qquad
+  \mu_4=\E[(Y-\mu_Y)^4],\qquad
+  \rho_2=\|\phi''\|_{\infty,[y_-,y_+]},
+\end{equation}
+and
+\begin{equation}
+  \kappa=\frac{\rho_2\sigma_Y}{|c|},\qquad
+  K=\frac{\mu_4^{1/2}}{\sigma_Y^2},\qquad
+  \lambda=K\kappa.
+  \label{eq:kappa_lambda}
+\end{equation}
+Then $\eta_1\leq\lambda/2$. Because the right side of
+\eqref{eq:abstract_bound} is increasing in $\eta$ on $0\leq\eta<1$, if
+$\lambda<2$, then for every nonempty $\mathscr C\subseteq\mathcal U_d$,
+\begin{equation}
+  \left|\mathsf{PE}_{\mathscr C}(Z)-\mathsf{PE}_{\mathscr C}(Y)\right|
+  \leq
+  \frac{
+    \lambda\sqrt{p_{\mathscr C}}(1+\sqrt{p_{\mathscr C}})
+    +\tfrac14\lambda^2(1+p_{\mathscr C})
+  }{(1-\lambda/2)^2},
+  \qquad
+  p_{\mathscr C}=\mathsf{PE}_{\mathscr C}(Y).
+  \label{eq:local_affine_bound}
+\end{equation}
+\end{corollary}
+
+\begin{corollary}[Standard Sobol-index special cases]
+\label{cor:special_cases}
+The projection notation in Proposition~\ref{prop:abstract_bound} and
+Corollaries~\ref{cor:taylor_bound}--\ref{cor:local_affine} gives the following
+standard Sobol indices without introducing any new sensitivity measure:
+\begin{enumerate}
+\item For a nonempty ANOVA subset $u\in\mathcal U_d$, choose
+  $\mathscr C=\{u\}$. Then $\mathsf{PE}_{\{u\}}(W)=S_u^W$.
+\item For any nonempty input group $A\subseteq\{1,\ldots,d\}$, the closed index is
+  \begin{equation}
+    (S_A^{\mathrm{cl}})^W
+      =\sum_{\emptyset\neq u\subseteq A}S_u^W
+      =\frac{\Var\{\E[W\mid\bX_A]\}}{\Var[W]},
+  \end{equation}
+  obtained by choosing
+  $\mathscr C=\{u:\emptyset\neq u\subseteq A\}$.
+\item For any nonempty input group $A\subseteq\{1,\ldots,d\}$, the total-effect
+  index is
+  \begin{equation}
+    (S_A^T)^W
+      =\sum_{u:u\cap A\neq\emptyset}S_u^W
+      =1-\frac{\Var\{\E[W\mid\bX_{-A}]\}}{\Var[W]},
+  \end{equation}
+  obtained by choosing $\mathscr C=\{u:u\cap A\neq\emptyset\}$. For a single
+  input, $(S_i^T)^W=(S_{\{i\}}^T)^W=\sum_{u\ni i}S_u^W$.
+\end{enumerate}
+Here $\bX_A=(X_j)_{j\in A}$ and $\bX_{-A}=(X_j)_{j\notin A}$. The closed and
+total-effect cases are handled as single orthogonal projections onto direct
+sums of ANOVA subspaces; no summation of componentwise error bounds and no
+combinatorial union-bound factor is required.
+\end{corollary}
+
+\begin{remark}[How to read the theorem]
+The theorem controls $\phi(Y)$ relative to the reference output $V_m$, not
+necessarily relative to $Y$ itself. Three cases are worth distinguishing.
+
+\emph{Local-affine case} ($m=1$, $c=\phi'(\mu_Y)\neq0$): $V_1=c(Y-\mu_Y)$ is
+an affine rescaling of $Y$, so $\mathsf{PE}_{\mathscr C}(V_1)=\mathsf{PE}_{\mathscr C}(Y)$
+for every $\mathscr C$. The bound in Corollary~\ref{cor:local_affine} is
+therefore a direct bound on $|S_u^Z-S_u^Y|$, $|(S_A^{\mathrm{cl}})^Z-(S_A^{\mathrm{cl}})^Y|$,
+and $|(S_A^T)^Z-(S_A^T)^Y|$. The condition $\lambda<2$ is a sufficient
+stability condition inherited from the abstract requirement $\eta_1<1$. The
+bound is still conservative, and it is practically informative only when the
+right side of \eqref{eq:local_affine_bound} is substantially smaller than the
+trivial cap of one.
+
+\emph{Critical-point and higher-order cases} ($m\geq2$): the reference $V_m$
+may contain new ANOVA interactions created by the nonlinear Taylor terms. The
+theorem bounds $|S_u^Z-S_u^{V_m}|$, not $|S_u^Z-S_u^Y|$. Large shifts
+relative to $S_u^Y$ can occur---for example, squaring an additive model can
+create dominant interaction terms---and no uniformly small bound relative to
+$Y$ is possible without additional assumptions on the ANOVA structure of the
+polynomial reference. The theorem provides the correct quantitative control:
+the Sobol indices of $\phi(Y)$ are close to those of the polynomial reference
+$V_m$, and the discrepancy from $Y$'s indices is accounted for by the ANOVA
+structure of $V_m$ itself.
+
+\emph{Exact polynomial case}: if $\phi$ is a polynomial of degree at most $m$,
+then $R_m=0$, $\eta_m=0$, and the theorem says the Sobol indices of $\phi(Y)$
+equal those of $V_m$ exactly.
+\end{remark}
+
+\begin{remark}[Trivial cap]
+Since any component, closed, or total-effect Sobol index lies in $[0,1]$, the
+absolute displacement is always at most one. Thus the right side of
+\eqref{eq:abstract_bound}, \eqref{eq:taylor_bound}, or
+\eqref{eq:local_affine_bound} may always be replaced by its minimum with one.
+This cap is mathematically trivial, but it is useful in applications when the
+sufficient denominator-stability condition is barely satisfied and the displayed
+perturbation bound is consequently conservative.
+\end{remark}
+
+\begin{remark}[Population quantities and plug-in estimation]
+The inequalities are population statements. In applications, the quantities in
+$V_m$, $\sigma_m^2$, $p_{m,\mathscr C}$, and $\eta_m$ may be estimated from a
+sensitivity-analysis design, but the displayed inequalities do not include
+finite-sample uncertainty for those plug-in estimates. The interval
+$[y_-,y_+]$ must be a genuine almost-sure support bound for the deterministic
+remainder bound \eqref{eq:eta_m_sufficient}; if it is replaced by the observed
+sample range, the result should be interpreted as a diagnostic rather than a
+guaranteed population bound.
+\end{remark}
+
+% ======================================================================
+\section{Proof}
+\label{sec:proof}
+% ======================================================================
+
+\begin{proof}[Proof of Proposition~\ref{prop:abstract_bound}]
+Throughout, $\|W\|_2=(\E[W^2])^{1/2}$. Write
+\begin{equation}
+  v=V-\E V,
+  \qquad
+  e=E-\E E,
+  \qquad
+  z=Z-\E Z=v+e.
+\end{equation}
+Then $\|v\|_2=\sigma_V$ and $\|e\|_2=\eta\sigma_V$.
+
+For a nonempty collection $\mathscr C\subseteq\mathcal U_d$, define
+\begin{equation}
+  F_{\mathscr C}=\Pi_{\mathscr C}v,
+  \qquad
+  R_{\mathscr C}=\Pi_{\mathscr C}e.
+\end{equation}
+Because $\Pi_{\mathscr C}$ is an orthogonal projection, it is linear and
+nonexpansive. Therefore
+\begin{equation}
+  \Pi_{\mathscr C}z=F_{\mathscr C}+R_{\mathscr C},
+  \qquad
+  \|R_{\mathscr C}\|_2\leq\|e\|_2=\eta\sigma_V.
+  \label{eq:R_projection_bound}
+\end{equation}
+Let $p_{\mathscr C}=\mathsf{PE}_{\mathscr C}(V)$. Then
+\begin{equation}
+  \|F_{\mathscr C}\|_2^2=p_{\mathscr C}\sigma_V^2,
+  \qquad
+  \|F_{\mathscr C}\|_2=\sigma_V\sqrt{p_{\mathscr C}}.
+  \label{eq:F_norm_general}
+\end{equation}
+
+First control the numerator projection. Expanding the squared norm gives
+\begin{align}
+  \|\Pi_{\mathscr C}z\|_2^2
+  &=\|F_{\mathscr C}+R_{\mathscr C}\|_2^2
+  \notag\\
+  &=\|F_{\mathscr C}\|_2^2
+    +2\langle F_{\mathscr C},R_{\mathscr C}\rangle
+    +\|R_{\mathscr C}\|_2^2.
+\end{align}
+Hence, with
+\begin{equation}
+  \epsilon_N^{\mathscr C}
+  =2\langle F_{\mathscr C},R_{\mathscr C}\rangle
+   +\|R_{\mathscr C}\|_2^2,
+\end{equation}
+we have
+\begin{equation}
+  \|\Pi_{\mathscr C}z\|_2^2
+  =p_{\mathscr C}\sigma_V^2+
+    \epsilon_N^{\mathscr C}.
+\end{equation}
+Cauchy--Schwarz and \eqref{eq:R_projection_bound}--\eqref{eq:F_norm_general}
+give
+\begin{equation}
+  |\epsilon_N^{\mathscr C}|
+  \leq
+  2\sigma_V\sqrt{p_{\mathscr C}}\,\eta\sigma_V
+  +\eta^2\sigma_V^2
+  =\sigma_V^2(2\eta\sqrt{p_{\mathscr C}}+\eta^2).
+  \label{eq:epsN_general_bound}
+\end{equation}
+
+Next control the denominator. Since $z=v+e$,
+\begin{equation}
+  \Var[Z]=\|z\|_2^2=\|v+e\|_2^2.
+\end{equation}
+The reverse triangle inequality gives
+\begin{equation}
+  \|v+e\|_2\geq\bigl|\|v\|_2-\|e\|_2\bigr|
+  =\sigma_V(1-\eta),
+\end{equation}
+because $\eta<1$. Therefore
+\begin{equation}
+  \Var[Z]\geq\sigma_V^2(1-\eta)^2>0.
+  \label{eq:VarZ_general_lower}
+\end{equation}
+For the ratio identity, also write
+\begin{equation}
+  \Var[Z]=\sigma_V^2+
+  \epsilon_D,
+  \qquad
+  \epsilon_D=2\langle v,e\rangle+\|e\|_2^2.
+\end{equation}
+Cauchy--Schwarz gives
+\begin{equation}
+  |\epsilon_D|
+  \leq 2\sigma_V\eta\sigma_V+
+  \eta^2\sigma_V^2
+  =\sigma_V^2(2\eta+
+  \eta^2).
+  \label{eq:epsD_general_bound}
+\end{equation}
+
+Now subtract the two normalized projection energies over a common denominator:
+\begin{align}
+  \mathsf{PE}_{\mathscr C}(Z)-\mathsf{PE}_{\mathscr C}(V)
+  &=\frac{\|\Pi_{\mathscr C}z\|_2^2}{\Var[Z]}
+    -\frac{\|F_{\mathscr C}\|_2^2}{\sigma_V^2}
+  \notag\\
+  &=\frac{(p_{\mathscr C}\sigma_V^2+\epsilon_N^{\mathscr C})\sigma_V^2
+          -p_{\mathscr C}\sigma_V^2(\sigma_V^2+
+          \epsilon_D)}{\Var[Z]\sigma_V^2}
+  \notag\\
+  &=\frac{\epsilon_N^{\mathscr C}\sigma_V^2
+          -p_{\mathscr C}\sigma_V^2\epsilon_D}{\Var[Z]\sigma_V^2}.
+  \label{eq:general_ratio_identity}
+\end{align}
+Taking absolute values and applying \eqref{eq:epsN_general_bound},
+\eqref{eq:epsD_general_bound}, and \eqref{eq:VarZ_general_lower},
+\begin{align}
+  \left|\mathsf{PE}_{\mathscr C}(Z)-\mathsf{PE}_{\mathscr C}(V)\right|
+  &\leq
+  \frac{|\epsilon_N^{\mathscr C}|+p_{\mathscr C}|\epsilon_D|}{\Var[Z]}
+  \notag\\
+  &\leq
+  \frac{
+    \sigma_V^2(2\eta\sqrt{p_{\mathscr C}}+\eta^2)
+    +p_{\mathscr C}\sigma_V^2(2\eta+\eta^2)
+  }{\sigma_V^2(1-\eta)^2}
+  \notag\\
+  &=
+  \frac{
+    2\eta\sqrt{p_{\mathscr C}}(1+\sqrt{p_{\mathscr C}})
+    +\eta^2(1+p_{\mathscr C})
+  }{(1-\eta)^2}.
+\end{align}
+This proves the proposition.
+\end{proof}
+
+\begin{proof}[Proof of Corollaries~\ref{cor:taylor_bound}--\ref{cor:special_cases}]
+For Corollary~\ref{cor:taylor_bound}, Taylor's theorem gives
+\begin{equation}
+  \phi(Y)=\phi(\mu_Y)+V_m+R_m.
+\end{equation}
+Adding or subtracting the constant $\phi(\mu_Y)$ does not change any Sobol
+index, so Proposition~\ref{prop:abstract_bound} applies with reference $V=V_m$
+and perturbation $E=R_m$. The quantity $\eta_m$ is exactly the abstract
+perturbation ratio $\eta$ from \eqref{eq:eta_def}. Taylor's theorem with
+integral remainder gives
+\begin{equation}
+  R_m
+  =\int_{\mu_Y}^{Y}\frac{(Y-t)^m}{m!}\phi^{(m+1)}(t)\,dt,
+\end{equation}
+and bounding $|\phi^{(m+1)}(t)|\leq\rho_{m+1}$ inside the integral and
+evaluating yields the pointwise bound
+\begin{equation}
+  |R_m|
+  \leq
+  \frac{\rho_{m+1}}{(m+1)!}|Y-\mu_Y|^{m+1}.
+  \label{eq:Rm_pointwise}
+\end{equation}
+(The integral form is preferred over the Lagrange form because the integration
+variable $t$ runs over a deterministic interval once $Y$ is fixed; the Lagrange
+form introduces an unknown evaluation point $\xi$ that depends on the
+realization of $Y$ and cannot be tracked separately.) Hence
+\begin{equation}
+  \|R_m-\E R_m\|_2
+  \leq \|R_m\|_2
+  \leq
+  \frac{\rho_{m+1}}{(m+1)!}
+  \left\{\E|Y-\mu_Y|^{2m+2}\right\}^{1/2}.
+\end{equation}
+Dividing by $\sigma_m$ gives \eqref{eq:eta_m_sufficient}.
+
+For Corollary~\ref{cor:local_affine}, take $m=1$. Then
+$V_1=c(Y-\mu_Y)$, so affine invariance gives
+$\mathsf{PE}_{\mathscr C}(V_1)=\mathsf{PE}_{\mathscr C}(Y)$ and
+$\sigma_1=|c|\sigma_Y$. The Taylor remainder satisfies
+\begin{equation}
+  \|R_1-\E R_1\|_2
+  \leq \|R_1\|_2
+  \leq \frac12\rho_2\mu_4^{1/2},
+\end{equation}
+so
+\begin{equation}
+  \eta_1
+  \leq
+  \frac{\frac12\rho_2\mu_4^{1/2}}{|c|\sigma_Y}
+  =\frac12\frac{\rho_2\sigma_Y}{|c|}\frac{\mu_4^{1/2}}{\sigma_Y^2}
+  =\frac{\lambda}{2}.
+\end{equation}
+The bound in \eqref{eq:abstract_bound} is monotone increasing in $\eta$ on
+$0\leq\eta<1$: the numerator is increasing and nonnegative, while the
+denominator $(1-\eta)^2$ is decreasing and positive. Substituting the upper
+bound $\eta_1\leq\lambda/2$ into \eqref{eq:abstract_bound} therefore gives
+\eqref{eq:local_affine_bound}. Corollary~\ref{cor:special_cases} follows by
+choosing the listed ANOVA projection collections.
+\end{proof}
+
+% ======================================================================
+\section{Leading-order perturbation diagnostic}
+\label{sec:perturbation}
+% ======================================================================
+
+The bound above is intentionally conservative: Cauchy--Schwarz is tight only
+when the relevant projection of the reference output and the corresponding
+projection of the residual are perfectly collinear. A first-order diagnostic
+shows when the leading residual contribution cancels.
+
+Let $V$ be any nonconstant square-integrable reference output and let
+$G\in L^2$ be a candidate perturbation. Define
+\begin{equation}
+  Z_\varepsilon=V+\varepsilon G,
+  \qquad
+  v=V-\E V,
+  \qquad
+  g=G-\E G,
+  \qquad
+  \sigma_V^2=\Var[V].
+\end{equation}
+Let
+\begin{equation}
+  F_{\mathscr C}=\Pi_{\mathscr C}v,
+  \qquad
+  G_{\mathscr C}=\Pi_{\mathscr C}g,
+  \qquad
+  p_{\mathscr C}=\mathsf{PE}_{\mathscr C}(V).
+\end{equation}
+The numerator corresponding to $\mathsf{PE}_{\mathscr C}(Z_\varepsilon)$ is
+$\|F_{\mathscr C}+\varepsilon G_{\mathscr C}\|_2^2$, while
+\begin{equation}
+  \Var[Z_\varepsilon]
+  =\sigma_V^2+2\varepsilon\Cov[V,G]+\varepsilon^2\Var[G].
+\end{equation}
+Differentiating the ratio at $\varepsilon=0$ gives
+\begin{equation}
+  \left.\frac{d}{d\varepsilon}\mathsf{PE}_{\mathscr C}(Z_\varepsilon)\right|_{\varepsilon=0}
+  =\frac{2}{\sigma_V^2}
+  \left\{\Cov[F_{\mathscr C},G_{\mathscr C}]
+         -p_{\mathscr C}\Cov[V,G]\right\}.
+  \label{eq:directional_derivative_general}
+\end{equation}
+This formula is often more informative than the worst-case bound. Linear
+cancellation occurs precisely when the perturbation covariance inside the chosen
+ANOVA projection matches the denominator perturbation in the ratio
+$p_{\mathscr C}$.
+
+In the local-affine case $V=c(Y-\mu_Y)$ and $G=R_1$, this reduces to the earlier
+curvature diagnostic. If $G(Y)=\frac12\tau(Y-\mu_Y)^2$ is the leading quadratic
+Taylor perturbation, then for the first-order index of input $i$,
+\begin{equation}
+  \left.\frac{d}{d\varepsilon}S_i^{Z_\varepsilon}\right|_{\varepsilon=0}
+  =\frac{\tau}{c\sigma_Y^2}
+  \left\{\Cov[f_{\{i\}},\E[U^2\mid X_i]]-S_i^Y\E[U^3]\right\},
+  \label{eq:quadratic_derivative}
+\end{equation}
+where $U=Y-\mu_Y$ and $f_{\{i\}}=\E[Y\mid X_i]-\mu_Y$. For an additive model
+$Y=\mu_Y+\sum_j h_j(X_j)$ with independent centered components, this coefficient
+is proportional to
+\begin{equation}
+  \E[h_i^3]-S_i^Y\sum_j\E[h_j^3].
+  \label{eq:third_moment_contrast}
+\end{equation}
+Thus additivity alone does not force the leading perturbation to vanish;
+symmetry or this precise third-moment contrast does.
+
+For the \emph{critical-point regime}, where the reference is quadratic,
+$V=\frac{b}{2}(Y-\mu_Y)^2$ with $b=\phi''(\mu_Y)\neq0$, the corresponding
+diagnostic uses $G=R_2$ and the general formula \eqref{eq:directional_derivative_general}
+with $\mathscr C=\{i\}$:
+\begin{equation}
+  \left.\frac{d}{d\varepsilon}S_i^{Z_\varepsilon}\right|_{\varepsilon=0}
+  =\frac{2}{\sigma_{V}^2}
+  \left\{\Cov\!\left[\Pi_{\{i\}}V^\circ,\,\Pi_{\{i\}}G^\circ\right]
+         -p_{\{i\}}\Cov[V,G]\right\},
+  \label{eq:quadratic_ref_derivative}
+\end{equation}
+where $V^\circ=V-\E V$ and $G^\circ=G-\E G$. The denominator
+$\sigma_V^2=\Var[V]$ is the variance of the quadratic reference, not a squared
+slope. Under the required condition $\Var[V]>0$, this formula does not involve
+division by $\phi'(\mu_Y)$ and applies without any nonzero-slope requirement. When $G=R_2$ is the order-3 Taylor residual, the leading
+coefficient is proportional to the covariance between the first-order ANOVA projection of the
+quadratic reference and the first-order projection of the cubic remainder, minus
+the index value times the corresponding denominator perturbation.
+
+% ======================================================================
+\section{Canonical quadratic example}
+\label{sec:numerical}
+% ======================================================================
+
+Let
+\begin{equation}
+  Y=X_1+X_2,
+  \qquad
+  X_1,X_2\overset{\mathrm{iid}}{\sim}\mathrm{Uniform}(-1,1),
+  \qquad
+  Z=\phi(Y)=Y^2.
+\end{equation}
+Then $\mu_Y=0$ and $\phi'(\mu_Y)=0$, so any theorem that requires a nonzero
+slope at the mean excludes the canonical mechanism. The unified theorem does not
+exclude it. Choose $m=2$. Since $\phi(y)=y^2$ is exactly quadratic,
+\begin{equation}
+  V_2=Y^2,
+  \qquad
+  R_2=0,
+  \qquad
+  \eta_2=0.
+\end{equation}
+The bound therefore says that the indices of $Z$ equal the indices of the
+quadratic reference $V_2$ exactly.
+
+The ANOVA structure of that reference displays the mechanism. Expanding,
+\begin{equation}
+  Z=(X_1+X_2)^2=X_1^2+2X_1X_2+X_2^2.
+\end{equation}
+Because $\E[X_i]=0$, $\E[X_i^2]=1/3$, and $\E[X_i^4]=1/5$, the ANOVA components
+are
+\begin{equation}
+  z_1(X_1)=X_1^2-\tfrac13,
+  \qquad
+  z_2(X_2)=X_2^2-\tfrac13,
+  \qquad
+  z_{12}(X_1,X_2)=2X_1X_2.
+\end{equation}
+Their variance contributions are
+\begin{equation}
+  D_1^Z=D_2^Z=\Var(X_i^2)=\tfrac15-\tfrac19=\tfrac4{45},
+  \qquad
+  D_{12}^Z=\Var(2X_1X_2)=4\E[X_1^2]\E[X_2^2]=\tfrac49.
+\end{equation}
+Therefore
+\begin{equation}
+  \Var[Z]=\tfrac4{45}+\tfrac4{45}+\tfrac49=\tfrac{28}{45},
+\end{equation}
+and
+\begin{equation}
+  S_1^Z=S_2^Z=\frac{1}{7},
+  \qquad
+  S_{\{1,2\}}^Z=\frac{5}{7},
+  \qquad
+  (S_1^T)^Z=(S_2^T)^Z=\frac{6}{7}.
+  \label{eq:quadratic_indices}
+\end{equation}
+The original output $Y=X_1+X_2$ is additive, with $S_1^Y=S_2^Y=1/2$ and
+$S_{\{1,2\}}^Y=0$. Squaring does not merely perturb the original additive ANOVA
+structure; it creates a dominant interaction term. This is why the bound must be
+formulated relative to the Taylor reference $V_m$ rather than always relative to
+$Y$.
+
+For contrast, if $\phi'(\mu_Y)\neq0$ and $m=1$, the reference is affine in $Y$
+and Corollary~\ref{cor:local_affine} recovers a direct bound on shifts relative
+to the Sobol indices of $Y$. If $\phi$ is a low-degree polynomial and $m$ is
+chosen at least as large as its degree, the residual is zero and the theorem is
+exact; the work then lies in understanding the Sobol decomposition of the
+polynomial reference.
+
+% ======================================================================
+\appendix
+
+\section{Pedagogical proof: every step explained}
+\label{app:pedagogical}
+% ======================================================================
+
+This appendix re-derives Proposition~\ref{prop:abstract_bound} and its
+Taylor-reference corollaries from first principles. The goal is not brevity. The
+goal is to make explicit what each symbol means, why projections appear, why the
+denominator needs a stability condition, and how the Taylor approximation enters
+only after the abstract projection argument is finished.
+
+\subsection*{Orientation before the algebra}
+
+Before beginning the line-by-line proof, it is useful to say what the proof is
+trying to accomplish and why it is organized in this somewhat abstract way. The
+problem begins with a practical question: after replacing an output $Y$ by a
+transformed output $Z=\phi(Y)$, how much can the usual variance-based Sobol
+indices move? A tempting first answer is to linearize $\phi$ and compare
+$\phi(Y)$ directly with $Y$. That answer is incomplete. It works when the
+linear Taylor term dominates, but it misses the most important failure mode of
+commutativity: a nonlinear transform can change the ANOVA structure of the
+output. The centered squaring example is the canonical case. If
+$Y=X_1+X_2$ and $\phi(y)=y^2$, then
+\begin{equation}
+  \phi(Y)=(X_1+X_2)^2=X_1^2+2X_1X_2+X_2^2,
+\end{equation}
+so the transformed output contains a genuine interaction even though the
+original output is additive. A proof that only compares $\phi(Y)$ with $Y$
+would either exclude this example or obscure the mechanism that makes it
+important.
+
+The proof therefore separates two tasks. The first task is purely geometric: if
+two centered outputs are close in $L^2$, then their projected variance shares are
+close, provided the denominator variance of the perturbed output does not nearly
+vanish. This part has nothing to do with Taylor expansions, smoothness, or the
+value of $\phi'(\mu_Y)$. It is a Hilbert-space perturbation argument for outputs
+of the form
+\begin{equation}
+  Z=V+E,
+\end{equation}
+where $V$ is a reference output and $E$ is a residual. The second task is to use
+Taylor's theorem to choose a scientifically meaningful reference $V$. For a
+smooth transformation, the reference is the Taylor polynomial in the centered
+output
+\begin{equation}
+  V_m=\sum_{k=1}^{m}\frac{\phi^{(k)}(\mu_Y)}{k!}(Y-\mu_Y)^k,
+\end{equation}
+and the residual is the Taylor remainder. This division of labor is the main
+structural point of the memo. The abstract proposition says what any small
+output perturbation can do to Sobol variance shares; the Taylor corollaries say
+which reference output should be used for a transformed scalar response.
+
+This organization also explains why the theorem is not a second commutativity
+theorem. The companion commutativity result asks when the Sobol indices of
+$\phi(Y)$ must equal the Sobol indices of $Y$ for every admissible model. The
+answer is: only for affine transformations. The present result asks a different,
+quantitative question. It asks when the Sobol indices of $\phi(Y)$ are close to
+the Sobol indices of the dominant Taylor reference $V_m$. In the local-affine
+case, $V_m$ may be an affine rescaling of $Y$, so the comparison is directly to
+$Y$. In the critical-point case, the first nonzero Taylor term may be quadratic
+or higher-order, so the comparison is to that polynomial reference instead. This
+is not a weakness of the proof; it is what lets the theorem include the
+interaction-generating examples rather than excluding them.
+
+The main technical challenge is that a Sobol index is a ratio. Its numerator is
+a variance contribution assigned to one ANOVA component, a closed collection of
+components, or a total-effect collection. Its denominator is the total variance
+of the output. A small residual can perturb both pieces. The numerator is
+manageable because Sobol numerators are squared lengths of orthogonal
+projections. Projection is linear, and orthogonal projections are contractions:
+projecting a residual cannot make its $L^2$ norm larger. Thus, when
+$Z=V+E$, the projected numerator for $Z$ is the projected numerator for $V$ plus
+a cross term and a residual-squared term. Cauchy--Schwarz controls the cross
+term, and contraction controls the residual term. This is where the
+$2\eta\sqrt{p}$ and $\eta^2$ pieces of the bound come from.
+
+The denominator is more delicate because ratios can become unstable when the
+denominator is small. Even if $E$ is small in norm relative to $V$, the centered
+residual could point partly against the centered reference and reduce the total
+variance of $Z$. The proof therefore imposes the dimensionless stability
+condition
+\begin{equation}
+  \eta=\frac{\|E-\E E\|_2}{\operatorname{sd}(V)}<1.
+\end{equation}
+The reverse triangle inequality then gives
+\begin{equation}
+  \operatorname{sd}(Z)\geq \operatorname{sd}(V)(1-\eta),
+\end{equation}
+which is enough to keep the denominator away from zero. This step is deliberately
+conservative. It does not try to exploit the sign of a covariance between the
+reference and residual. The payoff is a clean bound that works uniformly for any
+ANOVA projection collection.
+
+A useful way to read the proof is to track three quantities. First,
+\begin{equation}
+  p_{\mathscr C}=\mathsf{PE}_{\mathscr C}(V)
+\end{equation}
+is the reference share of variance assigned to the ANOVA collection
+$\mathscr C$. Second,
+\begin{equation}
+  \eta=\frac{\|E-\E E\|_2}{\sigma_V}
+\end{equation}
+measures residual size relative to the standard deviation of the reference. This
+is the perturbation parameter. Third, $(1-\eta)^2$ is the denominator stability
+factor. The final bound is just the numerator perturbation divided by the stable
+lower bound for the denominator, plus the correction needed to compare two
+ratios rather than two raw projected variances.
+
+The proof is also intentionally stated for a generic projection collection
+$\mathscr C$. This is a notational convenience, not a new sensitivity index. If
+$\mathscr C=\{u\}$, then the projection energy is the Sobol ANOVA component
+index $S_u$. If $\mathscr C$ contains all nonempty subsets of a group $A$, it is
+the closed index $(S_A^{\mathrm{cl}})$. If $\mathscr C$ contains all subsets
+that intersect $A$, it is the total-effect index $(S_A^T)$. The same algebra
+works for all three because all three are squared projection norms divided by
+total variance. This avoids summing many componentwise bounds and avoids adding
+artificial factors depending on the number of subsets.
+
+The proof has limitations that should be understood before reading the details.
+It is a population result, not a sampling theorem. Estimating
+$\eta$, $p_{\mathscr C}$, or the Taylor-reference Sobol indices requires its own
+Monte Carlo or statistical uncertainty analysis. The Taylor corollary also
+requires the reference $V_m$ to have positive variance. A nonzero Taylor
+coefficient is not enough by itself: on a degenerate or finite support, the
+polynomial reference could still be constant. Finally, the residual must be
+small relative to the chosen reference for the bound to be useful. If the Taylor
+remainder is large, the theorem correctly reports that the chosen reference does
+not explain the transformed output well.
+
+With that overview in mind, the proof proceeds in eight steps. Step~0 sets up
+the $L^2$ language and explains why variance is squared norm after centering.
+Step~1 rewrites Sobol component, closed, and total-effect indices as normalized
+projection energies. Step~2 states the abstract perturbation decomposition
+$Z=V+E$ and defines the dimensionless residual ratio. Step~3 controls the
+projected numerator. Step~4 controls the denominator. Step~5 combines the two
+controls into the projection-energy bound. Step~6 translates the generic
+projection-energy result back into standard Sobol notation. Step~7 inserts
+Taylor's theorem and obtains an explicit residual bound. Step~8 interprets the
+special cases: the local-affine case, the critical-point quadratic case, and the
+exact-polynomial case. The detailed algebra below is therefore not a collection
+of unrelated inequalities; each inequality serves one of these three purposes:
+control projected numerator, stabilize denominator, or connect the abstract
+reference-residual argument to a Taylor approximation of $\phi(Y)$.
+
+\subsection*{Step 0. The probability and Hilbert-space setup}
+
+The inputs are
+\begin{equation}
+  \bX=(X_1,\ldots,X_d),
+\end{equation}
+and the components are independent. Independence is what makes the
+Hoeffding--Sobol ANOVA decomposition orthogonal. The output of a deterministic
+model is a scalar random variable because the random input vector is passed
+through a deterministic function:
+\begin{equation}
+  W=f(\bX).
+\end{equation}
+The phrase $W\in L^2$ means that $W$ has a finite second moment,
+\begin{equation}
+  \E[W^2]<\infty.
+\end{equation}
+For two square-integrable random variables $A$ and $B$, define
+\begin{equation}
+  \langle A,B\rangle=\E[AB],
+  \qquad
+  \|A\|_2=(\E[A^2])^{1/2}.
+\end{equation}
+This is the usual inner-product geometry of $L^2$. If $W^\circ=W-\E W$, then
+\begin{equation}
+  \|W^\circ\|_2^2
+  =\E[(W-\E W)^2]
+  =\Var[W].
+\end{equation}
+Thus, after centering, squared $L^2$ norm is variance and $L^2$ norm is standard
+deviation.
+
+This centering step is essential. Sobol indices allocate variance, not raw second
+moment. Adding a constant to an output changes $W$ but does not change
+$W-\E W$, and therefore does not change any Sobol numerator or denominator.
+This is why constants such as $\phi(\mu_Y)$ disappear from the proof.
+
+\subsection*{Step 1. Sobol components as orthogonal pieces of a centered output}
+
+For independent inputs, any square-integrable scalar output $W$ has a unique
+Hoeffding--Sobol decomposition
+\begin{equation}
+  W=\E W+\sum_{u\in\mathcal U_d}w_u(\bX_u),
+  \qquad
+  \mathcal U_d={u\subseteq{1,\ldots,d}:u\neq\emptyset}.
+\end{equation}
+Here $u$ is an input subset. For example, $u={1}$ is a main-effect component,
+while $u={1,2}$ is a two-way interaction component. The notation
+$\bX_u=(X_j)_{j\in u}$ means the subvector of inputs indexed by $u$.
+
+Each component $w_u$ has mean zero and represents the part of the centered output
+associated with the subset $u$. The components are mutually orthogonal:
+\begin{equation}
+  \E[w_u(\bX_u)w_v(\bX_v)]=0,
+  \qquad u\neq v.
+\end{equation}
+Orthogonality gives the variance decomposition
+\begin{align}
+  \Var[W]
+  &=\left\|\sum_{u\in\mathcal U_d}w_u\right\|_2^2 \\
+  &=\sum_{u\in\mathcal U_d}\|w_u\|_2^2.
+\end{align}
+The variance contribution of component $u$ is
+\begin{equation}
+  D_u^W=\|w_u\|_2^2,
+\end{equation}
+and the Sobol ANOVA component index is
+\begin{equation}
+  S_u^W=\frac{D_u^W}{\Var[W]}
+       =\frac{\|w_u\|_2^2}{\Var[W]}.
+\end{equation}
+
+The proof also needs closed and total-effect indices. Rather than proving the
+same inequality three times, collect several ANOVA subspaces at once. For a
+nonempty collection $\mathscr C\subseteq\mathcal U_d$, define
+\begin{equation}
+  \Pi_{\mathscr C}(W-\E W)=\sum_{u\in\mathscr C}w_u(\bX_u).
+\end{equation}
+The symbol $\Pi_{\mathscr C}$ means orthogonal projection onto the direct sum of
+the ANOVA subspaces indexed by $\mathscr C$. Because the selected components are
+orthogonal,
+\begin{align}
+  \|\Pi_{\mathscr C}(W-\E W)\|_2^2
+  &=\left\|\sum_{u\in\mathscr C}w_u\right\|_2^2 \\
+  &=\sum_{u\in\mathscr C}\|w_u\|_2^2.
+\end{align}
+Therefore
+\begin{equation}
+  \mathsf{PE}_{\mathscr C}(W)
+  =\frac{\|\Pi_{\mathscr C}(W-\E W)\|_2^2}{\Var[W]}
+  =\sum_{u\in\mathscr C}S_u^W.
+\end{equation}
+This notation is only normalized projection energy. It is not a new sensitivity
+measure.
+
+The standard cases are recovered by choosing $\mathscr C$:
+\begin{itemize}
+  \item component index: choose $\mathscr C={u}$, giving
+    $\mathsf{PE}_{{u}}(W)=S_u^W$;
+  \item closed index for an input group $A$: choose
+    $\mathscr C={u:\emptyset\neq u\subseteq A}$, giving
+    $(S_A^{\mathrm{cl}})^W$;
+  \item total-effect index for $A$: choose
+    $\mathscr C={u:u\cap A\neq\emptyset}$, giving $(S_A^T)^W$.
+\end{itemize}
+This is why a single projection theorem can cover component, closed, and
+total-effect Sobol indices without summing many separately bounded component
+errors.
+
+\subsection*{Step 2. Split the transformed output into a reference and a residual}
+
+The abstract theorem starts with two square-integrable outputs $V$ and $E$ and
+writes
+\begin{equation}
+  Z=V+E.
+\end{equation}
+Here $V$ is the reference output: the part whose Sobol structure we understand or
+want to compare against. The term $E$ is the residual perturbation.
+
+Because Sobol indices use centered outputs, define
+\begin{equation}
+  v=V-\E V,
+  \qquad
+  e=E-\E E,
+  \qquad
+  z=Z-\E Z.
+\end{equation}
+Then
+\begin{align}
+  z
+  &=Z-\E Z \\
+  &=(V+E)-\E[V+E] \\
+  &=(V-\E V)+(E-\E E) \\
+  &=v+e.
+\end{align}
+Let
+\begin{equation}
+  \sigma_V^2=\Var[V]=\|v\|_2^2>0,
+  \qquad
+  \eta=\frac{\|e\|_2}{\sigma_V}.
+\end{equation}
+The number $\eta$ is dimensionless. It measures the centered residual size in
+units of the reference standard deviation. The assumption $\eta<1$ says that the
+residual is smaller than the reference in $L^2$ norm. It does not say the
+residual is pointwise smaller for every input realization; it is a variance-scale
+condition.
+
+\subsection*{Step 3. Why projections cannot amplify the residual}
+
+Fix a collection $\mathscr C$ of ANOVA subsets and define
+\begin{equation}
+  F_{\mathscr C}=\Pi_{\mathscr C}v,
+  \qquad
+  R_{\mathscr C}=\Pi_{\mathscr C}e.
+\end{equation}
+The letter $F$ denotes the selected ANOVA part of the reference, while $R$
+denotes the selected ANOVA part of the residual. Projection linearity gives
+\begin{equation}
+  \Pi_{\mathscr C}z
+  =\Pi_{\mathscr C}(v+e)
+  =F_{\mathscr C}+R_{\mathscr C}.
+\end{equation}
+
+An orthogonal projection is nonexpansive. To see this, write any element $a$ as
+\begin{equation}
+  a=\Pi_{\mathscr C}a+(I-\Pi_{\mathscr C})a,
+\end{equation}
+where the two pieces are orthogonal. Pythagoras gives
+\begin{equation}
+  \|a\|_2^2
+  =\|\Pi_{\mathscr C}a\|_2^2+\|(I-\Pi_{\mathscr C})a\|_2^2
+  \geq \|\Pi_{\mathscr C}a\|_2^2.
+\end{equation}
+Thus
+\begin{equation}
+  \|\Pi_{\mathscr C}a\|_2\leq\|a\|_2.
+\end{equation}
+Applying this to $a=e$ gives
+\begin{equation}
+  \|R_{\mathscr C}\|_2
+  =\|\Pi_{\mathscr C}e\|_2
+  \leq\|e\|_2
+  =\eta\sigma_V.
+\end{equation}
+The residual may have complicated ANOVA structure, but no projection of it can
+have more $L^2$ energy than the full residual.
+
+The reference projection energy is
+\begin{equation}
+  p_{\mathscr C}=\mathsf{PE}_{\mathscr C}(V)
+  =\frac{\|F_{\mathscr C}\|_2^2}{\sigma_V^2}.
+\end{equation}
+Therefore
+\begin{equation}
+  \|F_{\mathscr C}\|_2=\sigma_V\sqrt{p_{\mathscr C}}.
+\end{equation}
+This identity is where the reference Sobol index enters the bound.
+
+\subsection*{Step 4. Expand and bound the projected numerator}
+
+The numerator of $\mathsf{PE}_{\mathscr C}(Z)$ is the selected projected variance
+of $Z$:
+\begin{equation}
+  \|\Pi_{\mathscr C}z\|_2^2.
+\end{equation}
+Using the decomposition from Step 3,
+\begin{align}
+  \|\Pi_{\mathscr C}z\|_2^2
+  &=\|F_{\mathscr C}+R_{\mathscr C}\|_2^2 \\
+  &=\|F_{\mathscr C}\|_2^2
+    +2\langle F_{\mathscr C},R_{\mathscr C}\rangle
+    +\|R_{\mathscr C}\|_2^2.
+\end{align}
+Define the numerator perturbation
+\begin{equation}
+  \epsilon_N^{\mathscr C}
+  =2\langle F_{\mathscr C},R_{\mathscr C}\rangle
+   +\|R_{\mathscr C}\|_2^2.
+\end{equation}
+Then
+\begin{equation}
+  \|\Pi_{\mathscr C}z\|_2^2
+  =p_{\mathscr C}\sigma_V^2+
+  \epsilon_N^{\mathscr C}.
+\end{equation}
+
+Now bound $\epsilon_N^{\mathscr C}$. The Cauchy--Schwarz inequality says
+\begin{equation}
+  |\langle A,B\rangle|\leq\|A\|_2\|B\|_2.
+\end{equation}
+Hence
+\begin{align}
+  |\langle F_{\mathscr C},R_{\mathscr C}\rangle|
+  &\leq \|F_{\mathscr C}\|_2\|R_{\mathscr C}\|_2 \\
+  &\leq (\sigma_V\sqrt{p_{\mathscr C}})(\eta\sigma_V) \\
+  &=\eta\sigma_V^2\sqrt{p_{\mathscr C}}.
+\end{align}
+Also,
+\begin{equation}
+  \|R_{\mathscr C}\|_2^2\leq\eta^2\sigma_V^2.
+\end{equation}
+Therefore
+\begin{align}
+  |\epsilon_N^{\mathscr C}|
+  &\leq 2\eta\sigma_V^2\sqrt{p_{\mathscr C}}
+       +\eta^2\sigma_V^2 \\
+  &=\sigma_V^2(2\eta\sqrt{p_{\mathscr C}}+
+       \eta^2).
+  \label{eq:ped_general_epsN}
+\end{align}
+The two terms have different interpretations. The term linear in $\eta$ is the
+cross term between the reference and residual projections. The term quadratic in
+$\eta$ is the projected variance of the residual itself.
+
+\subsection*{Step 5. Bound the denominator away from zero}
+
+The denominator of $\mathsf{PE}_{\mathscr C}(Z)$ is
+\begin{equation}
+  \Var[Z]=\|z\|_2^2=\|v+e\|_2^2.
+\end{equation}
+We need a lower bound because a small numerator difference can produce a large
+ratio difference if the transformed-output variance is nearly zero.
+
+The reverse triangle inequality follows from the ordinary triangle inequality:
+\begin{equation}
+  \|v\|_2=\|(v+e)-e\|_2\leq\|v+e\|_2+\|e\|_2,
+\end{equation}
+so
+\begin{equation}
+  \|v+e\|_2\geq\|v\|_2-\|e\|_2.
+\end{equation}
+Since $\|v\|_2=\sigma_V$ and $\|e\|_2=\eta\sigma_V$,
+\begin{equation}
+  \|v+e\|_2\geq\sigma_V(1-\eta).
+\end{equation}
+When $\eta<1$, the right side is positive. Squaring gives
+\begin{equation}
+  \Var[Z]\geq\sigma_V^2(1-\eta)^2>0.
+  \label{eq:ped_general_var_lower}
+\end{equation}
+This proves that the transformed output is nonconstant, so its Sobol indices are
+well-defined.
+
+We also need to compare $\Var[Z]$ to $\Var[V]$. Expanding gives
+\begin{align}
+  \Var[Z]
+  &=\|v+e\|_2^2 \\
+  &=\|v\|_2^2+2\langle v,e\rangle+\|e\|_2^2 \\
+  &=\sigma_V^2+\epsilon_D,
+\end{align}
+where
+\begin{equation}
+  \epsilon_D=2\langle v,e\rangle+\|e\|_2^2.
+\end{equation}
+Here $\epsilon_D$ is the denominator perturbation. Cauchy--Schwarz gives
+\begin{align}
+  |\epsilon_D|
+  &\leq 2\|v\|_2\|e\|_2+
+       \|e\|_2^2 \\
+  &=2\sigma_V(\eta\sigma_V)+\eta^2\sigma_V^2 \\
+  &=\sigma_V^2(2\eta+
+       \eta^2).
+  \label{eq:ped_general_epsD}
+\end{align}
+This is the denominator analogue of the numerator bound.
+
+\subsection*{Step 6. Subtract the two Sobol ratios}
+
+Now write the two normalized projection energies explicitly:
+\begin{equation}
+  \mathsf{PE}_{\mathscr C}(Z)
+  =\frac{p_{\mathscr C}\sigma_V^2+
+  \epsilon_N^{\mathscr C}}{\Var[Z]},
+  \qquad
+  \mathsf{PE}_{\mathscr C}(V)
+  =\frac{p_{\mathscr C}\sigma_V^2}{\sigma_V^2}
+  =p_{\mathscr C}.
+\end{equation}
+Using $\Var[Z]=\sigma_V^2+
+\epsilon_D$, put the difference over a common denominator:
+\begin{align}
+  \mathsf{PE}_{\mathscr C}(Z)-\mathsf{PE}_{\mathscr C}(V)
+  &=\frac{p_{\mathscr C}\sigma_V^2+
+      \epsilon_N^{\mathscr C}}{\Var[Z]}
+    -\frac{p_{\mathscr C}\sigma_V^2}{\sigma_V^2} \\
+  &=\frac{(p_{\mathscr C}\sigma_V^2+
+      \epsilon_N^{\mathscr C})\sigma_V^2
+      -p_{\mathscr C}\sigma_V^2(\sigma_V^2+
+      \epsilon_D)}{\Var[Z]\sigma_V^2} \\
+  &=\frac{\cancel{p_{\mathscr C}\sigma_V^4}
+      +\epsilon_N^{\mathscr C}\sigma_V^2
+      -\cancel{p_{\mathscr C}\sigma_V^4}
+      -p_{\mathscr C}\sigma_V^2\epsilon_D}{\Var[Z]\sigma_V^2} \\
+  &=\frac{\epsilon_N^{\mathscr C}
+      -p_{\mathscr C}\epsilon_D}{\Var[Z]}.
+  \label{eq:ped_general_ratio}
+\end{align}
+The reference contribution cancels. This cancellation is the ratio-level reason
+that the result is scale-free: multiplying $V$ and $E$ by a common constant would
+not change either Sobol index.
+
+Taking absolute values and applying the triangle inequality,
+\begin{equation}
+  \left|\mathsf{PE}_{\mathscr C}(Z)-\mathsf{PE}_{\mathscr C}(V)\right|
+  \leq
+  \frac{|\epsilon_N^{\mathscr C}|+p_{\mathscr C}|\epsilon_D|}{\Var[Z]}.
+\end{equation}
+Substitute the numerator bound \eqref{eq:ped_general_epsN}, the denominator
+perturbation bound \eqref{eq:ped_general_epsD}, and the variance lower bound
+\eqref{eq:ped_general_var_lower}:
+\begin{align}
+  \left|\mathsf{PE}_{\mathscr C}(Z)-\mathsf{PE}_{\mathscr C}(V)\right|
+  &\leq
+  \frac{
+    \sigma_V^2(2\eta\sqrt{p_{\mathscr C}}+
+    \eta^2)
+    +p_{\mathscr C}\sigma_V^2(2\eta+
+    \eta^2)
+  }{\sigma_V^2(1-\eta)^2} \\
+  &=
+  \frac{
+    2\eta\sqrt{p_{\mathscr C}}+
+    \eta^2+2\eta p_{\mathscr C}+
+    \eta^2p_{\mathscr C}
+  }{(1-\eta)^2} \\
+  &=
+  \frac{
+    2\eta\sqrt{p_{\mathscr C}}(1+\sqrt{p_{\mathscr C}})
+    +\eta^2(1+p_{\mathscr C})
+  }{(1-\eta)^2}.
+\end{align}
+This is Proposition~\ref{prop:abstract_bound}.
+
+\subsection*{Step 7. Taylor expansion supplies a concrete reference}
+
+The abstract theorem says nothing about derivatives. It only needs a reference
+$V$ and residual $E$. For a smooth output transformation $Z=\phi(Y)$, Taylor
+expansion provides a principled choice.
+
+Let
+\begin{equation}
+  \mu_Y=\E[Y],
+  \qquad
+  U=Y-\mu_Y.
+\end{equation}
+Taylor expansion around $\mu_Y$ through order $m$ gives
+\begin{equation}
+  \phi(Y)=\phi(\mu_Y)+
+  \sum_{k=1}^m\frac{\phi^{(k)}(\mu_Y)}{k!}U^k+R_m.
+\end{equation}
+The constant $\phi(\mu_Y)$ has no effect on Sobol indices. Therefore choose
+\begin{equation}
+  V_m=\sum_{k=1}^m\frac{\phi^{(k)}(\mu_Y)}{k!}U^k,
+  \qquad
+  E=R_m.
+\end{equation}
+The reference variance condition is
+\begin{equation}
+  \sigma_m^2=\Var[V_m]>0.
+\end{equation}
+This condition is real. It is not automatically guaranteed by a nonzero Taylor
+coefficient, because a nonzero polynomial can still be constant on the particular
+support of $Y$. For example, if $U$ takes only the two values $-1$ and $1$, then
+$U^2=1$ almost surely and a purely quadratic reference has zero variance.
+
+The Taylor residual ratio is
+\begin{equation}
+  \eta_m=\frac{\|R_m-\E R_m\|_2}{\sigma_m}.
+\end{equation}
+If $\eta_m<1$, the abstract theorem directly bounds Sobol indices of $\phi(Y)$
+relative to Sobol indices of $V_m$.
+
+Now derive the computable sufficient bound. Let
+\begin{equation}
+  \rho_{m+1}=\|\phi^{(m+1)}\|_{\infty,[y_-,y_+]}.
+\end{equation}
+The integral form of the Taylor remainder is
+\begin{equation}
+  R_m
+  =\int_{\mu_Y}^{Y}
+    \frac{(Y-t)^m}{m!}\phi^{(m+1)}(t)\,dt.
+\end{equation}
+Taking absolute values and using
+$|\phi^{(m+1)}(t)|\leq\rho_{m+1}$ gives
+\begin{align}
+  |R_m|
+  &\leq
+  \frac{\rho_{m+1}}{m!}
+  \left|\int_{\mu_Y}^{Y}(Y-t)^m\,dt\right| \\
+  &=
+  \frac{\rho_{m+1}}{m!}
+  \frac{|Y-\mu_Y|^{m+1}}{m+1} \\
+  &=
+  \frac{\rho_{m+1}}{(m+1)!}|Y-\mu_Y|^{m+1}.
+\end{align}
+Squaring, taking expectations, and taking square roots gives
+\begin{equation}
+  \|R_m\|_2
+  \leq
+  \frac{\rho_{m+1}}{(m+1)!}
+  \left\{\E|Y-\mu_Y|^{2m+2}\right\}^{1/2}.
+\end{equation}
+Finally,
+\begin{equation}
+  \|R_m-\E R_m\|_2^2
+  =\Var[R_m]
+  =\E[R_m^2]-(\E R_m)^2
+  \leq \E[R_m^2]
+  =\|R_m\|_2^2.
+\end{equation}
+Therefore
+\begin{equation}
+  \eta_m
+  \leq
+  \frac{\rho_{m+1}}{(m+1)!\,\sigma_m}
+  \left\{\E|Y-\mu_Y|^{2m+2}\right\}^{1/2},
+\end{equation}
+which is the sufficient bound in Corollary~\ref{cor:taylor_bound}.
+
+\subsection*{Step 8. How the theorem reads in the familiar regimes}
+
+If $m=1$ and $c=\phi'(\mu_Y)\neq0$, then
+\begin{equation}
+  V_1=c(Y-\mu_Y).
+\end{equation}
+This is an affine rescaling of $Y$, after removing an irrelevant constant. Its
+ANOVA components are $c$ times the ANOVA components of $Y$, so each component
+variance and the total variance are multiplied by $c^2$. The ratios are
+unchanged:
+\begin{equation}
+  \mathsf{PE}_{\mathscr C}(V_1)=\mathsf{PE}_{\mathscr C}(Y).
+\end{equation}
+Thus the general theorem becomes a direct bound on index shifts relative to the
+original output $Y$.
+
+If $\phi'(\mu_Y)=0$ but $\phi''(\mu_Y)\neq0$, the first useful reference is often
+quadratic:
+\begin{equation}
+  V_2=\frac12\phi''(\mu_Y)(Y-\mu_Y)^2.
+\end{equation}
+The theorem applies when $\Var[V_2]>0$. It does not compare $\phi(Y)$ directly to
+$Y$; it compares $\phi(Y)$ to the quadratic reference. That distinction is the
+point. If $Y=X_1+X_2$ is additive and centered, then $Y^2$ contains
+$2X_1X_2$, so the quadratic reference has an interaction component even though
+$Y$ does not.
+
+More generally, choose $m$ large enough that the residual $R_m$ is small relative
+to the standard deviation of $V_m$. The theorem then says that the Sobol
+structure of the transformed output is controlled by the Sobol structure of the
+Taylor reference plus a quantified residual error. The proof is unified because
+all regimes use the same abstract decomposition $Z=V+E$.
+
+% ======================================================================
+\section{Proof story: from question to finished argument}
+\label{app:proof_story}
+% ======================================================================
+
+\subsection*{Starting point: the commutativity memo}
+
+The companion memo says that affine transformations are exactly the continuous
+pointwise transformations that commute with Sobol index computation for every
+admissible scalar model. That result is qualitative. It tells us that a
+non-affine transformation can move Sobol indices, but it does not tell us how
+large the movement can be for a particular model and transform.
+
+The first instinct is to linearize $\phi$ around $\mu_Y$ and compare $\phi(Y)$ to
+$Y$. That works when $\phi'(\mu_Y)\neq0$, because the leading Taylor term is an
+affine rescaling of $Y-\mu_Y$. But it fails as a general organizing principle:
+if $\phi'(\mu_Y)=0$, the leading term may be quadratic or higher-order. The
+canonical example $Y=X_1+X_2$ and $\phi(y)=y^2$ is exactly this case; the
+quadratic term creates the interaction $2X_1X_2$.
+
+The fix is to separate two ideas that were previously entangled. The projection
+perturbation theorem should not know anything about Taylor expansions or about
+whether the first derivative is zero. It should only say: if $Z=V+E$ and $E$ is
+small relative to $V$, then Sobol indices of $Z$ are close to Sobol indices of
+$V$. Taylor analysis is then used afterward to choose $V$.
+
+\subsection*{Why the reference output is allowed to change}
+
+Sobol indices are not intrinsic properties of an input--output mechanism alone;
+they are variance shares on a chosen output scale. If the output is squared, the
+variance being allocated is the variance of the squared output. There is no
+mathematical reason that this variance allocation must resemble the variance
+allocation of the unsquared output.
+
+The reference $V_m$ is therefore not a trick. It is the dominant output-scale
+object after transformation. When the dominant Taylor term is affine, $V_m$ has
+the same Sobol indices as $Y$. When the dominant Taylor term is quadratic,
+$V_m$ may have new interactions. The theorem follows the mathematics of the
+transformed output rather than forcing every transform into a local-affine frame.
+
+\subsection*{Why orthogonal projections are the right language}
+
+A Sobol component numerator is the squared norm of an orthogonal projection of
+the centered output onto an ANOVA subspace. A closed index or total-effect index
+is the squared norm of a projection onto a direct sum of such subspaces. Once
+this is recognized, all standard Sobol indices in the memo have the same form:
+\begin{equation}
+  \frac{\|\Pi_{\mathscr C}(W-\E W)\|_2^2}{\Var[W]}.
+\end{equation}
+This is why the theorem is stated for $\mathsf{PE}_{\mathscr C}$. The notation
+is bookkeeping: it lets one proof handle component, closed, and total-effect
+indices without repeating the same calculation and without summing many separate
+componentwise bounds.
+
+\subsection*{The numerator argument}
+
+If $Z=V+E$, then after centering,
+\begin{equation}
+  Z-\E Z=(V-\E V)+(E-\E E)=v+e.
+\end{equation}
+Projection linearity gives
+\begin{equation}
+  \Pi_{\mathscr C}(Z-\E Z)=\Pi_{\mathscr C}v+\Pi_{\mathscr C}e.
+\end{equation}
+The difference between the projected numerator for $Z$ and the projected
+numerator for $V$ is therefore just the cross term plus the squared perturbation
+projection. Cauchy--Schwarz bounds the cross term, and projection contraction
+bounds the perturbation projection by the full perturbation norm. This gives a
+linear term in $\eta$ and a quadratic term in $\eta$.
+
+\subsection*{The denominator argument}
+
+The denominator is the total variance of $Z$, namely $\|v+e\|_2^2$. The residual
+could partially cancel the reference, so a lower bound is needed. The reverse
+triangle inequality gives the clean stability condition
+\begin{equation}
+  \|v+e\|_2\geq \|v\|_2-\|e\|_2=\sigma_V(1-\eta).
+\end{equation}
+Thus $\eta<1$ guarantees that the transformed output is nonconstant and that the
+ratio denominator is bounded away from zero. This is conceptually simpler than
+tracking signs of covariance terms, and it applies to every reference $V$, not
+just an affine one.
+
+\subsection*{The key cancellation}
+
+The ratio subtraction is where the proof becomes a Sobol-index proof rather than
+just an $L^2$ perturbation bound. Writing both projection energies over a common
+denominator makes the reference contribution cancel. What remains is the
+numerator perturbation minus the reference projection share times the denominator
+perturbation. This cancellation is why the bound depends on the reference index
+value $p_{\mathscr C}$ and on the relative residual size $\eta$, but not on the
+absolute scale of $V$.
+
+\subsection*{How Taylor enters}
+
+Taylor expansion provides a principled way to choose $V$. Around $\mu_Y$,
+\begin{equation}
+  \phi(Y)=\phi(\mu_Y)+V_m+R_m,
+  \qquad
+  V_m=\sum_{k=1}^m\frac{\phi^{(k)}(\mu_Y)}{k!}(Y-\mu_Y)^k.
+\end{equation}
+The constant $\phi(\mu_Y)$ drops out of every Sobol numerator and denominator.
+Thus $V_m$ is the reference and $R_m$ is the perturbation.
+
+For $m=1$ with nonzero slope, $V_1$ is affine in $Y$, so the theorem bounds
+indices of $\phi(Y)$ relative to indices of $Y$. For $m=2$, the theorem can
+handle $Y^2$ and other critical-point transforms whenever the quadratic
+reference has positive variance. If the transform is exactly a polynomial and
+$m$ includes its degree, then $R_m=0$ and the theorem is exact provided the
+polynomial reference is nonconstant. The remaining task is to compute or
+estimate the Sobol indices of the polynomial reference.
+
+\subsection*{Why this proof avoids a two-case theorem}
+
+The old split would have required one proof for the nonzero-slope case and a
+separate proof for the critical-point case. The projection perturbation theorem
+absorbs both. It does not ask whether the first derivative vanishes. It asks only
+whether the residual after choosing a reference is small. The two regimes differ
+only in the natural choice of reference:
+\begin{itemize}
+  \item local-affine regime: $V_1=\phi'(\mu_Y)(Y-\mu_Y)$;
+  \item critical quadratic regime: $V_2=\frac12\phi''(\mu_Y)(Y-\mu_Y)^2$ when the
+    linear term vanishes;
+  \item mixed polynomial regime: include all Taylor terms needed to make the
+    residual small.
+\end{itemize}
+The proof is therefore unified, while the interpretation still distinguishes
+whether the dominant transformed-output structure is affine, quadratic, or
+higher-order.
+
+% ======================================================================
+\section{Known limitations and scope for future work}
+\label{app:limitations}
+% ======================================================================
+
+\paragraph{Reference-relative, not always original-output-relative.}
+The main theorem bounds Sobol indices of $\phi(Y)$ relative to the chosen
+reference $V_m$. Only when $V_m$ is affine in $Y$ does this become a direct bound
+relative to the Sobol indices of $Y$. In critical-point regimes the reference may
+be quadratic or higher-order, and its Sobol structure may differ substantially
+from that of $Y$. This is the noncommutativity mechanism in the cases that
+motivate the theorem.
+
+\paragraph{Choice of Taylor order and computational cost of the reference indices.}
+The analyst must choose $m$. A low order gives a simple reference but may leave a
+large residual; a higher order may make the residual smaller but produces a more
+complicated reference output whose Sobol indices $\mathsf{PE}_{\mathscr C}(V_m)$
+appear on the right-hand side of the bound.
+
+This does \emph{not} require additional evaluations of the original simulator.
+The reference $V_m$ is a polynomial in the \emph{original} output $Y$
+(see \eqref{eq:taylor_reference}), so its Sobol indices can sometimes be
+computed analytically from the distributional and ANOVA structure of $Y$, as in
+the quadratic example of Section~\ref{sec:numerical}. When an analytic
+calculation is not available, $\mathsf{PE}_{\mathscr C}(V_m)$ can be estimated
+from the same model evaluations used to estimate the Sobol indices of $Y$, by
+post-processing the observed output values into the reference output $V_m$.
+
+If even the reference indices are unavailable, a universal conservative bound
+follows by maximizing over $p\in[0,1]$. The right-hand side of
+\eqref{eq:abstract_bound} is increasing in $p_{\mathscr C}$ (replacing
+$\sqrt{p}$ and $p$ by their maximum value~1 gives an upper bound), yielding
+\begin{equation}
+  \left|\mathsf{PE}_{\mathscr C}(Z)-\mathsf{PE}_{\mathscr C}(V_m)\right|
+  \leq
+  \frac{4\eta_m+2\eta_m^2}{(1-\eta_m)^2},
+  \label{eq:universal_bound}
+\end{equation}
+which depends only on $\eta_m$ and requires no knowledge of $\mathsf{PE}_{\mathscr C}(V_m)$.
+The theorem is most useful when $\eta_m$ is comfortably below one.
+
+\paragraph{Worst-case conservatism.}
+The Cauchy--Schwarz bound is tight only when the relevant ANOVA projections of
+the reference and residual are perfectly collinear in $L^2$. In symmetric or
+nearly symmetric models the leading residual contribution may be small or zero,
+as illustrated by the third-moment contrast \eqref{eq:third_moment_contrast}; in
+such cases the observed displacement can be much smaller than the bound.
+
+\paragraph{Bounded support and unbounded extensions.}
+The bounded-output assumption in Corollary~\ref{cor:taylor_bound} gives a clean
+uniform bound on $\|\phi^{(m+1)}\|_\infty$ and guarantees the required moments.
+The abstract Proposition~\ref{prop:abstract_bound} itself does not require
+bounded support. The same smooth-transform argument applies in unbounded settings
+whenever $V_m\in L^2$, $R_m\in L^2$, $\Var[V_m]>0$, and a finite bound on
+$\eta_m$ is available.
+
+\paragraph{Population quantities and estimator uncertainty.}
+The inequalities are population statements. Plug-in estimates of
+$\eta_m$, $p_{m,\mathscr C}$, $K$, or any Sobol index require separate sampling
+uncertainty analysis. Using an observed sample range in place of an almost-sure
+support interval gives a diagnostic calculation, not a rigorous population
+bound.
+
+\paragraph{Alternative sensitivity targets.}
+The theorem concerns standard variance-based Sobol ANOVA component, closed, and
+total-effect indices. It does not assert a corresponding perturbation bound for
+Borgonovo $\delta$ indices, Cram\'{e}r--von Mises indices, fixed-kernel HSIC
+statistics, perturbed-law indices, or other distributional/dependence-based
+sensitivity measures. Those methods have different targets and may have
+different transformation behavior; the present argument uses the
+orthogonal-projection structure of variance-based Sobol decompositions.
+
+\paragraph{Scalar versus spatial or functional aggregates.}
+This memo bounds scalar Sobol component indices and the standard scalar closed
+and total-effect sums. It does not by itself prove a bound for a
+variance-weighted aggregate over spatial, temporal, or functional output
+coordinates. Such aggregates use output-coordinate-specific variance weights,
+and a nonlinear pointwise transform can change both the local Sobol numerator and
+the local variance weight. This is the same distinction emphasized in the
+companion memo: pointwise scalar preservation under a common affine transform
+immediately implies aggregate preservation, but nonlinear transforms require a
+separate aggregate argument. Generalized Sobol indices for Hilbert-space-valued
+outputs provide a related but distinct functional-output framework
+\citep{Gamboa2014}; for temporal functional outputs, variance-based sensitivity
+analysis for time-dependent processes is treated by
+\citet{AlexanderianGremaudSmith2020}; spatial and spatiotemporal aggregate
+variants require their own weighting and covariance-specific arguments.
+
+\paragraph{Path to a complete article.}
+A standalone publication would need: (i) simulation studies comparing the bounds
+to empirical shifts across component, closed, and total-effect indices;
+(ii) estimator uncertainty quantification for Taylor-reference Sobol indices and
+residual ratios; (iii) extensions to unbounded-output settings under moment and
+curvature conditions; and (iv) extensions to spatial or functional aggregates.
+
+\bibliographystyle{plainnat}
+\bibliography{bounds_memo_v22}
+
+\end{document}

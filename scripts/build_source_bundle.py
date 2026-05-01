@@ -80,11 +80,7 @@ def _iter_regular_files(path: Path) -> list[Path]:
     if path.is_symlink():
         return []
     if path.is_dir():
-        return [
-            child
-            for child in path.rglob("*")
-            if child.is_file() and not child.is_symlink()
-        ]
+        return [child for child in path.rglob("*") if child.is_file() and not child.is_symlink()]
     if path.is_file():
         return [path]
     return []
