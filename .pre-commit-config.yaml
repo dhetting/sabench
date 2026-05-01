@@ -29,13 +29,18 @@ repos:
         args: [--fix=lf]
 
   # ── Mypy type checking ─────────────────────────────────────────────────────
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.10.0
+  # Use a local hook delegating to the pixi-managed mypy so pre-commit does
+  # not create an isolated virtualenv (which can hang on network-restricted
+  # or slow environments).  Mirrors the 'typecheck' pixi task exactly.
+  - repo: local
     hooks:
       - id: mypy
-        additional_dependencies: [numpy]
-        args: [--ignore-missing-imports, --no-strict-optional]
-        exclude: ^(tests/|notebooks/)
+        name: mypy
+        language: system
+        entry: pixi run -e ci mypy sabench
+        args: [--ignore-missing-imports]
+        pass_filenames: false
+        types: [python]
 
   # ── Pytest: fast smoke test on staged changes ──────────────────────────────
   - repo: local
