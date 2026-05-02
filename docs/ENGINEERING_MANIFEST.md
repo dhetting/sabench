@@ -1,6 +1,6 @@
 # Engineering Manifest
 
-Last updated: 2026-05-01
+Last updated: 2026-05-01 (post-PR #11)
 
 This manifest is the planning document for release-readiness work in this
 repository. Treat the live repository and tests as authoritative; treat
@@ -227,6 +227,14 @@ Validated on 2026-05-01.
 - Pre-commit mypy hook replaced with fast local pixi-delegating hook.
 - Both analysis notebooks verified to execute end-to-end and export correct CSVs.
 - Full local gate and GitHub CI confirmed passing.
+- Notebooks renamed (removed numeric prefix), outputs standardized to
+  `outputs/<notebook_name>/`, all results in pandas DataFrames. PR #9.
+- Five transforms reclassified from smooth to nonsmooth (legendre_p3,
+  chebyshev_t4, damped_sin, donut, signed_power_p15). SMOOTH=85, NONSMOOTH=32.
+  Registry metadata snapshot regenerated. PR #10.
+- Derivative metadata registered for all 36 smooth+pointwise catalog transforms
+  in `_SMOOTH_POINTWISE_ANALYSES` (38 total entries). `bounds_no_derivative_metadata`
+  is now 0 for all catalog-registered pairs. PR #11.
 
 ## Known Risks
 
@@ -235,11 +243,16 @@ Validated on 2026-05-01.
   subsets) has been verified end-to-end.
 - README citation contains a JOSS DOI placeholder pending external publication
   metadata.
+- `bounds_supported` reports 0 pairs for the all-catalog grid: it requires
+  explicit per-benchmark theoretical output support bounds via `support_by_pair`.
+  This is intentional — sample-range bounds are reported as
+  `bounds_diagnostic_sample_support`, not theorem-backed `bounds_supported`.
 
 ## Deferred Work
 
-- Broaden derivative metadata beyond the initial smooth pointwise transform set
-  only when needed and tested.
+- Add per-benchmark theoretical output support bounds to enable `bounds_supported`
+  pairs (requires defining known output ranges for each benchmark and passing
+  them via `support_by_pair` to `evaluate_bounds_grid`).
 - Resolve JOSS DOI placeholder after external publication metadata is available.
 - Full publish/release workflow (tagging, PyPI publish) is out of scope until
   explicitly requested.

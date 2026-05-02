@@ -1,6 +1,6 @@
 # MEMORY — sabench release-readiness continuation
 
-Last updated: 2026-05-01
+Last updated: 2026-05-01 (post-PR #11)
 
 This file is continuity context only. It is advisory, not authoritative. In any
 new chat or future slice, audit the live repo on disk before trusting this file,
@@ -13,7 +13,7 @@ The `sabench` repo has completed all Phase A–D release-readiness work. The
 transform monolith is retired; typed registries are canonical; both analysis
 notebooks execute cleanly; the full local gate and GitHub CI pass.
 
-Current state of `main` as of 2026-05-01:
+Current state of `main` as of 2026-05-01 (HEAD `ca3c7e1`, post-PR #11):
 
 - All Phase A–D work merged and verified.
 - No open PRs, no stale branches.
@@ -21,6 +21,16 @@ Current state of `main` as of 2026-05-01:
 - GitHub CI passes on `main`.
 - Both analysis notebooks execute end-to-end and export all expected CSVs.
 - Pre-commit mypy hook is fast (uses pixi-managed mypy, no isolated virtualenv).
+- Transform catalog corrected: 5 transforms moved from smooth to nonsmooth
+  (legendre_p3, chebyshev_t4, damped_sin, donut, signed_power_p15). PR #10.
+  SMOOTH_TRANSFORMS=85, NONSMOOTH_TRANSFORMS=32.
+- Derivative metadata registered for all 36 smooth+pointwise transforms in
+  `_SMOOTH_POINTWISE_ANALYSES` (38 entries total). PR #11.
+  `bounds_no_derivative_metadata` is 0 for all catalog-registered smooth+pointwise
+  pairs. Pairs instead report `bounds_diagnostic_sample_support`.
+- `bounds_supported` is 0 for all pairs; requires explicit per-benchmark
+  theoretical output support bounds passed via `support_by_pair` to
+  `evaluate_bounds_grid`. This is a known deferred item.
 
 ## Non-Negotiable Operating Rules
 
@@ -92,14 +102,17 @@ Purpose:
 - State that projection-bound comparisons are against the Taylor reference
   `V_m`, not directly against original output `Y`.
 
-Bounds statuses:
+Bounds statuses (`sabench/analysis/bounds.py`):
 
-- `bounds_supported`
-- `bounds_diagnostic_sample_support`
+- `bounds_supported` — explicit theoretical support provided; currently 0 pairs
+  in all-catalog grid (deferred: per-benchmark support bounds not yet registered)
+- `bounds_diagnostic_sample_support` — smooth+pointwise with derivative metadata;
+  all 36 smooth+pointwise catalog transforms now reach this status
 - `bounds_not_scalar_output`
 - `bounds_not_pointwise`
 - `bounds_not_smooth`
-- `bounds_no_derivative_metadata`
+- `bounds_no_derivative_metadata` — currently 0 for all catalog pairs (all
+  smooth+pointwise transforms have registered derivative metadata as of PR #11)
 - `bounds_domain_invalid`
 - `bounds_reference_zero_variance`
 - `bounds_eta_ge_one`
@@ -120,6 +133,9 @@ All Phases A–D are complete as of 2026-05-01:
 - Pre-commit hooks fast and stable.
 
 The repo is release-ready. Remaining deferred items:
+- Adding per-benchmark theoretical output support bounds to enable
+  `bounds_supported` pairs in the bounds grid (currently all pairs report
+  `bounds_diagnostic_sample_support`).
 - Resolving the JOSS DOI placeholder (external dependency).
 - Release tagging and PyPI publish when explicitly requested.
 
