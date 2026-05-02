@@ -334,13 +334,17 @@ def evaluate_bounds_pair(
 
     analysis = get_smooth_pointwise_analysis(transform_key)
     try:
-        taylor = taylor_reference_diagnostics(
-            output,
-            analysis,
-            order=taylor_order,
-            support=support,
-        )
-        local_affine = local_affine_diagnostics(output, analysis, support=support)
+        # Overflow warnings are expected when smooth transforms are evaluated at
+        # large output values (e.g., exp derivatives at large y).  The diagnostics
+        # handle the resulting inf/NaN values and return appropriate status codes.
+        with np.errstate(over="ignore", invalid="ignore"):
+            taylor = taylor_reference_diagnostics(
+                output,
+                analysis,
+                order=taylor_order,
+                support=support,
+            )
+            local_affine = local_affine_diagnostics(output, analysis, support=support)
     except ValueError as exc:
         return _result_from_classification(
             classification,

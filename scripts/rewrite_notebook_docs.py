@@ -254,7 +254,7 @@ captures:
 
 1. A **compatibility check** — whether the transform supports the benchmark's
    output kind (scalar, spatial, temporal).  Incompatible pairs are retained
-   as `skipped_incompatible` rows.
+   as `excluded` rows.
 2. A **benchmark evaluation** — `N(d+2)` calls to `benchmark.evaluate()` using
    the Saltelli sampling design.
 3. **Sobol index estimation** — Jansen (1999) estimator for both first-order
@@ -262,23 +262,31 @@ captures:
 4. For multi-output benchmarks, **variance-weighted profile aggregation**
    produces one $d$-vector per index type.
 5. **Metric computation** — $D$, $\\Delta$, flip counts, rank correlation, etc.
-6. Pair-level exceptions are caught and recorded as `failed` rows, not crashes.
+6. Pair-level exceptions are caught and recorded as structured failure rows,
+   not crashes.
 
 After the cell runs, `df` contains one row per pair.  The `pair_status` column
-records the coarse outcome; the `metrics_status` column records whether metrics
-were computed.
+records the coarse compatibility outcome; the `metrics_status` column records
+whether metrics were computed.
 
-**Typical `pair_status` values:**
-- `computed` — all steps succeeded; metric columns are populated
-- `skipped_incompatible` — transform does not support benchmark's output kind
-- `failed` — an unexpected error occurred (inspect `reason` column)
+**`pair_status` values:**
+- `included` — the pair was compatibility-checked and all pipeline steps were
+  attempted; metric columns may or may not be populated (check `metrics_status`)
+- `excluded` — the transform does not support the benchmark's output kind;
+  no computation was performed
 
-**Typical `metrics_status` values:**
-- `computed` — metrics are present
-- `skipped_incompatible` — same reason as `pair_status`
-- `failed_zero_variance` — transformed output had zero variance; $D$ and
-  $\\Delta$ are undefined
-- `failed` — metric computation raised an error
+**`metrics_status` values:**
+- `computed` — metrics are present and valid
+- `not_applicable` — pair was `excluded`; no metrics attempted
+- `failed_raw_evaluation` — benchmark evaluation raised an error
+- `failed_raw_output_validation` — raw output had bad shape or non-finite values
+- `failed_transform_evaluation` — transform raised an error
+- `failed_transformed_output_validation` — transformed output had bad shape or
+  non-finite values
+- `failed_sobol_estimation` — Sobol estimation failed (e.g., zero variance)
+- `failed_metric_computation` — Sobol estimates were computed but the resulting
+  profiles contained non-finite values (e.g., due to numerical overflow when
+  squaring very large transform outputs in the Jansen estimator)
 """
 
 NONCOMM_COLUMN_GLOSSARY = """\
@@ -292,8 +300,8 @@ One row per (benchmark, transform) pair, regardless of outcome.
 |--------|-------------|
 | `benchmark_key` | Registry key, e.g. `"Ishigami"` |
 | `transform_key` | Registry key, e.g. `"log_shift_pos"` |
-| `pair_status` | Coarse outcome: `computed`, `skipped_incompatible`, `failed` |
-| `metrics_status` | Fine-grained outcome of metric computation |
+| `pair_status` | Coarse outcome: `included` (computation attempted) or `excluded` (incompatible) |
+| `metrics_status` | Fine-grained outcome: `computed`, `not_applicable`, `failed_raw_evaluation`, `failed_raw_output_validation`, `failed_transform_evaluation`, `failed_transformed_output_validation`, `failed_sobol_estimation`, `failed_metric_computation` |
 | `reason` | Human-readable reason string for non-`computed` rows |
 | `benchmark_output_kind` | `scalar`, `spatial`, or `temporal` |
 | `transform_mechanism` | `pointwise`, `spatial`, `temporal`, etc. |
@@ -399,13 +407,21 @@ about near-zero metrics.
 
 ### When `metrics_status` is not `computed`
 
-- `failed_zero_variance`: the transformation produced a constant output for
-  this benchmark.  Check whether the transform's domain is compatible with
-  the benchmark's output range.
-- `skipped_incompatible`: the transform does not operate on the benchmark's
-  output kind.  This is expected, not an error.
-- `failed`: inspect the `reason` column.  Common causes are domain errors
-  (e.g., log of a negative value) or unsupported output shapes.
+- `not_applicable`: the pair was `excluded` (incompatible transform/benchmark
+  output kind).  This is expected, not an error.
+- `failed_raw_evaluation` / `failed_transform_evaluation`: an error was raised
+  during benchmark or transform evaluation.  Inspect the `reason` column.
+- `failed_raw_output_validation` / `failed_transformed_output_validation`:
+  the output array had unexpected shape or non-finite values after evaluation.
+- `failed_sobol_estimation`: Sobol estimation raised an error, usually due to
+  zero raw variance (the benchmark's output was constant over the sample).
+- `failed_metric_computation`: Sobol estimates were produced but the variance-
+  weighted profiles contained non-finite values.  The most common cause is
+  numerical overflow: transforms like `exp(s·y²)` that yield values near
+  float64 max (~1.8×10³⁰⁸) overflow when squared during variance estimation
+  inside the Jansen estimator.  The transform output itself may be finite, yet
+  squaring produces infinity.  This is expected for pathological transform/
+  benchmark combinations and is captured as a structured status, not a crash.
 """
 
 # ---------------------------------------------------------------------------
@@ -649,7 +665,7 @@ is important for correctly interpreting the coverage of the grid.
 | `bounds_not_smooth` | Transform is classified as nonsmooth (e.g., threshold, rectifier, absolute value); derivative metadata is not registered. |
 | `bounds_no_derivative_metadata` | Transform is smooth and pointwise but lacks registered derivative information.  As of PR #11, this count is 0 for all catalog smooth+pointwise transforms. |
 | `bounds_domain_invalid` | Benchmark output falls outside the transform's valid domain (e.g., log of a negative output). |
-| `bounds_reference_zero_variance` | The Taylor reference $V_m$ has zero variance.  This occurs when all Taylor terms cancel, making the bound degenerate; increase the Taylor order. |
+| `bounds_reference_zero_variance` | The Taylor reference $V_m$ has zero variance.  This occurs when all Taylor derivatives $\\phi^{(k)}(\\mu_Y)$ are near zero — typically because the transform is saturated or spiked and $\\mu_Y$ lies far outside the transform's active region.  The bound is degenerate; try a higher Taylor order or a better-centred transform. |
 | `bounds_eta_ge_one` | Empirical $\\eta_m \\geq 1$; the residual dominates the reference and the bound provides no finite information. |
 | `bounds_failed` | An unexpected runtime error occurred; inspect the `reason` column. |
 
@@ -866,6 +882,61 @@ reference — complementing the bound columns.
 As with the noncommutativity notebook, small values of `eta_empirical`,
 `projection_bound_*`, or `reference_shift_*` at `N_BASE=128` carry sampling
 uncertainty.  Use `N_BASE ≥ 512` for reliable diagnostics.
+
+### Common patterns in the default grid output
+
+When running with default settings, you will typically observe several
+repeating patterns across the status summary.  These are not bugs — they
+reflect the mathematical structure of the benchmark/transform landscape:
+
+**`bounds_not_scalar_output`** is the largest group because the benchmark
+registry includes spatial and temporal benchmarks (e.g., multi-output Gaussian
+fields, Campbell 2D/3D).  The theorem applies only to scalar outputs.
+
+**`bounds_not_pointwise`** covers spatial and temporal transforms (e.g.,
+rank-normalisation, PCA projection, histogram equalisation).  The Taylor bound
+requires that $\\phi$ acts pointwise on the scalar $Y$, so these are correctly
+excluded.
+
+**`bounds_not_smooth`** covers the 38+ non-smooth transforms in the registry
+(absolute value, ReLU, sign, clipped, hard-threshold, etc.).  The Taylor bound
+requires differentiability.
+
+**`bounds_no_derivative_metadata`** covers transforms that are smooth and
+pointwise but whose derivative functions are not registered.  These can be
+diagnosed via `bounds_diagnostic_sample_support` by adding derivative metadata.
+
+**`bounds_reference_zero_variance`** (~50 pairs in the default run) occurs when
+a saturation or spike transform (e.g., `smooth_bump`, `erf_pointwise`,
+`spike_gaussian`, `exp_neg_sq`, `logistic_pointwise`, `tanh_a10`) is applied to
+a benchmark with a large output range and the benchmark mean $\\mu_Y$ falls far
+outside the transform's active region.  In that case, all derivatives
+$\\phi^{(k)}(\\mu_Y) \\approx 0$, so the Taylor reference $V_m \\approx 0$
+identically — its variance is zero.  This is mathematically correct behaviour:
+the transform is essentially saturated, and the Taylor expansion at $\\mu_Y$
+carries no information.  Increasing the Taylor order or re-centering the
+transform would be needed to make the bound informative.
+
+**`bounds_eta_ge_one`** (~150 pairs) occurs when highly nonlinear transforms
+(degree-4/5/6 polynomials, high-curvature tanhoids, $\\cos^2$, etc.) are
+applied to benchmarks with wide output ranges.  The Taylor residual $R_m$
+dominates the reference $V_m$, so $\\eta_m \\geq 1$ and the projection bound
+diverges.  This is expected: the transform is too nonlinear over the sample
+range for the current Taylor order to provide a finite bound.  Use a higher
+Taylor order or a narrower transform/benchmark pair.
+
+**`bounds_diagnostic_sample_support`** — diagnostics in this group were
+computed successfully, but the support interval used was the empirical sample
+range.  These are valid diagnostics for exploration, but they cannot be
+reported as theorem guarantees.
+
+**`bounds_supported`** — the strongest status.  Available for all 19 scalar
+benchmarks in the default registry via `BENCHMARK_OUTPUT_BOUNDS`.  For
+analytically exact entries (e.g., Ishigami $[-7.7, 7.7]$, Friedman
+$[0, 30]$) the support is a true mathematical bound on $Y$, giving a rigorous
+sufficient-$\\eta$ guarantee.  For empirically conservative entries (e.g.,
+Borehole, Piston) the hi-side was set from $N = 10^6$ samples plus a 5%
+buffer; these are practically conservative but not strictly theorem-guaranteed.
 """
 
 
