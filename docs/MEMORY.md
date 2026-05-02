@@ -29,11 +29,11 @@ PR #13 pending merge):
   `_SMOOTH_POINTWISE_ANALYSES` (38 entries total). PR #11.
   `bounds_no_derivative_metadata` is 0 for all catalog-registered smooth+pointwise
   pairs.
-- `BENCHMARK_OUTPUT_BOUNDS` added with analytically-derived output bounds for
-  5 benchmarks (Ishigami, SobolG, LinearModel, AdditiveQuadratic, CornerPeak).
+- `BENCHMARK_OUTPUT_BOUNDS` extended to all 19 registered scalar benchmarks
+  (analytically exact for 12, empirically conservative N=1M+5% buffer for 7).
   `benchmark_support` parameter added to `evaluate_bounds_grid()`. The bounds
-  notebook now passes these bounds, promoting qualifying pairs to
-  `bounds_supported`. PR #13.
+  notebook passes these bounds, promoting qualifying pairs to `bounds_supported`.
+  PRs #13, #15.
 
 ## Non-Negotiable Operating Rules
 
@@ -108,9 +108,8 @@ Purpose:
 Bounds statuses (`sabench/analysis/bounds.py`):
 
 - `bounds_supported` — explicit theoretical support provided via
-  `BENCHMARK_OUTPUT_BOUNDS`; 5 benchmarks covered (Ishigami, SobolG,
-  LinearModel, AdditiveQuadratic, CornerPeak). Remaining scalar benchmarks
-  report `bounds_diagnostic_sample_support`.
+  `BENCHMARK_OUTPUT_BOUNDS`; all 19 scalar benchmarks covered (12 analytically
+  exact, 7 empirically conservative N=1M+5% buffer).
 - `bounds_diagnostic_sample_support` — smooth+pointwise with derivative
   metadata; empirical sample-range support used
 - `bounds_not_scalar_output`
@@ -122,12 +121,21 @@ Bounds statuses (`sabench/analysis/bounds.py`):
 - `bounds_eta_ge_one`
 - `bounds_failed`
 
-Analytical output bounds (`BENCHMARK_OUTPUT_BOUNDS`):
-- Ishigami (a=7, b=0.1, X∈[-π,π]³): Y∈[-(1+b·π⁴), 1+a+b·π⁴]
-- SobolG (a=[0,1,4.5,9,99,99,99,99], X∈[0,1]⁸): Y∈[0, ∏(2+aᵢ)/(1+aᵢ)]
-- LinearModel (a=[3,2,1,0.5,0.1], X∈[0,1]⁵): Y∈[0, 6.6]
-- AdditiveQuadratic (d=5, default a/b, X∈[0,1]⁵): Y∈[0, 10.5]
-- CornerPeak (d=6, default c, X∈[0,1]⁶): Y∈[(1+Σc)⁻⁷, 1]
+Analytical output bounds (`BENCHMARK_OUTPUT_BOUNDS`) — all 19 scalar benchmarks:
+- Ishigami (a=7, b=0.1): Y∈[-(1+b·π⁴), 1+a+b·π⁴]
+- SobolG (8 params): Y∈[0, ∏(2+aᵢ)/(1+aᵢ)]
+- LinearModel: Y∈[0, 6.6]
+- AdditiveQuadratic: Y∈[0, 10.5]
+- CornerPeak: Y∈[(1+Σc)⁻⁷, 1]
+- Friedman: Y∈[0, 30] — each term non-negative
+- MoonHerrera: Y∈[1, exp(c·Σwᵢ)] — exponential of linear form
+- DetPep8D: Y∈[0, 70+16√2] — via corner analysis
+- Rosenbrock (d=4): Y∈[0, 10827] — global min at (1,1,1,1)
+- ProductPeak: Y∈[∏1/(cᵢ²+0.25), ∏1/cᵢ²]
+- PCETestFunction: Y∈[-1.5−3.8²/(4·4.8), 9.5] — interior minimum
+- CSTRReactor: Y∈[0, 0.8]
+- Borehole, Piston, WingWeight, OTLCircuit, EnvironModel: lo=0 analytical, hi empirical
+- Morris, OakleyOHagan: both sides empirical (N=1M, 5% buffer)
 
 Status: **complete** — all files present, tested, notebook-contract verified,
 and end-to-end execution validated (exports all 4 expected CSVs).
@@ -144,9 +152,6 @@ All Phases A–D are complete as of 2026-05-02:
 - Pre-commit hooks fast and stable.
 
 The repo is release-ready. Remaining deferred items:
-- Per-benchmark bounds for the 14 remaining scalar benchmarks (currently report
-  `bounds_diagnostic_sample_support`; requires additional analytical or
-  large-sample-empirical derivation).
 - Resolving the JOSS DOI placeholder (external dependency).
 - Release tagging and PyPI publish when explicitly requested.
 
@@ -197,10 +202,9 @@ Current state of `main` as of 2026-05-01 (HEAD `ca3c7e1`, post-PR #11):
 - Derivative metadata registered for all 36 smooth+pointwise transforms in
   `_SMOOTH_POINTWISE_ANALYSES` (38 entries total). PR #11.
   `bounds_no_derivative_metadata` is 0 for all catalog-registered smooth+pointwise
-  pairs. Pairs instead report `bounds_diagnostic_sample_support`.
-- `bounds_supported` is 0 for all pairs; requires explicit per-benchmark
-  theoretical output support bounds passed via `support_by_pair` to
-  `evaluate_bounds_grid`. This is a known deferred item.
+  pairs.
+- `BENCHMARK_OUTPUT_BOUNDS` covers all 19 scalar benchmarks (PR #15);
+  all smooth+pointwise scalar pairs now reach `bounds_supported`.
 
 ## Non-Negotiable Operating Rules
 
@@ -274,8 +278,9 @@ Purpose:
 
 Bounds statuses (`sabench/analysis/bounds.py`):
 
-- `bounds_supported` — explicit theoretical support provided; currently 0 pairs
-  in all-catalog grid (deferred: per-benchmark support bounds not yet registered)
+- `bounds_supported` — explicit theoretical support provided; all 19 scalar
+  benchmarks covered via `BENCHMARK_OUTPUT_BOUNDS`. All smooth+pointwise scalar
+  pairs now reach this status.
 - `bounds_diagnostic_sample_support` — smooth+pointwise with derivative metadata;
   all 36 smooth+pointwise catalog transforms now reach this status
 - `bounds_not_scalar_output`
@@ -303,9 +308,6 @@ All Phases A–D are complete as of 2026-05-01:
 - Pre-commit hooks fast and stable.
 
 The repo is release-ready. Remaining deferred items:
-- Adding per-benchmark theoretical output support bounds to enable
-  `bounds_supported` pairs in the bounds grid (currently all pairs report
-  `bounds_diagnostic_sample_support`).
 - Resolving the JOSS DOI placeholder (external dependency).
 - Release tagging and PyPI publish when explicitly requested.
 
