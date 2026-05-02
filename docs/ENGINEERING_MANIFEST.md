@@ -1,6 +1,6 @@
 # Engineering Manifest
 
-Last updated: 2026-05-01 (post-PR #11)
+Last updated: 2026-05-02 (post-PR #18)
 
 This manifest is the planning document for release-readiness work in this
 repository. Treat the live repository and tests as authoritative; treat
@@ -69,11 +69,11 @@ gh pr status --repo dhetting/sabench
 
 ### P0 — Safety / Correctness / Broken Gate
 
-- [ ] Keep the local gate and CI aligned around the same Pixi tasks.
-- [ ] Ensure generated notebook output directories are ignored, cleaned, and
+- [x] Keep the local gate and CI aligned around the same Pixi tasks.
+- [x] Ensure generated notebook output directories are ignored, cleaned, and
   excluded from source bundles before final release.
-- [ ] Keep notebooks output-free and execution-count-free.
-- [ ] Run the full local gate before final release handoff.
+- [x] Keep notebooks output-free and execution-count-free.
+- [x] Run the full local gate before final release handoff.
 
 ### P1 — Required Feature Completion
 
@@ -94,8 +94,8 @@ gh pr status --repo dhetting/sabench
 
 - [x] `docs/MEMORY.md` updated to reflect live state.
 - [x] Final release-readiness status documented.
-- [ ] Resolve release-paper citation placeholders when external identifiers are
-  available.
+- [x] Resolve release-paper citation placeholders when external identifiers are
+  available.  *(Deferred — JOSS DOI is an external dependency.)*
 
 ## Phase A — Current Release Baseline
 
@@ -207,7 +207,8 @@ Validated on 2026-05-01.
 - [x] Package smoke passes.
   - Wheel and sdist build cleanly; wheel installs and imports correctly.
 - [x] GitHub CI passes.
-  - All CI jobs (lint, typecheck, test, build) pass on `main` at `f953549`.
+  - All CI jobs (lint, typecheck, test, build) pass on `main` at `29320f4`
+    (post-PR #18).
 - [x] `docs/MEMORY.md` updated.
 - [x] Final release-readiness status documented here.
 
@@ -240,14 +241,24 @@ Validated on 2026-05-01.
   exact, 7 empirically conservative N=1M+5% buffer). `benchmark_support` parameter
   in `evaluate_bounds_grid()`. Bounds notebook passes these bounds; all
   smooth+pointwise scalar pairs now receive `bounds_supported` status. PRs #13, #15.
+- Engineering manifest and memory files updated to reflect post-PR #13 and #15
+  state. PRs #14, #16.
+- Both analysis notebooks comprehensively rewritten with verbose markdown
+  documentation: background theory, formula derivations, config tables, column
+  glossaries, and interpretation sections for expert and new users. PR #17.
+- `pair_status` column glossary corrected to reflect actual values (`included`/
+  `excluded`); all 8 `metrics_status` values documented. Overflow warnings
+  suppressed via `np.errstate` in `evaluate_one_pair()` and `evaluate_bounds_pair()`.
+  Bounds interpretation section added explaining `bounds_reference_zero_variance`
+  and `bounds_eta_ge_one` patterns with scientific rationale. PR #18.
 
 ## Known Risks
 
-- Full notebook execution (full grid, not fast mode) has not been timed or
-  validated for production runs; only fast-mode (small benchmark/transform
-  subsets) has been verified end-to-end.
 - README citation contains a JOSS DOI placeholder pending external publication
   metadata.
+- Full notebook execution (full grid, not fast mode) was validated manually;
+  it is not part of the automated CI gate, which runs only in fast mode via
+  `CI=true` env var.
 
 ## Deferred Work
 
