@@ -21,6 +21,7 @@ from math import factorial
 from typing import Any, Literal
 
 import numpy as np
+from scipy.special import erf as _scipy_erf
 
 BoundsApplicabilityStatus = Literal[
     "bounds_supported",
@@ -623,6 +624,314 @@ def _validate_support_bounds(lower: float, upper: float) -> None:
         raise ValueError("support bounds must be finite and ordered")
 
 
+# ─── New derivative helpers for extended transform catalog ────────────────────
+
+
+def _numerical_derivative_sup(derivative: Derivative) -> DerivativeSupremum:
+    """Grid supremum: evaluate |d^n phi| on a 2049-point linspace."""
+
+    def derivative_supremum(order: int, lower: float, upper: float) -> float | None:
+        _validate_support_bounds(lower, upper)
+        points = np.linspace(lower, upper, 2049)
+        vals = derivative(points, order)
+        if not np.all(np.isfinite(vals)):
+            return None
+        return float(np.max(np.abs(vals)))
+
+    return derivative_supremum
+
+
+def _fd_derivative(fn: ArrayTransform) -> Derivative:
+    """Central-difference derivative of arbitrary order for fn."""
+    h = 1e-4
+
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        current: ArrayTransform = fn
+        for _ in range(order):
+            f: ArrayTransform = current
+
+            def _step(x: np.ndarray, _f: ArrayTransform = f, _h: float = h) -> np.ndarray:
+                return (_f(x + _h) - _f(x - _h)) / (2.0 * _h)
+
+            current = _step
+        return current(y)
+
+    return derivative
+
+
+def _tanh_derivative(alpha: float) -> Derivative:
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        ay = alpha * y
+        sech2 = 1.0 / np.cosh(ay) ** 2
+        th = np.tanh(ay)
+        if order == 1:
+            return alpha * sech2
+        if order == 2:
+            return -2.0 * alpha**2 * th * sech2
+        if order == 3:
+            return 2.0 * alpha**3 * sech2 * (3.0 * th**2 - 1.0)
+        return _fd_derivative(lambda x: np.tanh(alpha * x))(y, order)
+
+    return derivative
+
+
+def _softplus_derivative(beta: float) -> Derivative:
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        sig = 1.0 / (1.0 + np.exp(-beta * y))
+        if order == 1:
+            return sig
+        if order == 2:
+            return beta * sig * (1.0 - sig)
+        if order == 3:
+            return beta**2 * sig * (1.0 - sig) * (1.0 - 2.0 * sig)
+        return _fd_derivative(lambda x: np.log1p(np.exp(np.clip(beta * x, -500, 500))) / beta)(
+            y, order
+        )
+
+    return derivative
+
+
+def _logistic_derivative(k: float) -> Derivative:
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        sig = 1.0 / (1.0 + np.exp(-k * y))
+        s1 = 1.0 - sig
+        if order == 1:
+            return k * sig * s1
+        if order == 2:
+            return k**2 * sig * s1 * (1.0 - 2.0 * sig)
+        if order == 3:
+            return k**3 * sig * s1 * (1.0 - 6.0 * sig + 6.0 * sig**2)
+        return _fd_derivative(lambda x: 1.0 / (1.0 + np.exp(-k * x)))(y, order)
+
+    return derivative
+
+
+def _arctan_derivative(s: float) -> Derivative:
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        denom1 = 1.0 + (s * y) ** 2
+        if order == 1:
+            return s / denom1
+        if order == 2:
+            return -2.0 * s**3 * y / denom1**2
+        if order == 3:
+            return 2.0 * s**3 * (3.0 * s**2 * y**2 - 1.0) / denom1**3
+        return _fd_derivative(lambda x: np.arctan(s * x))(y, order)
+
+    return derivative
+
+
+def _erf_derivative(s: float) -> Derivative:
+    _c = 2.0 / np.sqrt(np.pi)
+
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        ev = np.exp(-((s * y) ** 2))
+        if order == 1:
+            return _c * s * ev
+        if order == 2:
+            return -2.0 * _c * s**3 * y * ev
+        if order == 3:
+            return -2.0 * _c * s**3 * ev * (1.0 - 2.0 * s**2 * y**2)
+        return _fd_derivative(lambda x: _scipy_erf(s * x))(y, order)
+
+    return derivative
+
+
+def _sinh_derivative(s: float) -> Derivative:
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        sy = np.clip(s * y, -100, 100)
+        if order % 2 == 0:
+            return s**order * np.sinh(sy)
+        return s**order * np.cosh(sy)
+
+    return derivative
+
+
+def _cosh_derivative(s: float) -> Derivative:
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        sy = np.clip(s * y, -100, 100)
+        if order % 2 == 0:
+            return s**order * np.cosh(sy)
+        return s**order * np.sinh(sy)
+
+    return derivative
+
+
+def _algebraic_sigmoid_derivative(scale: float) -> Derivative:
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        u = scale * y
+        r2 = 1.0 + u**2
+        if order == 1:
+            return scale / r2**1.5
+        if order == 2:
+            return -3.0 * scale**2 * u / r2**2.5
+        if order == 3:
+            return 3.0 * scale**3 * (4.0 * u**2 - 1.0) / r2**3.5
+        return _fd_derivative(lambda x: scale * x / np.sqrt(1.0 + (scale * x) ** 2))(y, order)
+
+    return derivative
+
+
+def _atan2pi_derivative(s: float) -> Derivative:
+    _c = 2.0 / np.pi
+
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        denom1 = 1.0 + (s * y) ** 2
+        if order == 1:
+            return _c * s / denom1
+        if order == 2:
+            return _c * (-2.0 * s**3 * y) / denom1**2
+        if order == 3:
+            return _c * 2.0 * s**3 * (3.0 * s**2 * y**2 - 1.0) / denom1**3
+        return _fd_derivative(lambda x: (2.0 / np.pi) * np.arctan(s * x))(y, order)
+
+    return derivative
+
+
+def _bent_identity_derivative(scale: float) -> Derivative:
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        u = scale * y
+        r2 = u**2 + 1.0
+        if order == 1:
+            return scale * (u / (2.0 * np.sqrt(r2)) + 1.0)
+        if order == 2:
+            return scale**2 / (2.0 * r2**1.5)
+        if order == 3:
+            return -3.0 * scale**3 * u / (2.0 * r2**2.5)
+        return _fd_derivative(lambda x: (np.sqrt((scale * x) ** 2 + 1.0) - 1.0) / 2.0 + scale * x)(
+            y, order
+        )
+
+    return derivative
+
+
+def _swish_derivative(beta: float) -> Derivative:
+    _fd = _fd_derivative(lambda x: x * (1.0 / (1.0 + np.exp(-np.clip(beta * x, -100, 100)))))
+
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        sig = 1.0 / (1.0 + np.exp(-beta * y))
+        if order == 1:
+            return sig * (1.0 + beta * y * (1.0 - sig))
+        if order == 2:
+            return beta * sig * (1.0 - sig) * (2.0 + beta * y * (1.0 - 2.0 * sig))
+        return _fd(y, order)
+
+    return derivative
+
+
+def _sin_squared_derivative(freq: float) -> Derivative:
+    """D^n sin²(fy) = -(2f)^n/2 · cos(2fy + nπ/2)."""
+
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        two_f = 2.0 * freq
+        return -0.5 * two_f**order * np.cos(two_f * y + order * np.pi / 2.0)
+
+    return derivative
+
+
+def _cos_squared_derivative(freq: float) -> Derivative:
+    """D^n cos²(fy) = (2f)^n/2 · cos(2fy + nπ/2)."""
+
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        two_f = 2.0 * freq
+        return 0.5 * two_f**order * np.cos(two_f * y + order * np.pi / 2.0)
+
+    return derivative
+
+
+def _double_sin_derivative(freq1: float, freq2: float) -> Derivative:
+    """D^n [sin(f1·y) + sin(f2·y)] = f1^n·sin(f1·y+nπ/2) + f2^n·sin(f2·y+nπ/2)."""
+
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        phase = order * np.pi / 2.0
+        return freq1**order * np.sin(freq1 * y + phase) + freq2**order * np.sin(freq2 * y + phase)
+
+    return derivative
+
+
+def _sin_cos_product_derivative(freq: float) -> Derivative:
+    """D^n [0.5·sin(2fy)] = 0.5·(2f)^n·sin(2fy + nπ/2)."""
+
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        two_f = 2.0 * freq
+        return 0.5 * two_f**order * np.sin(two_f * y + order * np.pi / 2.0)
+
+    return derivative
+
+
+def _exp_neg_sq_derivative(s: float) -> Derivative:
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        ev = np.exp(-((s * y) ** 2))
+        if order == 1:
+            return -2.0 * s**2 * y * ev
+        if order == 2:
+            return 2.0 * s**2 * (2.0 * s**2 * y**2 - 1.0) * ev
+        if order == 3:
+            return 4.0 * s**4 * y * (3.0 - 2.0 * s**2 * y**2) * ev
+        return _fd_derivative(lambda x: np.exp(-((s * x) ** 2)))(y, order)
+
+    return derivative
+
+
+def _spike_gaussian_derivative(center: float, width: float) -> Derivative:
+    def derivative(y: np.ndarray, order: int) -> np.ndarray:
+        if order < 1:
+            raise ValueError("order must be at least 1")
+        d = y - center
+        phi = np.exp(-0.5 * (d / width) ** 2)
+        if order == 1:
+            return -(d / width**2) * phi
+        if order == 2:
+            return (d**2 / width**4 - 1.0 / width**2) * phi
+        return _fd_derivative(lambda x: np.exp(-0.5 * ((x - center) / width) ** 2))(y, order)
+
+    return derivative
+
+
+def _rational_quadratic_derivative(y: np.ndarray, order: int) -> np.ndarray:
+    if order < 1:
+        raise ValueError("order must be at least 1")
+    r2 = 1.0 + y**2
+    if order == 1:
+        return -2.0 * y / r2**2
+    if order == 2:
+        return (6.0 * y**2 - 2.0) / r2**3
+    return _fd_derivative(lambda x: 1.0 / (1.0 + x**2))(y, order)
+
+
 def _analysis(
     key: str,
     name: str,
@@ -697,5 +1006,254 @@ _SMOOTH_POINTWISE_ANALYSES: dict[str, SmoothPointwiseTransformAnalysis] = {
         _cos_transform(0.5),
         _cos_derivative(0.5),
         _trig_derivative_sup(0.5),
+    ),
+    # ── Polynomials ──────────────────────────────────────────────────────────
+    "poly4": _analysis(
+        "poly4",
+        "Quartic (scale=0.05)",
+        _polynomial_transform((0.0, 0.0, 0.0, 0.0, 0.05**4)),
+        _polynomial_derivative((0.0, 0.0, 0.0, 0.0, 0.05**4)),
+        _polynomial_derivative_sup((0.0, 0.0, 0.0, 0.0, 0.05**4)),
+    ),
+    "poly5": _analysis(
+        "poly5",
+        "Quintic (scale=0.05)",
+        _polynomial_transform((0.0, 0.0, 0.0, 0.0, 0.0, 0.05**5)),
+        _polynomial_derivative((0.0, 0.0, 0.0, 0.0, 0.0, 0.05**5)),
+        _polynomial_derivative_sup((0.0, 0.0, 0.0, 0.0, 0.0, 0.05**5)),
+    ),
+    "poly6": _analysis(
+        "poly6",
+        "Sextic (scale=0.05)",
+        _polynomial_transform((0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.05**6)),
+        _polynomial_derivative((0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.05**6)),
+        _polynomial_derivative_sup((0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.05**6)),
+    ),
+    "hermite_he2": _analysis(
+        "hermite_he2",
+        "Probabilist Hermite He2 (scale=0.3)",
+        _polynomial_transform((-1.0, 0.0, 0.09)),
+        _polynomial_derivative((-1.0, 0.0, 0.09)),
+        _polynomial_derivative_sup((-1.0, 0.0, 0.09)),
+    ),
+    "hermite_he3": _analysis(
+        "hermite_he3",
+        "Probabilist Hermite He3 (scale=0.3)",
+        _polynomial_transform((0.0, -0.9, 0.0, 0.027)),
+        _polynomial_derivative((0.0, -0.9, 0.0, 0.027)),
+        _polynomial_derivative_sup((0.0, -0.9, 0.0, 0.027)),
+    ),
+    # ── Tanh family ──────────────────────────────────────────────────────────
+    "tanh_a005": _analysis(
+        "tanh_a005",
+        "Tanh saturation (α=0.05, near-linear)",
+        lambda y: np.tanh(0.05 * y),
+        _tanh_derivative(0.05),
+        _numerical_derivative_sup(_tanh_derivative(0.05)),
+    ),
+    "tanh_a03": _analysis(
+        "tanh_a03",
+        "Tanh saturation (α=0.3)",
+        lambda y: np.tanh(0.3 * y),
+        _tanh_derivative(0.3),
+        _numerical_derivative_sup(_tanh_derivative(0.3)),
+    ),
+    "tanh_a10": _analysis(
+        "tanh_a10",
+        "Tanh saturation (α=1.0)",
+        lambda y: np.tanh(1.0 * y),
+        _tanh_derivative(1.0),
+        _numerical_derivative_sup(_tanh_derivative(1.0)),
+    ),
+    # ── Softplus family ──────────────────────────────────────────────────────
+    "softplus_b01": _analysis(
+        "softplus_b01",
+        "Softplus (β=0.1, smooth ReLU)",
+        lambda y: np.log1p(np.exp(np.clip(0.1 * y, -500, 500))) / 0.1,
+        _softplus_derivative(0.1),
+        _numerical_derivative_sup(_softplus_derivative(0.1)),
+    ),
+    "softplus_b10": _analysis(
+        "softplus_b10",
+        "Softplus (β=1.0)",
+        lambda y: np.log1p(np.exp(np.clip(1.0 * y, -500, 500))) / 1.0,
+        _softplus_derivative(1.0),
+        _numerical_derivative_sup(_softplus_derivative(1.0)),
+    ),
+    # ── Logistic ─────────────────────────────────────────────────────────────
+    "logistic_pointwise": _analysis(
+        "logistic_pointwise",
+        "Logistic (k=1.0)",
+        lambda y: 1.0 / (1.0 + np.exp(-np.clip(y, -100, 100))),
+        _logistic_derivative(1.0),
+        _numerical_derivative_sup(_logistic_derivative(1.0)),
+    ),
+    # ── Arctan ───────────────────────────────────────────────────────────────
+    "arctan_pointwise": _analysis(
+        "arctan_pointwise",
+        "Arctan (scale=1.0)",
+        lambda y: np.arctan(y),
+        _arctan_derivative(1.0),
+        _numerical_derivative_sup(_arctan_derivative(1.0)),
+    ),
+    # ── Erf ──────────────────────────────────────────────────────────────────
+    "erf_pointwise": _analysis(
+        "erf_pointwise",
+        "Error function (scale=0.5)",
+        lambda y: _scipy_erf(0.5 * y),
+        _erf_derivative(0.5),
+        _numerical_derivative_sup(_erf_derivative(0.5)),
+    ),
+    # ── Sinh / Cosh ──────────────────────────────────────────────────────────
+    "sinh_pointwise": _analysis(
+        "sinh_pointwise",
+        "Sinh (scale=0.1)",
+        lambda y: np.sinh(np.clip(0.1 * y, -100, 100)),
+        _sinh_derivative(0.1),
+        _numerical_derivative_sup(_sinh_derivative(0.1)),
+    ),
+    "cosh_pointwise": _analysis(
+        "cosh_pointwise",
+        "Cosh (scale=0.1)",
+        lambda y: np.cosh(np.clip(0.1 * y, -100, 100)),
+        _cosh_derivative(0.1),
+        _numerical_derivative_sup(_cosh_derivative(0.1)),
+    ),
+    # ── Algebraic sigmoid ────────────────────────────────────────────────────
+    "algebraic_sigmoid": _analysis(
+        "algebraic_sigmoid",
+        "Algebraic sigmoid (scale=0.5)",
+        lambda y: 0.5 * y / np.sqrt(1.0 + (0.5 * y) ** 2),
+        _algebraic_sigmoid_derivative(0.5),
+        _numerical_derivative_sup(_algebraic_sigmoid_derivative(0.5)),
+    ),
+    # ── Atan2pi ──────────────────────────────────────────────────────────────
+    "atan2pi": _analysis(
+        "atan2pi",
+        "Bounded arctan (scale=1.0)",
+        lambda y: (2.0 / np.pi) * np.arctan(y),
+        _atan2pi_derivative(1.0),
+        _numerical_derivative_sup(_atan2pi_derivative(1.0)),
+    ),
+    # ── Bent identity ────────────────────────────────────────────────────────
+    "bent_identity": _analysis(
+        "bent_identity",
+        "Bent identity (scale=0.5)",
+        lambda y: (np.sqrt((0.5 * y) ** 2 + 1.0) - 1.0) / 2.0 + 0.5 * y,
+        _bent_identity_derivative(0.5),
+        _numerical_derivative_sup(_bent_identity_derivative(0.5)),
+    ),
+    # ── Swish ────────────────────────────────────────────────────────────────
+    "swish": _analysis(
+        "swish",
+        "Swish activation (β=1.0)",
+        lambda y: y * (1.0 / (1.0 + np.exp(-np.clip(y, -100, 100)))),
+        _swish_derivative(1.0),
+        _numerical_derivative_sup(_swish_derivative(1.0)),
+    ),
+    # ── Mish ─────────────────────────────────────────────────────────────────
+    "mish": _analysis(
+        "mish",
+        "Mish activation",
+        lambda y: y * np.tanh(np.log1p(np.exp(np.clip(y, -500, 500)))),
+        _fd_derivative(lambda y: y * np.tanh(np.log1p(np.exp(np.clip(y, -500, 500))))),
+        _numerical_derivative_sup(
+            _fd_derivative(lambda y: y * np.tanh(np.log1p(np.exp(np.clip(y, -500, 500)))))
+        ),
+    ),
+    # ── Trig compositions ────────────────────────────────────────────────────
+    "sin_squared": _analysis(
+        "sin_squared",
+        "Squared sine (freq=0.5)",
+        lambda y: np.sin(0.5 * y) ** 2,
+        _sin_squared_derivative(0.5),
+        _numerical_derivative_sup(_sin_squared_derivative(0.5)),
+    ),
+    "cos_squared": _analysis(
+        "cos_squared",
+        "Squared cosine (freq=0.5)",
+        lambda y: np.cos(0.5 * y) ** 2,
+        _cos_squared_derivative(0.5),
+        _numerical_derivative_sup(_cos_squared_derivative(0.5)),
+    ),
+    "double_sin": _analysis(
+        "double_sin",
+        "Double sine (freq1=0.3, freq2=0.7)",
+        lambda y: np.sin(0.3 * y) + np.sin(0.7 * y),
+        _double_sin_derivative(0.3, 0.7),
+        _numerical_derivative_sup(_double_sin_derivative(0.3, 0.7)),
+    ),
+    "sin_cos_product": _analysis(
+        "sin_cos_product",
+        "Harmonic product (freq=0.5)",
+        lambda y: np.sin(0.5 * y) * np.cos(0.5 * y),
+        _sin_cos_product_derivative(0.5),
+        _numerical_derivative_sup(_sin_cos_product_derivative(0.5)),
+    ),
+    # ── Sinc ─────────────────────────────────────────────────────────────────
+    "sinc": _analysis(
+        "sinc",
+        "Normalised sinc (scale=0.5)",
+        lambda y: np.sinc(0.5 * y),
+        _fd_derivative(lambda y: np.sinc(0.5 * y)),
+        _numerical_derivative_sup(_fd_derivative(lambda y: np.sinc(0.5 * y))),
+    ),
+    # ── Exp-neg-sq ───────────────────────────────────────────────────────────
+    "exp_neg_sq": _analysis(
+        "exp_neg_sq",
+        "Gaussian kernel (scale=0.3)",
+        lambda y: np.exp(-((0.3 * y) ** 2)),
+        _exp_neg_sq_derivative(0.3),
+        _numerical_derivative_sup(_exp_neg_sq_derivative(0.3)),
+    ),
+    # ── Spike Gaussian ───────────────────────────────────────────────────────
+    "spike_gaussian": _analysis(
+        "spike_gaussian",
+        "Gaussian spike (center=0, width=1)",
+        lambda y: np.exp(-0.5 * y**2),
+        _spike_gaussian_derivative(0.0, 1.0),
+        _numerical_derivative_sup(_spike_gaussian_derivative(0.0, 1.0)),
+    ),
+    # ── Smooth bump ──────────────────────────────────────────────────────────
+    "smooth_bump": _analysis(
+        "smooth_bump",
+        "Smooth compact bump (width=3.0)",
+        lambda y: np.where(
+            3.0**2 - y**2 > 0,
+            np.exp(-3.0 / np.maximum(3.0**2 - y**2, 1e-20)),
+            0.0,
+        ),
+        _fd_derivative(
+            lambda y: np.where(
+                3.0**2 - y**2 > 0,
+                np.exp(-3.0 / np.maximum(3.0**2 - y**2, 1e-20)),
+                0.0,
+            )
+        ),
+        _numerical_derivative_sup(
+            _fd_derivative(
+                lambda y: np.where(
+                    3.0**2 - y**2 > 0,
+                    np.exp(-3.0 / np.maximum(3.0**2 - y**2, 1e-20)),
+                    0.0,
+                )
+            )
+        ),
+    ),
+    # ── Rational quadratic ───────────────────────────────────────────────────
+    "rational_quadratic": _analysis(
+        "rational_quadratic",
+        "Rational quadratic",
+        lambda y: 1.0 / (1.0 + y**2),
+        _rational_quadratic_derivative,
+        _numerical_derivative_sup(_rational_quadratic_derivative),
+    ),
+    # ── Power-exp ────────────────────────────────────────────────────────────
+    "power_exp": _analysis(
+        "power_exp",
+        "Power-exponential hump (scale=0.1)",
+        lambda y: y**2 * np.exp(-np.abs(y) * 0.1),
+        _fd_derivative(lambda y: y**2 * np.exp(-np.abs(y) * 0.1)),
+        _numerical_derivative_sup(_fd_derivative(lambda y: y**2 * np.exp(-np.abs(y) * 0.1))),
     ),
 }
