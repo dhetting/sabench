@@ -184,7 +184,7 @@ def test_classify_bounds_applicability_separates_theorem_assumptions() -> None:
         output_kind="scalar",
         mechanism="pointwise",
         tags=("smooth", "pointwise"),
-        transform_key="tanh_a03",
+        transform_key="selu",
     )
 
     assert supported.supported

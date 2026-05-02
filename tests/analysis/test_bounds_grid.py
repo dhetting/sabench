@@ -32,13 +32,14 @@ def test_classify_bounds_grid_pair_separates_static_theorem_assumptions() -> Non
     non_scalar = classify_bounds_grid_pair("Campbell2D", "square_pointwise")
     non_pointwise = classify_bounds_grid_pair("LinearModel", "rank_transform")
     non_smooth = classify_bounds_grid_pair("LinearModel", "abs_pointwise")
-    missing_metadata = classify_bounds_grid_pair("LinearModel", "tanh_a03")
+    # tanh_a03 previously had no derivative metadata; it now has full metadata.
+    tanh_supported = classify_bounds_grid_pair("LinearModel", "tanh_a03")
 
     assert supported.static_status == "bounds_supported"
     assert non_scalar.static_status == "bounds_not_scalar_output"
     assert non_pointwise.static_status == "bounds_not_pointwise"
     assert non_smooth.static_status == "bounds_not_smooth"
-    assert missing_metadata.static_status == "bounds_no_derivative_metadata"
+    assert tanh_supported.static_status == "bounds_supported"
 
 
 def test_evaluate_bounds_pair_marks_sample_range_results_as_diagnostics() -> None:
