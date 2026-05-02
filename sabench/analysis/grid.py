@@ -231,23 +231,28 @@ def evaluate_noncommutativity_pair(
     transformed_matrix = as_estimator_output(transformed_output)
 
     try:
-        raw_s1, raw_st = jansen_s1_st(raw_matrix, N=n_base, d=benchmark.d, clip=clip_sobol)
-        transformed_s1, transformed_st = jansen_s1_st(
-            transformed_matrix,
-            N=n_base,
-            d=benchmark.d,
-            clip=clip_sobol,
-        )
-        raw_s1_profile = variance_weighted_sobol_profile(raw_s1, raw_matrix)
-        raw_st_profile = variance_weighted_sobol_profile(raw_st, raw_matrix)
-        transformed_s1_profile = variance_weighted_sobol_profile(
-            transformed_s1,
-            transformed_matrix,
-        )
-        transformed_st_profile = variance_weighted_sobol_profile(
-            transformed_st,
-            transformed_matrix,
-        )
+        # Overflow and invalid-value warnings are expected for transforms that
+        # produce very large finite values (e.g., exp(y^2) near float64 max).
+        # Squaring those values in the Jansen variance estimator overflows to inf,
+        # producing NaN Sobol estimates that are caught below as failed_metric_computation.
+        with np.errstate(over="ignore", invalid="ignore"):
+            raw_s1, raw_st = jansen_s1_st(raw_matrix, N=n_base, d=benchmark.d, clip=clip_sobol)
+            transformed_s1, transformed_st = jansen_s1_st(
+                transformed_matrix,
+                N=n_base,
+                d=benchmark.d,
+                clip=clip_sobol,
+            )
+            raw_s1_profile = variance_weighted_sobol_profile(raw_s1, raw_matrix)
+            raw_st_profile = variance_weighted_sobol_profile(raw_st, raw_matrix)
+            transformed_s1_profile = variance_weighted_sobol_profile(
+                transformed_s1,
+                transformed_matrix,
+            )
+            transformed_st_profile = variance_weighted_sobol_profile(
+                transformed_st,
+                transformed_matrix,
+            )
     except Exception as exc:  # pragma: no cover - defensive row-level failure path
         return _result_from_compatibility(
             compatibility,
