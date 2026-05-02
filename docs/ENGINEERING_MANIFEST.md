@@ -166,7 +166,9 @@ computes theorem-oriented diagnostics from `bounds_memo_v22.tex`.
     `taylor_reference_results.csv`, `local_affine_results.csv`, and
     `bounds_summary.csv`.
 - [x] Ensure theorem statuses distinguish:
-  - `bounds_supported`
+  - `bounds_supported` — pairs with analytically-bounded benchmarks in
+    `BENCHMARK_OUTPUT_BOUNDS` (5 benchmarks: Ishigami, SobolG, LinearModel,
+    AdditiveQuadratic, CornerPeak)
   - `bounds_diagnostic_sample_support`
   - `bounds_not_scalar_output`
   - `bounds_not_pointwise`
@@ -235,6 +237,11 @@ Validated on 2026-05-01.
 - Derivative metadata registered for all 36 smooth+pointwise catalog transforms
   in `_SMOOTH_POINTWISE_ANALYSES` (38 total entries). `bounds_no_derivative_metadata`
   is now 0 for all catalog-registered pairs. PR #11.
+- `BENCHMARK_OUTPUT_BOUNDS` added with analytically-derived output ranges for 5
+  scalar benchmarks (Ishigami, SobolG, LinearModel, AdditiveQuadratic,
+  CornerPeak). `benchmark_support` parameter added to `evaluate_bounds_grid()`.
+  Bounds notebook updated to pass `BENCHMARK_OUTPUT_BOUNDS`; qualifying pairs
+  now receive `bounds_supported` status. PR #13.
 
 ## Known Risks
 
@@ -243,16 +250,15 @@ Validated on 2026-05-01.
   subsets) has been verified end-to-end.
 - README citation contains a JOSS DOI placeholder pending external publication
   metadata.
-- `bounds_supported` reports 0 pairs for the all-catalog grid: it requires
-  explicit per-benchmark theoretical output support bounds via `support_by_pair`.
-  This is intentional — sample-range bounds are reported as
-  `bounds_diagnostic_sample_support`, not theorem-backed `bounds_supported`.
+- 14 scalar benchmarks do not have entries in `BENCHMARK_OUTPUT_BOUNDS` and
+  therefore report `bounds_diagnostic_sample_support` rather than
+  `bounds_supported`. Adding them requires analytical or large-N empirical
+  derivation per benchmark.
 
 ## Deferred Work
 
-- Add per-benchmark theoretical output support bounds to enable `bounds_supported`
-  pairs (requires defining known output ranges for each benchmark and passing
-  them via `support_by_pair` to `evaluate_bounds_grid`).
+- Add `BENCHMARK_OUTPUT_BOUNDS` entries for the remaining 14 scalar benchmarks
+  to extend `bounds_supported` coverage beyond the current 5.
 - Resolve JOSS DOI placeholder after external publication metadata is available.
 - Full publish/release workflow (tagging, PyPI publish) is out of scope until
   explicitly requested.

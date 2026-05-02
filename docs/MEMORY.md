@@ -1,6 +1,176 @@
 # MEMORY — sabench release-readiness continuation
 
-Last updated: 2026-05-01 (post-PR #11)
+Last updated: 2026-05-02 (post-PR #13)
+
+This file is continuity context only. It is advisory, not authoritative. In any
+new chat or future slice, audit the live repo on disk before trusting this file,
+previous bundles, prior assistant claims, GitHub PR state, or claimed local
+state.
+
+## Current Working Posture
+
+The `sabench` repo has completed all Phase A–D release-readiness work. The
+transform monolith is retired; typed registries are canonical; both analysis
+notebooks execute cleanly; the full local gate and GitHub CI pass.
+
+Current state of `main` as of 2026-05-02 (HEAD `15008d3`, post-PR #12;
+PR #13 pending merge):
+
+- All Phase A–D work merged and verified.
+- PR #13 (`feat/benchmark-support-bounds`) open and awaiting CI.
+- Local gate (`./test_repo.sh --check-only --no-notebook`) passes all stages.
+- GitHub CI passes on `main`.
+- Both analysis notebooks execute end-to-end and export all expected CSVs.
+- Pre-commit mypy hook is fast (uses pixi-managed mypy, no isolated virtualenv).
+- Transform catalog corrected: 5 transforms moved from smooth to nonsmooth
+  (legendre_p3, chebyshev_t4, damped_sin, donut, signed_power_p15). PR #10.
+  SMOOTH_TRANSFORMS=85, NONSMOOTH_TRANSFORMS=32.
+- Derivative metadata registered for all 36 smooth+pointwise transforms in
+  `_SMOOTH_POINTWISE_ANALYSES` (38 entries total). PR #11.
+  `bounds_no_derivative_metadata` is 0 for all catalog-registered smooth+pointwise
+  pairs.
+- `BENCHMARK_OUTPUT_BOUNDS` added with analytically-derived output bounds for
+  5 benchmarks (Ishigami, SobolG, LinearModel, AdditiveQuadratic, CornerPeak).
+  `benchmark_support` parameter added to `evaluate_bounds_grid()`. The bounds
+  notebook now passes these bounds, promoting qualifying pairs to
+  `bounds_supported`. PR #13.
+
+## Non-Negotiable Operating Rules
+
+- Treat the live repo as the only source of truth.
+- Audit first, then patch.
+- Strict test-driven development for implementation changes.
+- Atomic slices only.
+- No backward-compatibility shims unless explicitly requested.
+- No hacks or workarounds.
+- Fix root causes.
+- Tests belong outside the runtime package.
+- Metadata must be generated from, or validated against, canonical code
+  definitions.
+- Do not claim validation that was not actually run.
+- Use Pixi-backed repo gates when available.
+
+## Current Notebook Tracks
+
+### Empirical Noncommutativity Grid
+
+Files:
+
+- `sabench/analysis/noncommutativity.py`
+- `sabench/analysis/grid.py`
+- `notebooks/noncommutativity_grid_analysis.ipynb`
+- `tests/analysis/test_noncommutativity.py`
+- `tests/analysis/test_noncommutativity_grid.py`
+- `tests/integration/test_noncommutativity_grid_notebook.py`
+
+Purpose:
+
+- Compute registry-driven empirical benchmark × transform non-commutativity
+  metrics from `noncommutativity_detailed.tex`.
+- Export `pair_status.csv`, `noncommutativity_metrics.csv`,
+  `summary_by_transform.csv`, and `summary_by_benchmark.csv`.
+- Keep notebook scientific logic in tested reusable analysis utilities.
+
+Primary metrics:
+
+- `D_s1`, `D_st`
+- `delta_s1`, `delta_st`
+- threshold flips
+- top-k changes
+- max/mean absolute shifts
+- Spearman rank correlation
+- top-driver changes
+
+Status: **complete** — all files present, tested, and notebook-contract verified.
+
+### Bounds-Theorem Grid
+
+Files:
+
+- `sabench/analysis/bounds.py`
+- `sabench/analysis/bounds_grid.py`
+- `notebooks/bounds_theorem_grid_analysis.ipynb`
+- `tests/analysis/test_bounds.py`
+- `tests/analysis/test_bounds_grid.py`
+- `tests/integration/test_bounds_theorem_grid_notebook.py`
+
+Purpose:
+
+- Compute theorem-oriented Taylor-reference and local-affine diagnostics from
+  `bounds_memo_v22.tex`.
+- Export `bounds_pair_status.csv`, `taylor_reference_results.csv`,
+  `local_affine_results.csv`, and `bounds_summary.csv`.
+- Clearly separate theorem-supported rows from empirical sample-range
+  diagnostics, non-applicable rows, and failed rows.
+- State that projection-bound comparisons are against the Taylor reference
+  `V_m`, not directly against original output `Y`.
+
+Bounds statuses (`sabench/analysis/bounds.py`):
+
+- `bounds_supported` — explicit theoretical support provided via
+  `BENCHMARK_OUTPUT_BOUNDS`; 5 benchmarks covered (Ishigami, SobolG,
+  LinearModel, AdditiveQuadratic, CornerPeak). Remaining scalar benchmarks
+  report `bounds_diagnostic_sample_support`.
+- `bounds_diagnostic_sample_support` — smooth+pointwise with derivative
+  metadata; empirical sample-range support used
+- `bounds_not_scalar_output`
+- `bounds_not_pointwise`
+- `bounds_not_smooth`
+- `bounds_no_derivative_metadata` — currently 0 for all catalog pairs
+- `bounds_domain_invalid`
+- `bounds_reference_zero_variance`
+- `bounds_eta_ge_one`
+- `bounds_failed`
+
+Analytical output bounds (`BENCHMARK_OUTPUT_BOUNDS`):
+- Ishigami (a=7, b=0.1, X∈[-π,π]³): Y∈[-(1+b·π⁴), 1+a+b·π⁴]
+- SobolG (a=[0,1,4.5,9,99,99,99,99], X∈[0,1]⁸): Y∈[0, ∏(2+aᵢ)/(1+aᵢ)]
+- LinearModel (a=[3,2,1,0.5,0.1], X∈[0,1]⁵): Y∈[0, 6.6]
+- AdditiveQuadratic (d=5, default a/b, X∈[0,1]⁵): Y∈[0, 10.5]
+- CornerPeak (d=6, default c, X∈[0,1]⁶): Y∈[(1+Σc)⁻⁷, 1]
+
+Status: **complete** — all files present, tested, notebook-contract verified,
+and end-to-end execution validated (exports all 4 expected CSVs).
+
+## Release Status
+
+All Phases A–D are complete as of 2026-05-02:
+
+- Local gate passes (`./test_repo.sh --check-only --no-notebook` all green,
+  including fast pre-commit mypy via pixi-delegating hook).
+- GitHub CI passes on `main`.
+- Both analysis notebooks execute end-to-end in fast mode, exporting all
+  expected CSVs.
+- Pre-commit hooks fast and stable.
+
+The repo is release-ready. Remaining deferred items:
+- Per-benchmark bounds for the 14 remaining scalar benchmarks (currently report
+  `bounds_diagnostic_sample_support`; requires additional analytical or
+  large-sample-empirical derivation).
+- Resolving the JOSS DOI placeholder (external dependency).
+- Release tagging and PyPI publish when explicitly requested.
+
+## Validation Commands To Prefer
+
+```bash
+cd ~/src/sabench
+python -m compileall -q sabench tests scripts
+bash -n test_repo.sh
+PYTHONPATH=. pytest -q tests/analysis --tb=short
+PYTHONPATH=. pytest -q tests/integration --tb=short
+./test_repo.sh --check-only --no-notebook
+```
+
+## Handoff Notes
+
+- Do not blindly stage generated artifacts. Validation may produce ignored
+  `.coverage`, `coverage.xml`, `.pixi/`, cache directories, and `dist/`.
+- Keep notebooks clean: no committed outputs and no execution counts.
+- Outputs from notebook execution land under `outputs/<notebook_name>/`
+  (gitignored).
+- The `docs/manuscripts/` directory contains LaTeX source files tracked in git
+  as scientific reference context.
+
 
 This file is continuity context only. It is advisory, not authoritative. In any
 new chat or future slice, audit the live repo on disk before trusting this file,
