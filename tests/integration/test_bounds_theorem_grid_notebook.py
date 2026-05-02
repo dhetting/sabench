@@ -100,6 +100,8 @@ def test_bounds_theorem_grid_notebook_uses_registry_grid_engine() -> None:
     text = _notebook_text()
 
     assert "evaluate_bounds_grid" in text
+    assert "BENCHMARK_OUTPUT_BOUNDS" in text
+    assert "benchmark_support" in text
     assert "BENCHMARK_REGISTRY" in text
     assert "TRANSFORM_REGISTRY" in text
     assert "SABENCH_BOUNDS_MAX_BENCHMARKS" in text
@@ -146,7 +148,9 @@ def test_bounds_theorem_grid_notebook_executes_smoke_grid(
     assert pair_rows
     assert set(pair_rows[0]) >= PAIR_STATUS_COLUMNS
     assert {row["bounds_status"] for row in pair_rows} <= set(BOUNDS_STATUSES)
-    assert "bounds_diagnostic_sample_support" in {row["bounds_status"] for row in pair_rows}
+    # The smoke grid uses benchmarks covered by BENCHMARK_OUTPUT_BOUNDS, so all
+    # eligible pairs are theorem-backed; expect bounds_supported to be present.
+    assert "bounds_supported" in {row["bounds_status"] for row in pair_rows}
 
     if taylor_rows:
         assert set(taylor_rows[0]) >= TAYLOR_COLUMNS

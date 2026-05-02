@@ -15,6 +15,7 @@ from .bounds import (
     taylor_residual_values,
 )
 from .bounds_grid import (
+    BENCHMARK_OUTPUT_BOUNDS,
     BOUNDS_STATUSES,
     BoundsGridResult,
     BoundsPairClassification,
@@ -59,6 +60,7 @@ __all__ = [
     "SmoothPointwiseTransformAnalysis",
     "LocalAffineDiagnostics",
     "BoundsApplicability",
+    "BENCHMARK_OUTPUT_BOUNDS",
     "BOUNDS_STATUSES",
     "BoundsGridResult",
     "BoundsPairClassification",

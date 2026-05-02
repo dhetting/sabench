@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from sabench.analysis.bounds_grid import (
+    BENCHMARK_OUTPUT_BOUNDS,
     BOUNDS_STATUSES,
     classify_bounds_grid_pair,
     evaluate_bounds_grid,
@@ -113,3 +114,67 @@ def test_evaluate_bounds_grid_returns_deterministic_rows() -> None:
         "bounds_diagnostic_sample_support",
         "bounds_not_smooth",
     ]
+
+
+def test_benchmark_output_bounds_covers_all_scalar_benchmarks_with_formulas() -> None:
+    """BENCHMARK_OUTPUT_BOUNDS entries are non-empty and each has lower < upper."""
+    assert len(BENCHMARK_OUTPUT_BOUNDS) >= 5
+    for key, (lo, hi) in BENCHMARK_OUTPUT_BOUNDS.items():
+        assert lo < hi, f"{key}: lower={lo} must be strictly less than upper={hi}"
+
+
+def test_benchmark_output_bounds_contain_sampled_values() -> None:
+    """Each analytical bound must contain all values from a large sample."""
+    import numpy as np
+
+    from sabench.benchmarks.registry import BENCHMARK_REGISTRY
+
+    rng = np.random.default_rng(42)
+    N = 4096
+    for key, (lo, hi) in BENCHMARK_OUTPUT_BOUNDS.items():
+        bench = BENCHMARK_REGISTRY[key].benchmark_cls()
+        seed = int(rng.integers(0, 2**31))
+        X = bench.sample(N, seed=seed)
+        Y = bench.evaluate(X).flatten()
+        y_min = float(np.min(Y))
+        y_max = float(np.max(Y))
+        assert y_min >= lo, f"{key}: observed min {y_min:.6f} < theoretical lower {lo:.6f}"
+        assert y_max <= hi, f"{key}: observed max {y_max:.6f} > theoretical upper {hi:.6f}"
+
+
+def test_evaluate_bounds_grid_benchmark_support_promotes_to_bounds_supported() -> None:
+    """Passing benchmark_support promotes eligible pairs to bounds_supported."""
+    from sabench.analysis.bounds_grid import BENCHMARK_OUTPUT_BOUNDS
+
+    results = evaluate_bounds_grid(
+        benchmark_keys=("LinearModel",),
+        transform_keys=("affine_a2_b1", "abs_pointwise"),
+        n_base=64,
+        seed=0,
+        taylor_order=1,
+        benchmark_support=BENCHMARK_OUTPUT_BOUNDS,
+    )
+
+    statuses = {r.transform_key: r.bounds_status for r in results}
+    assert statuses["affine_a2_b1"] == "bounds_supported"
+    # Non-smooth transforms remain non-applicable regardless of support
+    assert statuses["abs_pointwise"] == "bounds_not_smooth"
+
+
+def test_evaluate_bounds_grid_support_by_pair_takes_precedence() -> None:
+    """Explicit support_by_pair overrides benchmark_support for the same pair."""
+    from sabench.analysis.bounds_grid import BENCHMARK_OUTPUT_BOUNDS
+
+    # Use an invalid support range for the pair; should cause domain_invalid
+    # even though benchmark_support has the correct bounds.
+    results = evaluate_bounds_grid(
+        benchmark_keys=("LinearModel",),
+        transform_keys=("affine_a2_b1",),
+        n_base=32,
+        seed=0,
+        taylor_order=1,
+        benchmark_support=BENCHMARK_OUTPUT_BOUNDS,
+        support_by_pair={("LinearModel", "affine_a2_b1"): (100.0, 101.0)},
+    )
+
+    assert results[0].bounds_status == "bounds_domain_invalid"
