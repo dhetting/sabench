@@ -5,10 +5,16 @@ notebook. It classifies benchmark/transform pairs by theorem assumptions,
 computes Taylor-reference diagnostics for supported scalar pointwise pairs, and
 labels sample-range calculations as diagnostics unless caller-supplied support
 bounds are provided.
+
+``BENCHMARK_OUTPUT_BOUNDS`` contains analytically derived output bounds for a
+subset of scalar benchmarks. These bounds are guaranteed to contain all possible
+output values for the default benchmark parameterisation, allowing them to be
+used as theorem-backed support in ``evaluate_bounds_grid``.
 """
 
 from __future__ import annotations
 
+import math
 from collections.abc import Iterable, Mapping
 from dataclasses import asdict, dataclass
 from typing import Any, Literal
@@ -29,6 +35,71 @@ from sabench.benchmarks.registry import BENCHMARK_REGISTRY, get_benchmark_defini
 from sabench.benchmarks.types import BenchmarkOutputKind
 from sabench.transforms.registry import TRANSFORM_REGISTRY, get_transform_definition
 from sabench.transforms.types import TransformMechanism, TransformTag
+
+# ---------------------------------------------------------------------------
+# Analytically-derived output bounds for scalar benchmarks
+# ---------------------------------------------------------------------------
+# Each entry gives the closed-form minimum and maximum of the benchmark output
+# over the full declared input domain under the default parameterisation.
+# These bounds are theorem-backed: they contain every possible output value,
+# so passing them to ``evaluate_bounds_grid`` as ``benchmark_support`` promotes
+# qualifying pairs to ``bounds_supported`` status.
+#
+# Derivations (default parameterisations)
+# ----------------------------------------
+# Ishigami (a=7, b=0.1, X∈[-π,π]^3):
+#   Y = sin(X1) + a·sin²(X2) + b·X3⁴·sin(X1)
+#   Y_min = -(1 + b·π⁴),  Y_max = 1 + a + b·π⁴
+#
+# SobolG (a=[0,1,4.5,9,99,99,99,99], X∈[0,1]^8):
+#   g_i = (|4x-2| + a_i)/(1+a_i);  G = ∏ g_i
+#   G_min = ∏ a_i/(1+a_i) = 0,  G_max = ∏ (2+a_i)/(1+a_i)
+#
+# LinearModel (a=[3,2,1,0.5,0.1], X∈[0,1]^5):
+#   Y = X·a;  Y_min = 0,  Y_max = Σa = 6.6
+#
+# AdditiveQuadratic (d=5, a=linspace(2,0.2,5), b=ones(5), X∈[0,1]^5):
+#   Y = Σ(a_i·X_i² + b_i·X_i);  Y_min = 0,  Y_max = Σ(a_i+b_i)
+#
+# CornerPeak (d=6, c_i = i/(6·7/2), X∈[0,1]^6):
+#   Y = (1 + Σ c_i·X_i)^{-(d+1)};
+#   Y_min = (1 + Σ c_i)^{-7},  Y_max = 1
+
+_ISHIGAMI_B = 0.1
+_ISHIGAMI_A = 7.0
+_SOBOLG_A = np.array([0.0, 1.0, 4.5, 9.0, 99.0, 99.0, 99.0, 99.0])
+_CORNERPEAK_D = 6
+_CORNERPEAK_C = np.arange(1, _CORNERPEAK_D + 1, dtype=float) / (
+    _CORNERPEAK_D * (_CORNERPEAK_D + 1) / 2
+)
+_ADDQUAD_D = 5
+_ADDQUAD_A = np.linspace(2.0, 0.2, _ADDQUAD_D)
+_ADDQUAD_B = np.ones(_ADDQUAD_D)
+
+BENCHMARK_OUTPUT_BOUNDS: dict[str, tuple[float, float]] = {
+    "Ishigami": (
+        -(1.0 + _ISHIGAMI_B * math.pi**4),
+        1.0 + _ISHIGAMI_A + _ISHIGAMI_B * math.pi**4,
+    ),
+    "SobolG": (
+        float(np.prod(_SOBOLG_A / (1.0 + _SOBOLG_A))),
+        float(np.prod((2.0 + _SOBOLG_A) / (1.0 + _SOBOLG_A))),
+    ),
+    "LinearModel": (0.0, float(np.array([3.0, 2.0, 1.0, 0.5, 0.1]).sum())),
+    "AdditiveQuadratic": (0.0, float((_ADDQUAD_A + _ADDQUAD_B).sum())),
+    "CornerPeak": (
+        float((1.0 + float(_CORNERPEAK_C.sum())) ** (-_CORNERPEAK_D - 1)),
+        1.0,
+    ),
+}
+"""Analytically-derived output bounds for scalar benchmarks.
+
+Maps benchmark key → ``(y_lower, y_upper)`` where the interval contains every
+possible output value for the default parameterisation.  Pass this mapping to
+``evaluate_bounds_grid`` via the ``benchmark_support`` argument to promote
+qualifying pairs from ``bounds_diagnostic_sample_support`` to
+``bounds_supported``.
+"""
 
 BoundsStatus = Literal[
     "bounds_supported",
@@ -267,12 +338,50 @@ def evaluate_bounds_grid(
     seed: int | None = 0,
     taylor_order: int = 2,
     support_by_pair: Mapping[tuple[str, str], tuple[float, float]] | None = None,
+    benchmark_support: Mapping[str, tuple[float, float]] | None = None,
     clip_sobol: bool = True,
 ) -> tuple[BoundsGridResult, ...]:
-    """Evaluate a deterministic bounds-theorem benchmark/transform grid."""
+    """Evaluate a deterministic bounds-theorem benchmark/transform grid.
+
+    Parameters
+    ----------
+    benchmark_keys:
+        Benchmark keys to include; defaults to all registered benchmarks.
+    transform_keys:
+        Transform keys to include; defaults to all registered transforms.
+    n_base:
+        Sample size per Saltelli block.
+    seed:
+        Random seed for reproducibility.
+    taylor_order:
+        Taylor expansion order for the reference computation.
+    support_by_pair:
+        Per-pair theorem-backed support bounds ``(y_lower, y_upper)``.
+        When supplied for a pair the status is promoted to
+        ``bounds_supported``; takes precedence over ``benchmark_support``.
+    benchmark_support:
+        Per-benchmark theorem-backed support bounds ``(y_lower, y_upper)``.
+        Applied to all transform keys for each listed benchmark unless an
+        explicit entry is already present in ``support_by_pair``.  Pairs
+        promoted this way receive ``bounds_supported`` status.
+        ``BENCHMARK_OUTPUT_BOUNDS`` can be passed directly here.
+    clip_sobol:
+        Whether to clip negative Sobol estimates to zero.
+    """
     benchmarks = tuple(benchmark_keys) if benchmark_keys is not None else tuple(BENCHMARK_REGISTRY)
     transforms = tuple(transform_keys) if transform_keys is not None else tuple(TRANSFORM_REGISTRY)
-    supports = support_by_pair or {}
+
+    # Merge benchmark_support into the per-pair lookup, with explicit
+    # support_by_pair entries taking precedence.
+    supports: dict[tuple[str, str], tuple[float, float]] = {}
+    if benchmark_support:
+        for bk in benchmarks:
+            if bk in benchmark_support:
+                for tk in transforms:
+                    supports[(bk, tk)] = benchmark_support[bk]
+    if support_by_pair:
+        supports.update(support_by_pair)
+
     return tuple(
         evaluate_bounds_pair(
             benchmark_key,
