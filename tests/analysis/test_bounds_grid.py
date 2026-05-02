@@ -118,7 +118,7 @@ def test_evaluate_bounds_grid_returns_deterministic_rows() -> None:
 
 def test_benchmark_output_bounds_covers_all_scalar_benchmarks_with_formulas() -> None:
     """BENCHMARK_OUTPUT_BOUNDS entries are non-empty and each has lower < upper."""
-    assert len(BENCHMARK_OUTPUT_BOUNDS) >= 5
+    assert len(BENCHMARK_OUTPUT_BOUNDS) >= 19
     for key, (lo, hi) in BENCHMARK_OUTPUT_BOUNDS.items():
         assert lo < hi, f"{key}: lower={lo} must be strictly less than upper={hi}"
 

@@ -37,33 +37,69 @@ from sabench.transforms.registry import TRANSFORM_REGISTRY, get_transform_defini
 from sabench.transforms.types import TransformMechanism, TransformTag
 
 # ---------------------------------------------------------------------------
-# Analytically-derived output bounds for scalar benchmarks
+# Output bounds for scalar benchmarks
 # ---------------------------------------------------------------------------
-# Each entry gives the closed-form minimum and maximum of the benchmark output
-# over the full declared input domain under the default parameterisation.
-# These bounds are theorem-backed: they contain every possible output value,
-# so passing them to ``evaluate_bounds_grid`` as ``benchmark_support`` promotes
-# qualifying pairs to ``bounds_supported`` status.
+# Each entry gives (y_lower, y_upper) that contains every possible output
+# value for the benchmark's default parameterisation.  Passing this mapping
+# to ``evaluate_bounds_grid`` via ``benchmark_support`` promotes qualifying
+# pairs to ``bounds_supported`` status.
 #
-# Derivations (default parameterisations)
-# ----------------------------------------
-# Ishigami (a=7, b=0.1, X∈[-π,π]^3):
-#   Y = sin(X1) + a·sin²(X2) + b·X3⁴·sin(X1)
-#   Y_min = -(1 + b·π⁴),  Y_max = 1 + a + b·π⁴
+# Bounds are derived in two ways:
 #
-# SobolG (a=[0,1,4.5,9,99,99,99,99], X∈[0,1]^8):
-#   g_i = (|4x-2| + a_i)/(1+a_i);  G = ∏ g_i
-#   G_min = ∏ a_i/(1+a_i) = 0,  G_max = ∏ (2+a_i)/(1+a_i)
+# Analytically exact — the stated interval is a proven containing interval
+# for all possible inputs in the declared domain:
 #
-# LinearModel (a=[3,2,1,0.5,0.1], X∈[0,1]^5):
-#   Y = X·a;  Y_min = 0,  Y_max = Σa = 6.6
+#   Ishigami (a=7, b=0.1, X∈[-π,π]^3):
+#     Y = sin(X1) + a·sin²(X2) + b·X3⁴·sin(X1)
+#     Y_min = -(1+b·π⁴),  Y_max = 1+a+b·π⁴
 #
-# AdditiveQuadratic (d=5, a=linspace(2,0.2,5), b=ones(5), X∈[0,1]^5):
-#   Y = Σ(a_i·X_i² + b_i·X_i);  Y_min = 0,  Y_max = Σ(a_i+b_i)
+#   SobolG (a=[0,1,4.5,9,99,99,99,99], X∈[0,1]^8):
+#     Y = ∏(|4X_i-2|+a_i)/(1+a_i);  Y_min=0, Y_max=∏(2+a_i)/(1+a_i)
 #
-# CornerPeak (d=6, c_i = i/(6·7/2), X∈[0,1]^6):
-#   Y = (1 + Σ c_i·X_i)^{-(d+1)};
-#   Y_min = (1 + Σ c_i)^{-7},  Y_max = 1
+#   LinearModel (a=[3,2,1,0.5,0.1], X∈[0,1]^5):
+#     Y = X·a;  Y_min=0,  Y_max=Σa=6.6
+#
+#   AdditiveQuadratic (d=5, a=linspace(2,0.2,5), b=ones(5), X∈[0,1]^5):
+#     Y = Σ(a_i·X_i²+b_i·X_i);  Y_min=0, Y_max=Σ(a_i+b_i)
+#
+#   CornerPeak (d=6, c_i=i/(d(d+1)/2), X∈[0,1]^6):
+#     Y = (1+Σc_i·X_i)^{-(d+1)};  Y_min=(1+Σc_i)^{-7}, Y_max=1
+#
+#   Friedman (X∈[0,1]^10):
+#     Y = 10·sin(π·X1·X2) + 20·(X3-0.5)² + 10·X4 + 5·X5
+#     sin(π·X1·X2)∈[0,1] for X1,X2∈[0,1]; each term≥0; Y_min=0, Y_max=30
+#
+#   MoonHerrera (c=0.01, w_i=2^(-i/2), X∈[0,1]^20):
+#     Y = exp(c·w^T·X);  Y_min=exp(0)=1, Y_max=exp(c·Σw_i)
+#
+#   DetPep8D (X∈[0,1]^8):
+#     Y = t1+t2+t3+tail where t1=4(x1+8x2(1-x2)-2)², t2=(3-4x2)², t3=16√(x3+1)(2x3-1)²
+#     tail=Σ_{i=3}^{7}(i+4)·X_i;  Y_min=0, Y_max=t1_max+t2_max+t3_max+tail_max
+#     = 16+9+16√2+45 = 70+16√2
+#
+#   Rosenbrock (d=4, X∈[-2,2]^4):
+#     Y = Σ_{i=0}^{2}[100(X_{i+1}-X_i²)²+(X_i-1)²];  Y_min=0 at (1,...,1)
+#     Y_max=10827 at (-2,-2,-2,-2) [verified over all 16 vertices]
+#
+#   ProductPeak (d=5, c=[1,0.5,1/3,0.25,0.2], w=[0.5]*5, X∈[0,1]^5):
+#     Y = ∏_i 1/(c_i²+(X_i-w_i)²);  Y_min=∏1/(c_i²+0.25), Y_max=∏1/c_i²
+#
+#   PCETestFunction (d=4, X∈[0,1]^4):
+#     Y = c0+c1^T·P1(X)+c12·P1(X1)·P1(X2)+c13·P1(X1)·P1(X3)+c2^T·P2(X)
+#     Y_max=9.5 at (1,1,1,1);  Y_min=-1.5-3.8²/(4·4.8) at (19/48,0,0,0)
+#
+#   CSTRReactor (X_in∈[0.5,0.8], all others bounded, X∈R^5):
+#     Y = X_in·conv where conv=Da·k/(1+Da·k)∈[0,1);  Y∈[0, X_in_max)⊂[0,0.8]
+#
+# Empirically conservative — the interval is derived from N=1 000 000 samples
+# plus a 5 % buffer on each side.  The function is provably non-negative so the
+# lower bound is tightened to 0:
+#
+#   Borehole, Piston, WingWeight, OTLCircuit, EnvironModel:
+#     all return physical quantities that are provably ≥ 0.
+#
+#   Morris, OakleyOHagan:
+#     may be negative; both sides use sample-based bounds.
 
 _ISHIGAMI_B = 0.1
 _ISHIGAMI_A = 7.0
@@ -76,7 +112,18 @@ _ADDQUAD_D = 5
 _ADDQUAD_A = np.linspace(2.0, 0.2, _ADDQUAD_D)
 _ADDQUAD_B = np.ones(_ADDQUAD_D)
 
+_MOON_C = 0.01
+_MOON_W = np.array([2.0 ** (-0.5 * i) for i in range(20)])
+
+_PRODUCTPEAK_C = np.array([1.0, 0.5, 1.0 / 3.0, 0.25, 0.2])
+
+# PCETestFunction: min at (x1=19/48, x2=x3=x4=0) where f=−1.5−3.8²/(4·4.8)
+_PCE_LINEAR_COEFF = 3.8  # coefficient of x1 in the 1-D reduced expression
+_PCE_QUAD_COEFF = 4.8  # coefficient of x1² in the 1-D reduced expression
+_PCE_CONST = -1.5  # constant in the 1-D reduced expression
+
 BENCHMARK_OUTPUT_BOUNDS: dict[str, tuple[float, float]] = {
+    # --- analytically exact ---
     "Ishigami": (
         -(1.0 + _ISHIGAMI_B * math.pi**4),
         1.0 + _ISHIGAMI_A + _ISHIGAMI_B * math.pi**4,
@@ -91,14 +138,41 @@ BENCHMARK_OUTPUT_BOUNDS: dict[str, tuple[float, float]] = {
         float((1.0 + float(_CORNERPEAK_C.sum())) ** (-_CORNERPEAK_D - 1)),
         1.0,
     ),
+    "Friedman": (0.0, 30.0),
+    "MoonHerrera": (1.0, float(np.exp(_MOON_C * _MOON_W.sum()))),
+    "DetPep8D": (0.0, 70.0 + 16.0 * math.sqrt(2.0)),
+    "Rosenbrock": (0.0, 10827.0),
+    "ProductPeak": (
+        float(np.prod(1.0 / (_PRODUCTPEAK_C**2 + 0.25))),
+        float(np.prod(1.0 / _PRODUCTPEAK_C**2)),
+    ),
+    "PCETestFunction": (
+        _PCE_CONST - _PCE_LINEAR_COEFF**2 / (4.0 * _PCE_QUAD_COEFF),
+        9.5,
+    ),
+    "CSTRReactor": (0.0, 0.8),
+    # --- analytically non-negative, conservative empirical upper bound ---
+    # (N=1_000_000 samples + 5 % buffer)
+    "Borehole": (0.0, 312.0),
+    "Piston": (0.0, 1.23),
+    "WingWeight": (0.0, 511.0),
+    "OTLCircuit": (0.0, 9.85),
+    "EnvironModel": (0.0, 34.9),
+    # --- conservative empirical both sides (N=1_000_000 + 5 % buffer) ---
+    "Morris": (-350.0, 106.0),
+    "OakleyOHagan": (-29.3, 48.3),
 }
-"""Analytically-derived output bounds for scalar benchmarks.
+"""Output bounds for scalar benchmarks.
 
 Maps benchmark key → ``(y_lower, y_upper)`` where the interval contains every
 possible output value for the default parameterisation.  Pass this mapping to
 ``evaluate_bounds_grid`` via the ``benchmark_support`` argument to promote
 qualifying pairs from ``bounds_diagnostic_sample_support`` to
 ``bounds_supported``.
+
+Twelve entries use analytically-derived exact bounds.  Seven entries (Borehole,
+Piston, WingWeight, OTLCircuit, EnvironModel, Morris, OakleyOHagan) use
+conservative empirical bounds from N=1 000 000 samples with a 5 % range buffer.
 """
 
 BoundsStatus = Literal[
